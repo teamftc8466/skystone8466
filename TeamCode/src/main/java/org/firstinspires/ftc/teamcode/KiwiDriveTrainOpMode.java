@@ -81,6 +81,7 @@ public class KiwiDriveTrainOpMode extends OpMode {
     @Override
     public void loop() {
     robot.forward(gamepad1.right_stick_y);
+    robot.backward(gamepad1.left_stick_y);
 
     }
 }

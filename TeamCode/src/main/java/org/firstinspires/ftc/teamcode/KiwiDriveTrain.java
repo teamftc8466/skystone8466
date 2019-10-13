@@ -24,6 +24,8 @@ public class KiwiDriveTrain {
     public void backward(float joystick) {
         motor2.setDirection(DcMotorSimple.Direction.REVERSE);
         motor3.setDirection(DcMotorSimple.Direction.REVERSE);
-
+            motor2.setPower(joystick);
+            motor3.setPower(joystick);
     }
+    //public void
 }

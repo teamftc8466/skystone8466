@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,7 +12,7 @@ public class RobotHardware extends LinearOpMode {
     /// Main timer
     ElapsedTime timer_ = new ElapsedTime();
     double currTime_ = 0;
-    
+
     /// Drive train
     DriveTrain driveTrain_ = null;
 
@@ -21,6 +21,8 @@ public class RobotHardware extends LinearOpMode {
 
     //Lift
     Lift lift_ = null;
+
+    KylaColorSensor color_ = null;
 
     @Override
     public void runOpMode() {
@@ -78,4 +80,12 @@ public class RobotHardware extends LinearOpMode {
                          servo_2,
                          telemetry);
     }
+
+    void createColor() {
+        ColorSensor c1 = hardwareMap.colorSensor.get("color1");
+
+        color_ = new KylaColorSensor(c1, telemetry);
+    }
+
+
 }

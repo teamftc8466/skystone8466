@@ -46,6 +46,12 @@ public class KylaColorSensor {
         return aligned;
     }
 
+    public boolean isBlack(int threshold) {
+        if(color1.red() < threshold && color1.blue() < threshold && color1.green() < threshold) {
+            return true;
+        }
+        return false;
+    }
 
 
 
@@ -92,6 +98,7 @@ public class KylaColorSensor {
         telemetry.addData("S1 Color", senseColor());
         //telemetry.addData("S2 Color", senseColor(color2));
         telemetry.addData("Is color red or blue? ", senseBlueAndRed());
+        telemetry.addData("Is black?  ", isBlack(10));
         telemetry.addLine("------------------");
         telemetry.addData("Aligned:", isAligned());
     }

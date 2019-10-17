@@ -1,18 +1,20 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleOP;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="TestDriveTrain", group="FS")
-@Disabled
-public class TestDriveTrain extends RobotHardware {
+import org.firstinspires.ftc.teamcode.RobotHardware;
+
+@TeleOp(name="TestLift", group="FS")
+// @Disabled
+public class TestLift extends RobotHardware {
 
     @Override
     public void runOpMode() {
         initialize();
 
         /** Wait for the game to begin */
-        telemetry.addData(">", "Press Play to start drive train test program");
+        telemetry.addData(">", "Press Play to start test lift program");
         telemetry.update();
 
         waitForStart();
@@ -29,7 +31,7 @@ public class TestDriveTrain extends RobotHardware {
     }
 
     public void initialize() {
-        createDriveTrain();
+        createLift();
     }
 
     void initializeWhenStart() {

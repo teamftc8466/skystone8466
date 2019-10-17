@@ -1,18 +1,20 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleOP;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@Autonomous(name="AutonomousCommon", group="FS")
-// @Disabled
-public class AutonomousCommon extends RobotHardware {
+import org.firstinspires.ftc.teamcode.RobotHardware;
+
+@TeleOp(name="TestDriveTrain", group="FS")
+@Disabled
+public class TestDriveTrain extends RobotHardware {
 
     @Override
     public void runOpMode() {
         initialize();
 
         /** Wait for the game to begin */
-        telemetry.addData(">", "Press Play to start autonomous");
+        telemetry.addData(">", "Press Play to start drive train test program");
         telemetry.update();
 
         waitForStart();
@@ -21,7 +23,7 @@ public class AutonomousCommon extends RobotHardware {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                getDetectSkystone().detectSkystone();
+                //TBD
             }
         }
 
@@ -29,10 +31,7 @@ public class AutonomousCommon extends RobotHardware {
     }
 
     public void initialize() {
-        initializeAutonomous();
-
-        // Activate Tfod for detecting skystone
-        getDetectSkystone().setupTfod();
+        createDriveTrain();
     }
 
     void initializeWhenStart() {
@@ -41,6 +40,6 @@ public class AutonomousCommon extends RobotHardware {
     }
 
     void cleanUpAtEndOfRun() {
-        getDetectSkystone().shutdownTfod();
+        // TBD
     }
 }

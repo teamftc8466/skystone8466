@@ -1,18 +1,20 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleOP;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="TestLift", group="FS")
+import org.firstinspires.ftc.teamcode.RobotHardware;
+
+@TeleOp(name="TeleOpCommon", group="FS")
 // @Disabled
-public class TestLift extends RobotHardware {
+public class TeleOpCommon extends RobotHardware {
 
     @Override
     public void runOpMode() {
         initialize();
 
         /** Wait for the game to begin */
-        telemetry.addData(">", "Press Play to start test lift program");
+        telemetry.addData(">", "Press Play to start TeleOp");
         telemetry.update();
 
         waitForStart();
@@ -29,7 +31,7 @@ public class TestLift extends RobotHardware {
     }
 
     public void initialize() {
-        createLift();
+        initializeTeleOp();
     }
 
     void initializeWhenStart() {

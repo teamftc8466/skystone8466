@@ -1,17 +1,19 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.hardwareGroups.DetectSkystone;
+import org.firstinspires.ftc.teamcode.hardwareGroups.DriveTrain;
+import org.firstinspires.ftc.teamcode.hardwareGroups.Lift;
 
 public class RobotHardware extends LinearOpMode {
     /// Main timer
-    ElapsedTime timer_ = new ElapsedTime();
-    double currTime_ = 0;
+    public ElapsedTime timer_ = new ElapsedTime();
+    public double currTime_ = 0;
     
     /// Drive train
     DriveTrain driveTrain_ = null;
@@ -42,11 +44,11 @@ public class RobotHardware extends LinearOpMode {
         createLift();
     }
 
-    DetectSkystone getDetectSkystone() {
+    public DetectSkystone getDetectSkystone() {
         return detectSkystone_;
     }
 
-    void createDriveTrain() {
+    public void createDriveTrain() {
         DcMotor motor_left = hardwareMap.dcMotor.get("motorLeft");
         DcMotor motor_center = hardwareMap.dcMotor.get("motorCenter");
         DcMotor motor_right = hardwareMap.dcMotor.get("motorRight");
@@ -57,7 +59,7 @@ public class RobotHardware extends LinearOpMode {
                                      telemetry);
     }
 
-    void createDetectSkystone() {
+    public void createDetectSkystone() {
         int tfod_monitor_view_id = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         // WebcamName webcam_name = hardwareMap+6.get(WebcamName.class, "webcam");
@@ -68,7 +70,7 @@ public class RobotHardware extends LinearOpMode {
                                              telemetry);
     }
 
-    void createLift() {
+    public void createLift() {
         DcMotor motor_lift = null; // hardwareMap.dcMotor.get("liftMotor");
         Servo servo_1 = null; // hardwareMap.dcMotor.get("liftServo1");
         Servo servo_2 = null; // hardwareMap.dcMotor.get("liftServo2"); //TODO:Rename servos later

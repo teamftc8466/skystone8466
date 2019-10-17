@@ -1,18 +1,20 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-@TeleOp(name="TeleOpCommon", group="FS")
+import org.firstinspires.ftc.teamcode.RobotHardware;
+
+@Autonomous(name="AutonomousCommon", group="FS")
 // @Disabled
-public class TeleOpCommon extends RobotHardware {
+public class AutonomousCommon extends RobotHardware {
 
     @Override
     public void runOpMode() {
         initialize();
 
         /** Wait for the game to begin */
-        telemetry.addData(">", "Press Play to start TeleOp");
+        telemetry.addData(">", "Press Play to start autonomous");
         telemetry.update();
 
         waitForStart();
@@ -21,7 +23,7 @@ public class TeleOpCommon extends RobotHardware {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                //TBD
+                getDetectSkystone().detectSkystone();
             }
         }
 
@@ -29,7 +31,10 @@ public class TeleOpCommon extends RobotHardware {
     }
 
     public void initialize() {
-        initializeTeleOp();
+        initializeAutonomous();
+
+        // Activate Tfod for detecting skystone
+        getDetectSkystone().setupTfod();
     }
 
     void initializeWhenStart() {
@@ -38,6 +43,6 @@ public class TeleOpCommon extends RobotHardware {
     }
 
     void cleanUpAtEndOfRun() {
-        // TBD
+        getDetectSkystone().shutdownTfod();
     }
 }

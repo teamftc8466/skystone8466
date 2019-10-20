@@ -27,12 +27,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.teleOP;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.hardwareGroups.KiwiDriveTrain;
+import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 
 /**
  * This file illustrates the concept of driving a path based on encoder counts.
@@ -66,7 +71,7 @@ import org.firstinspires.ftc.teamcode.hardwareGroups.KiwiDriveTrain;
 public class KiwiDriveTrainOpMode extends OpMode {
 
     /* Declare OpMode members. */
-    KiwiDriveTrain robot   = null;   // Use a Pushbot's hardware
+    KiwiDriveTrain         robot   = null;   // Use a Pushbot's hardware
 
     @Override
     public void init() {

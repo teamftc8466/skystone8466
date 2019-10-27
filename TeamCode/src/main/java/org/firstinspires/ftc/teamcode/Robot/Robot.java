@@ -2,14 +2,25 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public abstract class Robot {
+public class Robot implements IAutoRobot, ITeleOpRobot{
 
     public HardwareMap hwm;
+    public RobotConfig rbc;
 
-    public Robot(HardwareMap hwm){
+    @Override
+    public void initAuto(HardwareMap hwm, RobotConfig rbc) {
         this.hwm = hwm;
+        this.rbc = rbc;
+
+        //Declare subsystem hardware members after this
     }
 
-    public abstract void initializeTele();
-    public abstract void initializeAuto();
+    @Override
+    public void initTele(HardwareMap hwm, RobotConfig rbc) {
+        this.hwm = hwm;
+        this.rbc = rbc;
+
+        //Declare subsystem hardware members after this
+        //Ex: DcMotor m1 = Hwm.get(rbc.m1);
+    }
 }

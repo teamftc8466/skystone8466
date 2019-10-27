@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.Season.SeasonOpModes.Teleop;
+package org.firstinspires.ftc.teamcode.Teleop;
 
-import org.firstinspires.ftc.teamcode.Robot.OpModes.TeleOP;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-public class MainTeleOP extends TeleOP {
+public class MainTeleOP extends OpMode {
+
     @Override
     public void init() {
         //Check motors

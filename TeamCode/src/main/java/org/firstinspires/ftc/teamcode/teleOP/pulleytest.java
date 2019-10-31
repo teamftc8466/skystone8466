@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import java.util.concurrent.TimeUnit;
 
 //@Disabled
@@ -14,7 +16,8 @@ public class pulleytest extends OpMode {
     //motor declare
     public DcMotor pulleymotor1;
     //public double functime = getRuntime();
-    public double deltafunctime = 0;
+    ElapsedTime functtime = new ElapsedTime();
+    //public double deltafunctime = 0;
     public double motorpower1 = 0;//same with motorpower
 
         public void init() {
@@ -25,23 +28,21 @@ public class pulleytest extends OpMode {
 
         public void loop() {
             //I maka da deadzone
-            gamepad1.setJoystickDeadzone(0.1f);
             if(gamepad1.right_stick_y < .1 && gamepad1.right_stick_y > -.1) {
                 pulleymotor1.setPower(0);
-                deltafunctime = 0;
+                functtime.reset();
                 //functime = getRuntime();
             }
             else {
-                do {
-                    motorpower1 = Math.pow((1/300) * deltafunctime * (1/gamepad1.right_stick_y), 3);
+
+                if(functtime.time() <= 10) {
+                    motorpower1 = Math.pow((1 / 10) * functtime.time() * (1 / gamepad1.right_stick_y), 3);
                     pulleymotor1.setPower(motorpower1);
                     //pulleymotor1.setPower(motorpower1);
 
-                    deltafunctime++;
-                }
-                while(deltafunctime<=300);
 
-                if(deltafunctime>300) {
+                }
+                if(functtime.time() > 10) {
                     pulleymotor1.setPower(gamepad1.right_stick_y);
                 }
 

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 public class RobotHardware extends LinearOpMode {
@@ -23,6 +24,9 @@ public class RobotHardware extends LinearOpMode {
     Lift lift_ = null;
 
     KylaColorSensor color_ = null;
+
+    // Detecting Vuforia targets
+    DetectNavigationTarget detectNavigationTarget_ = null;
 
     @Override
     public void runOpMode() {
@@ -46,6 +50,14 @@ public class RobotHardware extends LinearOpMode {
 
     DetectSkystone getDetectSkystone() {
         return detectSkystone_;
+    }
+
+    DriveTrain getDriveTrain() {
+        return  driveTrain_;
+    }
+
+    Lift getLift(){
+        return lift_;
     }
 
     void createDriveTrain() {
@@ -88,4 +100,14 @@ public class RobotHardware extends LinearOpMode {
     }
 
 
+    void createDetectNavigationTarget() {
+        int camera_monitor_view_id = hardwareMap.appContext.getResources().getIdentifier(
+                "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        //WebcamName webcam_name = hardwareMap+6.get(WebcamName.class, "webcam");
+        WebcamName webcam_name = null;
+
+        detectNavigationTarget_ = new DetectNavigationTarget(webcam_name,
+                                                             camera_monitor_view_id,
+                                                             telemetry);
+    }
 }

@@ -84,12 +84,10 @@ public class RobotHardware extends LinearOpMode {
 
     void createLift() {
         DcMotor motor_lift = null; // hardwareMap.dcMotor.get("liftMotor");
-        Servo servo_1 = null; // hardwareMap.dcMotor.get("liftServo1");
-        Servo servo_2 = null; // hardwareMap.dcMotor.get("liftServo2"); //TODO:Rename servos later
+        // Servo servo_1 = null; // hardwareMap.dcMotor.get("liftServo1");
+        // Servo servo_2 = null; // hardwareMap.dcMotor.get("liftServo2");
 
         lift_ = new Lift(motor_lift,
-                         servo_1,
-                         servo_2,
                          telemetry);
     }
 

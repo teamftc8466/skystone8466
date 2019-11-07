@@ -20,7 +20,8 @@ public class TestDetectNavigationTarget extends RobotHardware {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-                detectNavigationTarget_.determineRobotLocation();
+                // detectNavigationTarget_.determineRobotLocation();
+                detectNavigationTarget_.findTarget(DetectNavigationTarget.SKY_STONE);
             }
         }
 

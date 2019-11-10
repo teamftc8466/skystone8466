@@ -104,8 +104,8 @@ public class RobotHardware extends LinearOpMode {
     void createDetectNavigationTarget() {
         int camera_monitor_view_id = hardwareMap.appContext.getResources().getIdentifier(
                 "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        //WebcamName webcam_name = hardwareMap+6.get(WebcamName.class, "webcam");
-        WebcamName webcam_name = null;
+        WebcamName webcam_name = hardwareMap.get(WebcamName.class, "webcam");
+        //WebcamName webcam_name = null;
 
         detectNavigationTarget_ = new DetectNavigationTarget(webcam_name,
                                                              camera_monitor_view_id,

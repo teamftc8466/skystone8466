@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -27,6 +28,8 @@ public class RobotHardware extends LinearOpMode {
 
     // Detecting Vuforia targets
     DetectNavigationTarget detectNavigationTarget_ = null;
+
+    KylaDistanceSensor distance_ = null;
 
     @Override
     public void runOpMode() {
@@ -74,8 +77,8 @@ public class RobotHardware extends LinearOpMode {
     void createDetectSkystone() {
         int tfod_monitor_view_id = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        // WebcamName webcam_name = hardwareMap+6.get(WebcamName.class, "webcam");
-        WebcamName webcam_name = null;
+        WebcamName webcam_name = hardwareMap.get(WebcamName.class, "webcam");
+        // WebcamName webcam_name = null;
 
         detectSkystone_ = new DetectSkystone(webcam_name,
                                              tfod_monitor_view_id,
@@ -108,4 +111,11 @@ public class RobotHardware extends LinearOpMode {
                                                              camera_monitor_view_id,
                                                              telemetry);
     }
+
+    void createDistance() {
+        DistanceSensor dis = hardwareMap.get(DistanceSensor.class, "sensor_range");
+
+        distance_ = new KylaDistanceSensor(dis, telemetry);
+    }
+
 }

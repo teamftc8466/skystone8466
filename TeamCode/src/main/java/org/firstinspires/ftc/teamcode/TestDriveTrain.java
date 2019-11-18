@@ -29,7 +29,7 @@ public class TestDriveTrain extends RobotHardware {
     }
 
     public void initialize() {
-        createDriveTrain();
+        createMecanumDriveTrain();
     }
 
     void initializeWhenStart() {

@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 public class AutonomousExample extends AutonomousCommon {
 
     AutoOperation [] opExample_ = {
-            new AutoOperation(OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),
-            new AutoOperation(OP_DRIVE_TRAIN_FORWARD, 0.5),
-            new AutoOperation(OP_STOP, 0.1)
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_FORWARD, 0.5),
+            new AutoOperation(AutoOperation.OpCode.OP_STOP, 0.1)
     };
 
     AutonomousExample () {

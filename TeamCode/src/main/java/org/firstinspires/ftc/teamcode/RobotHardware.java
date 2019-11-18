@@ -38,17 +38,17 @@ public class RobotHardware extends LinearOpMode {
 
     // Code to run when op mode is initialized
     public void initializeAutonomous() {
-        createDriveTrain();
+        createMecanumDriveTrain();
 
-        createDetectSkystone();
-
-        createLift();
+        // createDetectNavigationTarget();  // Create object to use Vuforia to detect navigation targets including skystone
+        // createDetectSkystone();          // Create object to use tensor flow to detect skystone
+        // createLift();
     }
 
     public void initializeTeleOp(){
-        createDriveTrain();
+        createMecanumDriveTrain();
 
-        createLift();
+        // createLift();
     }
 
     DetectSkystone getDetectSkystone() {
@@ -63,15 +63,14 @@ public class RobotHardware extends LinearOpMode {
         return lift_;
     }
 
-    void createDriveTrain() {
-        DcMotor motor_left = hardwareMap.dcMotor.get("motorLeft");
-        DcMotor motor_center = hardwareMap.dcMotor.get("motorCenter");
-        DcMotor motor_right = hardwareMap.dcMotor.get("motorRight");
+    void createMecanumDriveTrain() {
+        DcMotor motor_lf = hardwareMap.dcMotor.get("motorLF");
+        DcMotor motor_rf = hardwareMap.dcMotor.get("motorRF");
+        DcMotor motor_lb = hardwareMap.dcMotor.get("motorLB");
+        DcMotor motor_rb = hardwareMap.dcMotor.get("motorRB");
 
-        driveTrain_ = new DriveTrain(motor_left,
-                                     motor_center,
-                                     motor_right,
-                                     telemetry);
+        driveTrain_ = new DriveTrain(telemetry);
+        driveTrain_.createMecanumDriveTrain(motor_lf, motor_rf, motor_lb, motor_rb);
     }
 
     void createDetectSkystone() {

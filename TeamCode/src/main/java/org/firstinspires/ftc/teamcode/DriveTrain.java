@@ -56,117 +56,114 @@ import java.util.List;
  */
 
 public class DriveTrain {
-    enum DriveMode {
-        FORWARD,
-        BACKWARD,
-        TURN_LEFT,
-        TURN_RIGHT,
-        SHIFT_LEFT,
-        SHIFT_RIGHT,
-        STOP
-    }
-
     private Telemetry telemetry_ = null;
 
-    /// Drive train motors
-    private DcMotor motorRight_ = null;
-    private DcMotor motorLeft_ = null;
-    private DcMotor motorCenter_ = null;
+    private MecanumDriveTrain mecanumDriveTrain_ = null;
 
-    /// Power scale
-    double powerFactor_ = 1.0;
+    // private BallDriveTrain ballDriveTrain_ = null;
 
     /// Constructor
-    public DriveTrain(DcMotor motor_left,
-                      DcMotor motor_center,
-                      DcMotor motor_right,
-                      Telemetry telemetry) {
-        motorLeft_ = motor_left;
-        motorRight_ = motor_right;
-        motorCenter_ = motor_center;
+    public DriveTrain(Telemetry telemetry) {
         telemetry_ = telemetry;
-
-        motorLeft_.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorCenter_.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorRight_.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        ///Reverse if necessary
-        //motorLeft_.setDirection(DcMotor.Direction.REVERSE);
-        //motorCenter_.setDirection(DcMotor.Direction.REVERSE);
-        //motorRight_.setDirection(DcMotor.Direction.REVERSE);
-
-        useEncoder();
     }
 
-    void useEncoder(){
-        motorLeft_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorCenter_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorRight_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    void createMecanumDriveTrain(DcMotor motor_lf,
+                                 DcMotor motor_rf,
+                                 DcMotor motor_lb,
+                                 DcMotor motor_rb) {
+        mecanumDriveTrain_ = new MecanumDriveTrain(motor_lf,
+                                                   motor_rf,
+                                                   motor_lb,
+                                                   motor_rb,
+                                                   telemetry_);
+        mecanumDriveTrain_.useEncoder();
+        mecanumDriveTrain_.resetEncoder(0);
     }
 
-    void resetEncoder() {
-        motorLeft_.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorCenter_.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorRight_.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    void createBallDriveTrain(DcMotor motor_left,
+                              DcMotor motor_right,
+                              DcMotor motor_center) {
+        // ballDriveTrain = new BallDriveTrain();
+    }
+
+    void useEncoder() {
+        if (mecanumDriveTrain_ != null) mecanumDriveTrain_.useEncoder();
+        // if (ballDriveTrain_ != null) ballDriveTrain_.useEncoder(time);
+    }
+
+    void resetEncoder(double time) {
+        if (mecanumDriveTrain_ != null) mecanumDriveTrain_.resetEncoder(time);
+        // if (ballDriveTrain_ != null) ballDriveTrain_.resetEncoder(time);
+    }
+
+    boolean allEncodersAreReset() {
+        if (mecanumDriveTrain_ != null) mecanumDriveTrain_.allEncodersAreReset();
+        // if (ballDriveTrain_ != null) ballDriveTrain_.allEncodersAreReset(time);
+
+        return true;
+    }
+
+    void setPowerFactor(double input_power_factor) {
+        if (mecanumDriveTrain_ != null) mecanumDriveTrain_.setPowerFactor(input_power_factor);
+        // if (ballDriveTrain_ != null) ballDriveTrain_.setPowerFactor(input_power_factor);
     }
 
     void driveByGamePad(Gamepad gamepad) {
-        double power_left = 0.0;
-        double power_center = 0.0;
-        double power_right = 0.0;
-
         // TBD: Depend on game pad to set power value
-
-        setPower(power_left, power_center, power_right);
     }
 
-    void driveByAutonomous(DriveMode drive_mode) {
-        double power_left = 0.0;
-        double power_center = 0.0;
-        double power_right = 0.0;
+    boolean driveByMode(DriveTrainMode drive_mode,
+                     double drive_parameter,
+                     double time) {
+        if (mecanumDriveTrain_ != null) return mecanumDriveByMode(drive_mode, drive_parameter, time);
 
-        switch (drive_mode) {
+        return true;
+    }
+
+    boolean mecanumDriveByMode(DriveTrainMode drive_mode,
+                                    double drive_parameter,
+                                    double time) {
+        if (drive_parameter <= 0){
+            mecanumDriveTrain_.setPower(0,0,0,0);
+            return true;
+        }
+
+        int target_enc_cnt = 0;
+        boolean finish_flag = false;
+        switch (drive_mode){
             case FORWARD:
-                // TBD
-                break;
             case BACKWARD:
-                // TBD
+                target_enc_cnt = mecanumDriveTrain_.convertDistanceToEncoderCount(drive_parameter);
                 break;
             case TURN_LEFT:
-                //TBD
-                break;
             case TURN_RIGHT:
-                //TBD
+                target_enc_cnt = mecanumDriveTrain_.convertTurnDegreeToEncoderCount(drive_parameter);
                 break;
             case SHIFT_LEFT:
-                //TBD
-                break;
             case SHIFT_RIGHT:
-                //TBD
+                target_enc_cnt = mecanumDriveTrain_.convertShiftDistanceToEncoderCount(drive_parameter);
                 break;
             default:
-                break;
+                finish_flag = true;
         }
 
-        setPower(power_left, power_center, power_right);
-    }
+        if (finish_flag == false){
+            if (mecanumDriveTrain_.reachToTargetEncoderCount(target_enc_cnt) == false) {
+                boolean debug_show_set_motor_info = true; // Change it to false during competition
+                mecanumDriveTrain_.driveByMode(drive_mode, debug_show_set_motor_info);
 
-    void setPower(double power_left,
-                  double power_center,
-                  double power_right) {
-
-        if (powerFactor_ != 1.0) {
-            power_left *= powerFactor_;
-            power_center *= powerFactor_;
-            power_right *= powerFactor_;
+                if (mecanumDriveTrain_.isEncoderStuck(time) == false) {
+                    return false;
+                } else {
+                    // Encoder is stuck. Force current drive mode to end.
+                    mecanumDriveTrain_.setPower(0,0,0,0);
+                    return true;
+                }
+            }
         }
 
-        power_left = Range.clip(power_left, -1, 1);
-        power_center = Range.clip(power_center, -1, 1);
-        power_right = Range.clip(power_right, -1, 1);
-
-        motorLeft_.setPower(power_left);
-        motorCenter_.setPower(power_center);
-        motorRight_.setPower(power_right);
+        // The task is finished
+        mecanumDriveTrain_.setPower(0,0,0,0);
+        return true;
     }
 }

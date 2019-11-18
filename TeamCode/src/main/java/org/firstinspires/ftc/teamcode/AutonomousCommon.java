@@ -6,19 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 @Autonomous(name="AutonomousCommon", group="FS")
 @Disabled
 public class AutonomousCommon extends RobotHardware {
-
-    //Possible autonomous opcodes
-    static final int OP_STOP = 0;
-    static final int OP_DRIVE_TRAIN_RESET_ENCODER = 1;
-    static final int OP_DRIVE_TRAIN_RESET_HEADING = 2;
-    static final int OP_DRIVE_TRAIN_SHIFT_GEAR = 3;
-    static final int OP_DRIVE_TRAIN_FORWARD = 4;
-    static final int OP_DRIVE_TRAIN_BACKWARD = 5;
-    static final int OP_DRIVE_TRAIN_TURN_LEFT = 6;
-    static final int OP_DRIVE_TRAIN_TURN_RIGHT = 7;
-    static final int OP_DRIVE_TRAIN_SHIFT_LEFT = 8;
-    static final int OP_DRIVE_TRAIN_SHIFT_RIGHT = 9;
-
     AutoOperation [] opList_ = null;    // Lists all operations to be done in an autonomous
     int numOpsInList_ = 0;               // Array size of opList_, will change based on invdividual autonomous programs' array sizes
     int currOpIdInList_ = -1;            // Index (aka the id) of current opcode in opList_; the index of -1 indicates that the opList_ is still non-existent
@@ -60,6 +47,8 @@ public class AutonomousCommon extends RobotHardware {
 
         currOpIdInList_ = -1;
         currOpStartTime_ = 0.0;
+
+        driveTrain_.resetEncoder(0);
     }
 
     void cleanUpAtEndOfRun() {
@@ -68,12 +57,12 @@ public class AutonomousCommon extends RobotHardware {
         // getDetectSkystone().shutdownTfod();
     }
 
-    int getCurrentOpcode() {
-        if (numOpsInList_ == 0) return OP_STOP; //If the opList_ is empty, then the robot must stop
+    AutoOperation.OpCode getCurrentOpcode() {
+        if (numOpsInList_ == 0) return AutoOperation.OpCode.OP_STOP; //If the opList_ is empty, then the robot must stop
 
         if (currOpIdInList_ < 0) {
             currOpIdInList_ = -1; // If the current index is less than zero, set the index to -1 in order to restart from the beginning of the array
-            if (moveToNextOpcode() == false) return OP_STOP; //
+            if (moveToNextOpcode() == false) return AutoOperation.OpCode.OP_STOP; //
         }
 
         return opList_[currOpIdInList_].opcode();
@@ -88,7 +77,55 @@ public class AutonomousCommon extends RobotHardware {
     }
 
     void runCurrentOperation() {
+        AutoOperation.OpCode opcode = getCurrentOpcode();
+        double operand = getCurrentOperand();
 
+        boolean finish_flag = false;
+        switch (opcode) {
+            case OP_DRIVE_TRAIN_RESET_ENCODER:
+                finish_flag = runDriveTrainResetEncoder(operand);
+                break;
+            case OP_WAIT:
+                finish_flag = runDriveTrainWait(operand);
+                break;
+            case OP_DRIVE_TRAIN_FORWARD:
+                finish_flag = runDriveTrain(DriveTrainMode.FORWARD, operand);
+                break;
+            case OP_DRIVE_TRAIN_BACKWARD:
+                finish_flag = runDriveTrain(DriveTrainMode.BACKWARD, operand);
+                break;
+            case OP_DRIVE_TRAIN_TURN_LEFT:
+                finish_flag = runDriveTrain(DriveTrainMode.TURN_LEFT, operand);
+                break;
+            case OP_DRIVE_TRAIN_TURN_RIGHT:
+                finish_flag = runDriveTrain(DriveTrainMode.TURN_RIGHT, operand);
+                break;
+            case OP_DRIVE_TRAIN_SHIFT_LEFT:
+                finish_flag = runDriveTrain(DriveTrainMode.SHIFT_LEFT, operand);
+                break;
+            case OP_DRIVE_TRAIN_SHIFT_RIGHT:
+                finish_flag = runDriveTrain(DriveTrainMode.SHIFT_RIGHT, operand);
+                break;
+            case OP_DRIVE_TRAIN_SHIFT_GEAR:
+                driveTrain_.setPowerFactor(operand);
+                finish_flag = true;
+                break;
+            default:
+                finish_flag = true;
+        }
+
+        if (finish_flag == true) {
+            moveToNextOpcode();
+        }
+    }
+
+    boolean runDriveTrainWait (double time_limit){
+        do{
+            double time=timer_.time();
+            driveTrain_.driveByMode(DriveTrainMode.STOP, 0, time);
+        } while (time <= currOpStartTime_+time_limit);
+
+        return true;
     }
 
     boolean moveToNextOpcode() {
@@ -103,6 +140,41 @@ public class AutonomousCommon extends RobotHardware {
             return false;
         }
 
+        AutoOperation.OpCode opcode = getCurrentOpcode();
+
+        // Automatically reset encoders when a new driveTrain operation begins
+        switch (opcode){
+            case OP_DRIVE_TRAIN_FORWARD:
+            case OP_DRIVE_TRAIN_BACKWARD:
+            case OP_DRIVE_TRAIN_TURN_LEFT:
+            case OP_DRIVE_TRAIN_TURN_RIGHT:
+            case OP_DRIVE_TRAIN_SHIFT_LEFT:
+            case OP_DRIVE_TRAIN_SHIFT_RIGHT:
+                driveTrain_.resetEncoder(currTime_);
+                break;
+            default:
+                break;
+        }
+
         return true;
+    }
+
+    boolean runDriveTrainResetEncoder(double time_limit){
+        do{
+            double time=timer_.time();
+            driveTrain_.resetEncoder(time);
+
+            if (driveTrain_.allEncodersAreReset() == true) return true;
+        } while (time <= currOpStartTime_+time_limit);
+
+        telemetry.addLine("Reset encoder failed");
+        telemetry.update();
+
+        return true;
+    }
+
+    boolean runDriveTrain(DriveTrainMode drive_mode,
+                          double drive_parameter){
+        return driveTrain_.driveByMode(drive_mode, drive_parameter, currTime_);
     }
 }

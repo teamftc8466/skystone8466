@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="TestLift", group="FS")
-// @Disabled
+@Disabled
 public class TestLift extends RobotHardware {
 
     @Override

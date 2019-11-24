@@ -46,10 +46,10 @@ public class MecanumDrive {
 
         // For Deadzones
         if (Math.abs(frontL) > 0.1) {
-            frontLeft.setPower(frontL);
+            frontLeft.setPower(-frontL);
         }
         if (Math.abs(backL) > 0.1) {
-            backLeft.setPower(backL);
+            backLeft.setPower(-backL);
         }
         if (Math.abs(frontR) > 0.1) {
             frontRight.setPower(frontR);

@@ -31,18 +31,10 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-
-import java.util.List;
 
 /**
  * This 2019-2020 OpMode illustrates the basics of using the TensorFlow Object Detection API to
@@ -67,17 +59,29 @@ public class DriveTrain {
         telemetry_ = telemetry;
     }
 
-    void createMecanumDriveTrain(DcMotor motor_lf,
-                                 DcMotor motor_rf,
-                                 DcMotor motor_lb,
-                                 DcMotor motor_rb) {
-        mecanumDriveTrain_ = new MecanumDriveTrain(motor_lf,
-                                                   motor_rf,
-                                                   motor_lb,
-                                                   motor_rb,
+    void createMecanumDriveTrain(HardwareMap hardware_map) {
+        mecanumDriveTrain_ = new MecanumDriveTrain(hardware_map,
                                                    telemetry_);
         mecanumDriveTrain_.useEncoder();
         mecanumDriveTrain_.resetEncoder(0);
+    }
+
+    MecanumDriveTrain mecanumDriveTrain() { return mecanumDriveTrain_; }
+
+    boolean isMecanumDriveTrainExisting() {                           // For debugging purposes
+        if (mecanumDriveTrain_ == null) {
+            telemetry_.addLine("Mecanum drive does not exist");
+            telemetry_.update();
+            return false;
+        }
+
+        telemetry_.addLine("Mecanum drive exists");
+        if (mecanumDriveTrain_.motorLF() != null) telemetry_.addLine("MotorLF exists");
+        if (mecanumDriveTrain_.motorRF() != null) telemetry_.addLine("MotorRF exists");
+        if (mecanumDriveTrain_.motorLB() != null) telemetry_.addLine("MotorLB exists");
+        if (mecanumDriveTrain_.motorRB() != null) telemetry_.addLine("MotorRB exists");
+        telemetry_.update();
+        return true;
     }
 
     void createBallDriveTrain(DcMotor motor_left,

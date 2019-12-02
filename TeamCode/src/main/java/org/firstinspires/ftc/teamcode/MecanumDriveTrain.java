@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -61,9 +62,9 @@ public class MecanumDriveTrain {
     static final double DEFAULT_SHIFT_POWER = 0.15;              // default shifting power, change later
 
     /// Encoder length conversion scales                         // TODO: Adjust based on experiments
-    static final double ENCODER_DISTANCE_SCALE = (2000.0 / 1.25);
-    static final double ENCODER_SHIFT_DISTANCE_SCALE = (2000.0 / 1.25);
-    static final double ENCODER_DEGREE_SCALE = (2000.0 / 225.0);
+    static final double ENCODER_DISTANCE_SCALE = (2000.0 / 1.0);
+    static final double ENCODER_SHIFT_DISTANCE_SCALE = (2000.0 / 1.0);
+    static final double ENCODER_DEGREE_SCALE = (2000.0 / 200.0);
 
     /// Drive train motors
     private DcMotor motorLF_ = null;
@@ -82,15 +83,12 @@ public class MecanumDriveTrain {
 
 
     /// Constructor
-    public MecanumDriveTrain(DcMotor motor_lf,
-                             DcMotor motor_rf,
-                             DcMotor motor_lb,
-                             DcMotor motor_rb,
+    public MecanumDriveTrain(HardwareMap hardware_map,
                              Telemetry telemetry) {
-        motorLF_ = motor_lf;
-        motorRF_ = motor_rf;
-        motorLB_ = motor_lb;
-        motorRB_ = motor_rb;
+        motorLF_ = hardware_map.get(DcMotor.class, "motorLF");
+        motorRF_ = hardware_map.get(DcMotor.class,"motorRF");
+        motorLB_ = hardware_map.get(DcMotor.class,"motorLB");
+        motorRB_ = hardware_map.get(DcMotor.class,"motorRB");
         telemetry_ = telemetry;
 
         motorLF_.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -100,7 +98,6 @@ public class MecanumDriveTrain {
 
         ///reverseMotorDirection();
 
-        useEncoder();
         resetEncoder(0);
     }
 
@@ -110,6 +107,14 @@ public class MecanumDriveTrain {
         motorRF_.setDirection(DcMotor.Direction.REVERSE);
         motorRB_.setDirection(DcMotor.Direction.REVERSE);
     }
+
+    DcMotor motorLF() { return motorLF_; }
+    DcMotor motorRF() { return motorRF_; }
+    DcMotor motorLB() { return motorLB_; }
+    DcMotor motorRB() { return motorRB_; }
+
+
+
 
     void useEncoder(){
         motorLF_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -127,6 +132,8 @@ public class MecanumDriveTrain {
         prevReadEncCntMotorLF_ = 0;
         prevReadEncCntMotorRF_ = 0;
         prevEncCntChangeStartTime_ = time;
+
+        useEncoder();
     }
 
     void driveByGamePad(Gamepad gamepad) {
@@ -197,13 +204,13 @@ public class MecanumDriveTrain {
     double getMotorLFPowerByMode(DriveTrainMode drive_mode) {
         switch (drive_mode) {
             case FORWARD:
-                return DEFAULT_DRIVE_POWER;
-            case BACKWARD:
                 return -DEFAULT_DRIVE_POWER;
+            case BACKWARD:
+                return DEFAULT_DRIVE_POWER;
             case TURN_LEFT:
-                return -DEFAULT_TURN_POWER;
-            case TURN_RIGHT:
                 return DEFAULT_TURN_POWER;
+            case TURN_RIGHT:
+                return -DEFAULT_TURN_POWER;
             case SHIFT_LEFT:
                 return DEFAULT_SHIFT_POWER;    // Fix later
             case SHIFT_RIGHT:
@@ -218,13 +225,13 @@ public class MecanumDriveTrain {
     double getMotorRFPowerByMode(DriveTrainMode drive_mode) {
         switch (drive_mode) {
             case FORWARD:
-                return -DEFAULT_DRIVE_POWER;
-            case BACKWARD:
                 return DEFAULT_DRIVE_POWER;
+            case BACKWARD:
+                return -DEFAULT_DRIVE_POWER;
             case TURN_LEFT:
-                return -DEFAULT_TURN_POWER;
-            case TURN_RIGHT:
                 return DEFAULT_TURN_POWER;
+            case TURN_RIGHT:
+                return -DEFAULT_TURN_POWER;
             case SHIFT_LEFT:
                 return DEFAULT_SHIFT_POWER;    // Fix later
             case SHIFT_RIGHT:
@@ -251,7 +258,7 @@ public class MecanumDriveTrain {
         power_lf = Range.clip(power_lf, -1, 1);
         power_lb = Range.clip(power_lb, -1, 1);
         power_rf = Range.clip(power_rf, -1, 1);
-        power_rb = Range.clip(power_rf, -1, 1);
+        power_rb = Range.clip(power_rb, -1, 1);
 
         motorLF_.setPower(power_lf);
         motorLB_.setPower(power_lb);
@@ -260,10 +267,10 @@ public class MecanumDriveTrain {
     }
 
     void setPowerFactor(double input_power_factor) {         // Setting boundaries of power factors
-        if (input_power_factor <= 0.33) {
-            powerFactor_ = 0.33;
-        } else if (input_power_factor >= 3.0) {
-            powerFactor_ = 3.0;
+        if (input_power_factor <= 0.25) {
+            powerFactor_ = 0.25;
+        } else if (input_power_factor >= 4.0) {
+            powerFactor_ = 4.0;
         } else {
             powerFactor_ = input_power_factor;
         }
@@ -289,10 +296,10 @@ public class MecanumDriveTrain {
     }
 
     boolean reachToTargetEncoderCount(int target_encoder_cnt) {
-        return (motorLF_.getCurrentPosition() >= target_encoder_cnt &&
-                motorRF_.getCurrentPosition() >= target_encoder_cnt &&
-                motorLB_.getCurrentPosition() >= target_encoder_cnt &&
-                motorRB_.getCurrentPosition() >= target_encoder_cnt);
+        return (Math.abs(motorLF_.getCurrentPosition()) >= target_encoder_cnt &&
+                Math.abs(motorRF_.getCurrentPosition()) >= target_encoder_cnt &&
+                Math.abs(motorLB_.getCurrentPosition()) >= target_encoder_cnt &&
+                Math.abs(motorRB_.getCurrentPosition()) >= target_encoder_cnt);
     }
 
     boolean isEncoderStuck(double time) {

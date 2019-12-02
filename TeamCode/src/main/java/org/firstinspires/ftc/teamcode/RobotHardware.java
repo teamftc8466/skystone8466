@@ -64,13 +64,8 @@ public class RobotHardware extends LinearOpMode {
     }
 
     void createMecanumDriveTrain() {
-        DcMotor motor_lf = hardwareMap.dcMotor.get("motorLF");
-        DcMotor motor_rf = hardwareMap.dcMotor.get("motorRF");
-        DcMotor motor_lb = hardwareMap.dcMotor.get("motorLB");
-        DcMotor motor_rb = hardwareMap.dcMotor.get("motorRB");
-
         driveTrain_ = new DriveTrain(telemetry);
-        driveTrain_.createMecanumDriveTrain(motor_lf, motor_rf, motor_lb, motor_rb);
+        driveTrain_.createMecanumDriveTrain(hardwareMap);
     }
 
     void createDetectSkystone() {

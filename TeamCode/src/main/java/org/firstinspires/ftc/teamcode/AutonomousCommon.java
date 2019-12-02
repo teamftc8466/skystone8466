@@ -63,6 +63,8 @@ public class AutonomousCommon extends RobotHardware {
         if (currOpIdInList_ < 0) {
             currOpIdInList_ = -1; // If the current index is less than zero, set the index to -1 in order to restart from the beginning of the array
             if (moveToNextOpcode() == false) return AutoOperation.OpCode.OP_STOP; //
+        } else if (currOpIdInList_ >= numOpsInList_) {
+            return AutoOperation.OpCode.OP_STOP;
         }
 
         return opList_[currOpIdInList_].opcode();

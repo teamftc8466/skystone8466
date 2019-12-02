@@ -35,27 +35,44 @@ public class MecanumDrive {
     float frontRightPower;
     float backRightPower;
 
+    //This code doesn't work but I like to think it does, its good code, its my code. Its good code.
+
     public void setPowersMecanum(Gamepad gamepad) {
-        frontLeftPower = gamepad.left_stick_y + gamepad.right_stick_x + gamepad.left_stick_x;
-        backLeftPower = gamepad.left_stick_y + gamepad.left_stick_x - gamepad.right_stick_x;
-        frontRightPower = gamepad.left_stick_y - gamepad.right_stick_x - gamepad.left_stick_x;
-        backRightPower = gamepad.left_stick_y - gamepad.right_stick_x + gamepad.left_stick_x;
+        frontLeftPower = -(gamepad.left_stick_y + gamepad.right_stick_x - gamepad.left_stick_x); //negatives for reverse correction
+        backLeftPower = -(gamepad.left_stick_y - gamepad.left_stick_x - gamepad.right_stick_x);
+        frontRightPower = gamepad.left_stick_y + gamepad.right_stick_x - gamepad.left_stick_x;
+        backRightPower = gamepad.left_stick_y + gamepad.right_stick_x + gamepad.left_stick_x;
         setMecanumDrive(frontLeftPower, backLeftPower, frontRightPower, backRightPower);
     }
     public void setMecanumDrive(float frontL, float backL, float frontR, float backR) {
 
         // For Deadzones
         if (Math.abs(frontL) > 0.1) {
-            frontLeft.setPower(-frontL);
+            frontLeft.setPower(frontL); //left
         }
+        else {
+            frontLeft.setPower(0);
+        }
+
         if (Math.abs(backL) > 0.1) {
-            backLeft.setPower(-backL);
+            backLeft.setPower(backL);  //left
         }
+        else {
+            backLeft.setPower(0);
+        }
+
         if (Math.abs(frontR) > 0.1) {
             frontRight.setPower(frontR);
         }
+        else {
+            frontRight.setPower(0);
+        }
+
         if (Math.abs(backR) > 0.1) {
             backRight.setPower(backR);
+        }
+        else {
+            backRight.setPower(0);
         }
 
     }

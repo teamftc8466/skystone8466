@@ -7,16 +7,17 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-@TeleOp(name="MecanumKyleTest", group="MecanumTest")
-public class MecanumDriveOpMode extends OpMode {
-    MecanumDrive robot = null;
+@TeleOp(name="MecanumLucasTest", group="MecanumTest")
+public class LucasMechOpMode extends OpMode {
+    LucasMecanum robot = null;
     @Override
     public void init() {
-        robot = new MecanumDrive(hardwareMap,telemetry);
+        robot = new LucasMecanum(hardwareMap,telemetry);
     }
     @Override
     public void loop() {
-        robot.setPowersMecanum(gamepad1);
+            robot.omniMecanumDrive(gamepad1);
+            /*robot.turndrive(gamepad1);*/
     }
-    
+
 }

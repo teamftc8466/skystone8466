@@ -57,14 +57,14 @@ public class MecanumDriveTrain {
     static final double MAX_HEADING_CORRECTION = 0.95;
 
     /// Default drivetrain power
-    static final double DEFAULT_DRIVE_POWER = 0.40;              // defualt driving power, change later
-    static final double DEFAULT_TURN_POWER = 0.15;               // default turning power, change later
-    static final double DEFAULT_SHIFT_POWER = 0.15;              // default shifting power, change later
+    static final double DEFAULT_DRIVE_POWER = 0.75;              // defualt driving power, change later
+    static final double DEFAULT_TURN_POWER = 0.50;               // default turning power, change later
+    static final double DEFAULT_SHIFT_POWER = 0.75;               // default shifting power, change later
 
     /// Encoder length conversion scales                         // TODO: Adjust based on experiments
-    static final double ENCODER_DISTANCE_SCALE = (2000.0 / 1.0);
+    static final double ENCODER_DISTANCE_SCALE = (2000.0 / 1.06);
     static final double ENCODER_SHIFT_DISTANCE_SCALE = (2000.0 / 1.0);
-    static final double ENCODER_DEGREE_SCALE = (2000.0 / 200.0);
+    static final double ENCODER_DEGREE_SCALE = (2000.0 / 96.0);
 
     /// Drive train motors
     private DcMotor motorLF_ = null;

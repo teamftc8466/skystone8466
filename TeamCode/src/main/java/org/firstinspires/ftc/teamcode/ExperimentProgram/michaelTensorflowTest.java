@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.ExperimentProgram;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import java.util.List;
 
 @Autonomous(name = "michaelTensorflowtest", group = "Concept")
+@Disabled
 public class michaelTensorflowTest extends LinearOpMode {
 
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";
@@ -72,27 +74,28 @@ public class michaelTensorflowTest extends LinearOpMode {
         myVuforia = ClassFactory.getInstance().createVuforia(parameters);
 
         if (myVuforia == null) {
-            myRobotState = ERROR;
+            myRobotState = RobotState.ERROR;
             telemetry.addData("ERROR", "Vuforia engine no initialize");
         }
 
         //init tensorflow
-        if (myRobotState != ERROR) {
+        if (myRobotState != RobotState.ERROR) {
             if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
                 int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("tforMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+
+                TFObjectDetector.Parameters tfodparameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+                myTfod = ClassFactory.getInstance().createTFObjectDetector(tfodparameters, myVuforia);
+                myTfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
             }
-            TFObjectDetector.Parameters tfodparameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            myTfod = ClassFactory.getInstance().createTFObjectDetector(tfodparameters, myVuforia);
-            myTfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
 
             if (myTfod != null) {
                 myTfod.activate();
             } else {
                 telemetry.addData("ERROR", "tensorflow no activate");
-                myRobotState = ERROR;
+                myRobotState = RobotState.ERROR;
             }
             //init motors
-            if (myRobotState != ERROR) {
+            if (myRobotState != RobotState.ERROR) {
                 topleftmotor = hardwareMap.dcMotor.get("topleft");
                 toprightmotor = hardwareMap.dcMotor.get("topright");
                 bottomleftmotor = hardwareMap.dcMotor.get("bottomleft");
@@ -142,7 +145,7 @@ public class michaelTensorflowTest extends LinearOpMode {
                     telemetry.addData("Action", "Turn"+error);
                     telemetry.update();
                     int turnclicks = error /8;
-                    moveFor(turn_clicks, -)
+                    // moveFor(turn_clicks, -)
                 }
             }
         }

@@ -137,14 +137,22 @@ public class MecanumDriveTrain {
     }
 
     void driveByGamePad(Gamepad gamepad) {
-        double power_lf = 0.0;
-        double power_lb = 0.0;
-        double power_rf = 0.0;
-        double power_rb = 0.0;
+        if (Math.abs(gamepad.right_stick_x) <= .1) {
+            double power_lf = gamepad.left_stick_y-gamepad.left_stick_x;
+            double power_lb = gamepad.left_stick_y-gamepad.left_stick_x;
+            double power_rf = -gamepad.left_stick_x-gamepad.left_stick_y;
+            double power_rb = -gamepad.left_stick_y-gamepad.left_stick_x;
 
-        // TBD: Depend on game pad to set power value
+            setPower(power_lf, power_lb, power_rf, power_rb);
+        }
+        if ((Math.abs(gamepad.left_stick_y) <= .1) &&  (Math.abs(gamepad.right_stick_x) <= .1)) {
+            double power_lf = gamepad.right_stick_x;
+            double power_lb = gamepad.right_stick_x;
+            double power_rf = -gamepad.right_stick_x;
+            double power_rb = -gamepad.right_stick_x;
 
-        setPower(power_lf, power_lb, power_rf, power_rb);
+            setPower(power_lf, power_lb, power_rf, power_rb);
+        }
     }
 
     void driveByMode(DriveTrainMode drive_mode,

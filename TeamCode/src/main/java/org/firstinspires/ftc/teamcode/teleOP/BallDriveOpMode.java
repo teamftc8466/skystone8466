@@ -12,20 +12,21 @@ public class BallDriveOpMode extends OpMode{
 
     @Override
     public void init() {
-        ballDrive = new BallDrive(hardwareMap , telemetry);
+        ballDrive = new BallDrive(hardwareMap, telemetry);
     }
 
     @Override
     public void loop() {
-        if(gamepad1.left_stick_x != 0) {
-            ballDrive.horizontal(gamepad1.left_stick_x);
-        }
-
-        else if(gamepad1.left_stick_y != 0) {
+        if(Math.abs(gamepad1.left_stick_y) <= .1 && Math.abs(gamepad1.right_stick_x) <= .1) {
             ballDrive.vertical(gamepad1.left_stick_y);
         }
 
-        else if(gamepad1.right_stick_x != 0) {
+        else if(Math.abs(gamepad1.right_stick_x) <= .1) {
+            ballDrive.vertical((gamepad1.left_stick_y/2));
+            ballDrive.horizontal(gamepad1.left_stick_x);
+        }
+
+        else if(Math.abs(gamepad1.left_stick_x) <= .1 && Math.abs(gamepad1.left_stick_y) <= .1) {
             ballDrive.turn(gamepad1.right_stick_x);
         }
 

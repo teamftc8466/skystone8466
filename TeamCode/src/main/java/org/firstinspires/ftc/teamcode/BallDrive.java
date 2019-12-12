@@ -6,14 +6,19 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class BallDrive {
-    private DcMotor motor1 = null;
-    private DcMotor motor2 = null;
-    private DcMotor motor3 = null;
+    public DcMotor motor1 = null;
+    public DcMotor motor2 = null;
+    public DcMotor motor3 = null;
 
     public BallDrive(HardwareMap hdm , Telemetry telemetry) {
+        motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         motor1 = hdm.dcMotor.get("Motor1");
         motor2 = hdm.dcMotor.get("Motor2");
         motor3 = hdm.dcMotor.get("Motor2");
+
         motor1.setDirection(DcMotorSimple.Direction.FORWARD);
         motor2.setDirection(DcMotorSimple.Direction.FORWARD);
         motor3.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -21,7 +26,7 @@ public class BallDrive {
         telemetry = telemetry;
     }
 
-    public void vertical(float joystick) {
+    public void vertical(double joystick) {
         motor1.setPower(joystick);
         motor2.setPower(joystick);
 

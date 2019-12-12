@@ -113,7 +113,7 @@ public class DriveTrain {
     }
 
     void driveByGamePad(Gamepad gamepad) {
-        // TBD: Depend on game pad to set power value
+        if (mecanumDriveTrain_ != null) mecanumDriveTrain_.driveByGamePad(gamepad);
     }
 
     boolean driveByMode(DriveTrainMode drive_mode,

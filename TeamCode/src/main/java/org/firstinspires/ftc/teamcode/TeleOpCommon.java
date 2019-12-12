@@ -19,10 +19,9 @@ public class TeleOpCommon extends RobotHardware {
 
         initializeWhenStart();
 
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-                //TBD
-            }
+
+        while (opModeIsActive()) {
+            driveTrain_.driveByGamePad(gamepad1);
         }
 
         cleanUpAtEndOfRun();

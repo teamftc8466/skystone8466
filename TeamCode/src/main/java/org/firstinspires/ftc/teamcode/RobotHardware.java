@@ -22,8 +22,8 @@ public class RobotHardware extends LinearOpMode {
     DetectSkystone detectSkystone_ = null;
 
     /// GoBuilda Servo for left and right hooks
-    GoBuildDualServo leftHookServo_ = null;
-    GoBuildDualServo rightHookServo_ = null;
+    GoBildaDualServo leftHookServo_ = null;
+    GoBildaDualServo rightHookServo_ = null;
 
     /// Lift
     Lift lift_ = null;
@@ -70,8 +70,8 @@ public class RobotHardware extends LinearOpMode {
         return lift_;
     }
 
-    GoBuildDualServo getLeftHookServo_() { return leftHookServo_; }
-    GoBuildDualServo getRightHookServo_() { return rightHookServo_; }
+    GoBildaDualServo getLeftHookServo_() { return leftHookServo_; }
+    GoBildaDualServo getRightHookServo_() { return rightHookServo_; }
 
     void createMecanumDriveTrain() {
         driveTrain_ = new DriveTrain(telemetry);
@@ -102,12 +102,12 @@ public class RobotHardware extends LinearOpMode {
         Servo left_servo = hardwareMap.get(Servo.class,"leftHookServo");
         Servo right_servo = hardwareMap.get(Servo.class,"rightHookServo");
 
-        leftHookServo_ = new GoBuildDualServo(left_servo,
+        leftHookServo_ = new GoBildaDualServo(left_servo,
                                false,
                            45.0,
                                               telemetry);
 
-        rightHookServo_ = new GoBuildDualServo(right_servo,
+        rightHookServo_ = new GoBildaDualServo(right_servo,
                                 false,
                             235.0,
                                                telemetry);

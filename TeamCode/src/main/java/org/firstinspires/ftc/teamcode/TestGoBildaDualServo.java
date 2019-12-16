@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="TestGoBuildaServo", group="FS")
+@TeleOp(name="TestGoBuildaDualServo", group="FS")
 // @Disabled
-public class TestGoBuildaServo extends RobotHardware {
+public class TestGoBildaDualServo extends RobotHardware {
 
     /// Degree positions
     double hookGrabPosDegree_ = 280;
@@ -38,7 +38,7 @@ public class TestGoBuildaServo extends RobotHardware {
     public void initialize() {
         Servo left_servo = hardwareMap.get(Servo.class,"leftHookServo");
 
-        leftHookServo_ = new GoBuildDualServo(left_servo,
+        leftHookServo_ = new GoBildaDualServo(left_servo,
                                false,
                                               hookInitPosDegree_,
                                               telemetry);

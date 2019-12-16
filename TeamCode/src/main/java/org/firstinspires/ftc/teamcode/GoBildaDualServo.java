@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class GoBuildDualServo {
+public class GoBildaDualServo {
     static final double CONT_MODE_STOP = 0.5;
     static final double MAX_SEVOR_MODE_DEGREE = 280.0;
 
@@ -17,7 +17,7 @@ public class GoBuildDualServo {
     private boolean useInContMode_ = false;             // =true: Use in continuous mode, =false: Use in 280 degree mode (aka servo mode)
 
     /// Constructor
-    public GoBuildDualServo(Servo servo,
+    public GoBildaDualServo(Servo servo,
                             boolean use_in_cont_mode,
                             double servo_mode_init_degree,
                             Telemetry telemetry) {

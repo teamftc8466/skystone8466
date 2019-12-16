@@ -66,6 +66,14 @@ public class MecanumDriveTrain {
     static final double ENCODER_SHIFT_DISTANCE_SCALE = (2000.0 / 1.0);
     static final double ENCODER_DEGREE_SCALE = (2000.0 / 96.0);
 
+    /// Default drivetrain control for teleop
+    static final double JOYSTICK_DEAD_ZONE = 0.1;
+    static final double MAX_JOYSTICK_DRIVE_POWER = 1.0;
+    static final double [] SCALE_JOYSTICK_DRIVE_POWER = {0.0,  0.14, 0.16, 0.18, 0.20,
+                                                         0.22, 0.24, 0.27, 0.30, 0.34,
+                                                         0.38, 0.43, 0.50, 0.60, 0.72,
+                                                         0.85, 1.00};
+
     /// Drive train motors
     private DcMotor motorLF_ = null;
     private DcMotor motorLB_ = null;
@@ -113,9 +121,6 @@ public class MecanumDriveTrain {
     DcMotor motorLB() { return motorLB_; }
     DcMotor motorRB() { return motorRB_; }
 
-
-
-
     void useEncoder(){
         motorLF_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motorLB_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -137,22 +142,72 @@ public class MecanumDriveTrain {
     }
 
     void driveByGamePad(Gamepad gamepad) {
-        if (Math.abs(gamepad.right_stick_x) <= .1) {
-            double power_lf = gamepad.left_stick_y-gamepad.left_stick_x;
-            double power_lb = gamepad.left_stick_y-gamepad.left_stick_x;
-            double power_rf = -gamepad.left_stick_x-gamepad.left_stick_y;
-            double power_rb = -gamepad.left_stick_y-gamepad.left_stick_x;
+        tankDriveByGamePad(gamepad);
+    }
 
-            setPower(power_lf, power_lb, power_rf, power_rb);
-        }
-        if ((Math.abs(gamepad.left_stick_y) <= .1) &&  (Math.abs(gamepad.right_stick_x) <= .1)) {
-            double power_lf = gamepad.right_stick_x;
-            double power_lb = gamepad.right_stick_x;
-            double power_rf = -gamepad.right_stick_x;
-            double power_rb = -gamepad.right_stick_x;
+    void tankDriveByGamePad(Gamepad gamepad) {
+        double power_lf = 0.0;
+        double power_lb = 0.0;
+        double power_rf = 0.0;
+        double power_rb = 0.0;
 
-            setPower(power_lf, power_lb, power_rf, power_rb);
+        // left_stick_x ranges from -1 to 1, where -1 is full left and 1 is full right
+        double lsx = -gamepad.left_stick_x;
+        // left_stick_y ranges from -1 to 1, where -1 is full forward and 1 is full backward
+        double lsy = gamepad.left_stick_y;
+
+        // right_stick_x ranges from -1 to 1, where -1 is full left and 1 is full right
+        double rsx = -gamepad.right_stick_x;
+        // right_stick_y ranges from -1 to 1, where -1 is full up, and 1 is full down
+        double rsy = gamepad.right_stick_y;
+
+        if (Math.abs(rsx) >= JOYSTICK_DEAD_ZONE  || Math.abs(rsy) >= JOYSTICK_DEAD_ZONE) {
+            // use right stick to do sidewalk
+            power_lf = rsx + rsy;
+            power_lb = -rsx + rsy;
+            power_rf = rsx - rsy;
+            power_rb = -rsx - rsy;
+
+            power_lf = Range.clip(power_lf, -1, 1);
+            power_lb = Range.clip(power_lb, -1, 1);
+            power_rf = Range.clip(power_rf, -1, 1);
+            power_rb = Range.clip(power_rb, -1, 1);
+
+            // scale the joystick value to make it easier to control the robot at slower speeds.
+            power_lf = scaleJoystickDrivePower(power_lf);
+            power_lb = scaleJoystickDrivePower(power_lb);
+            power_rf = scaleJoystickDrivePower(power_rf);
+            power_rb = scaleJoystickDrivePower(power_rb);
+        } else if (Math.abs(lsx) >= JOYSTICK_DEAD_ZONE  || Math.abs(lsy) >= JOYSTICK_DEAD_ZONE) {
+            //  Use left stick to move/turn the robot
+            power_lf = lsx + lsy;
+            power_rf = lsx - lsy;
+
+            power_lf = Range.clip(power_lf, -1, 1);
+            power_rf = Range.clip(power_rf, -1, 1);
+
+            // scale the joystick value to make it easier to control the robot at slower speeds.
+            power_lf = scaleJoystickDrivePower(power_lf);
+            power_rf = scaleJoystickDrivePower(power_rf);
+
+            power_lb = power_lf;
+            power_rb = power_rf;
         }
+
+        setPower(power_lf, power_lb, power_rf, power_rb);
+    }
+
+    double scaleJoystickDrivePower(double power_val) {
+        int index = (int) (power_val * (SCALE_JOYSTICK_DRIVE_POWER.length - 1));
+        if (index < 0) index = -index;
+        if (index >= SCALE_JOYSTICK_DRIVE_POWER.length) {
+            index = SCALE_JOYSTICK_DRIVE_POWER.length - 1;
+        }
+
+        double ret_power_val = SCALE_JOYSTICK_DRIVE_POWER[index];
+        if (power_val < 0) ret_power_val = -ret_power_val;
+
+        return ret_power_val * MAX_JOYSTICK_DRIVE_POWER;
     }
 
     void driveByMode(DriveTrainMode drive_mode,

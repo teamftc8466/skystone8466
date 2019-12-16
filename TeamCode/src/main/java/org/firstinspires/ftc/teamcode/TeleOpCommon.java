@@ -21,7 +21,7 @@ public class TeleOpCommon extends RobotHardware {
 
 
         while (opModeIsActive()) {
-            driveTrain_.driveByGamePad(gamepad1);
+            operateRobot();
         }
 
         cleanUpAtEndOfRun();
@@ -38,5 +38,11 @@ public class TeleOpCommon extends RobotHardware {
 
     void cleanUpAtEndOfRun() {
         // TBD
+    }
+
+    void operateRobot() {
+        driveTrain_.driveByGamePad(gamepad1);
+
+        // Add other operations later
     }
 }

@@ -34,6 +34,8 @@ public class TeleOpCommon extends RobotHardware {
     void initializeWhenStart() {
         timer_.reset();
         currTime_ = 0.0;
+
+        driveTrain_.resetEncoder(0);
     }
 
     void cleanUpAtEndOfRun() {

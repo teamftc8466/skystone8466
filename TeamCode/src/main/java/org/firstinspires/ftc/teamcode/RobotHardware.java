@@ -21,14 +21,20 @@ public class RobotHardware extends LinearOpMode {
     /// Tfod for detecting skystone
     DetectSkystone detectSkystone_ = null;
 
-    //Lift
+    /// GoBuilda Servo for left and right hooks
+    GoBuildDualServo leftHookServo_ = null;
+    GoBuildDualServo rightHookServo_ = null;
+
+    /// Lift
     Lift lift_ = null;
 
+    /// Distance sensor
     KylaColorSensor color_ = null;
 
-    // Detecting Vuforia targets
+    /// Detecting Vuforia targets
     DetectNavigationTarget detectNavigationTarget_ = null;
 
+    /// Distance sensor
     KylaDistanceSensor distance_ = null;
 
     @Override
@@ -43,6 +49,7 @@ public class RobotHardware extends LinearOpMode {
         // createDetectNavigationTarget();  // Create object to use Vuforia to detect navigation targets including skystone
         // createDetectSkystone();          // Create object to use tensor flow to detect skystone
         // createLift();
+        // createHookServoSystem();
     }
 
     public void initializeTeleOp(){
@@ -62,6 +69,9 @@ public class RobotHardware extends LinearOpMode {
     Lift getLift(){
         return lift_;
     }
+
+    GoBuildDualServo getLeftHookServo_() { return leftHookServo_; }
+    GoBuildDualServo getRightHookServo_() { return rightHookServo_; }
 
     void createMecanumDriveTrain() {
         driveTrain_ = new DriveTrain(telemetry);
@@ -88,12 +98,26 @@ public class RobotHardware extends LinearOpMode {
                          telemetry);
     }
 
+    void createHookServoSystem() {
+        Servo left_servo = hardwareMap.get(Servo.class,"leftHookServo");
+        Servo right_servo = hardwareMap.get(Servo.class,"rightHookServo");
+
+        leftHookServo_ = new GoBuildDualServo(left_servo,
+                               false,
+                           45.0,
+                                              telemetry);
+
+        rightHookServo_ = new GoBuildDualServo(right_servo,
+                                false,
+                            235.0,
+                                               telemetry);
+    }
+
     void createColor() {
         ColorSensor c1 = hardwareMap.colorSensor.get("color1");
 
         color_ = new KylaColorSensor(c1, telemetry);
     }
-
 
     void createDetectNavigationTarget() {
         int camera_monitor_view_id = hardwareMap.appContext.getResources().getIdentifier(

@@ -122,10 +122,12 @@ public class AutonomousCommon extends RobotHardware {
     }
 
     boolean runDriveTrainWait (double time_limit){
-        do{
-            double time=timer_.time();
-            driveTrain_.driveByMode(DriveTrainMode.STOP, 0, time);
-        } while (time <= currOpStartTime_+time_limit);
+        driveTrain_.driveByMode(DriveTrainMode.STOP, 0, timer_.time());
+
+        if (time_limit > 0) {
+            final long sleep_time_in_ms= (long)(time_limit *1000.0);
+            sleep(sleep_time_in_ms);
+        }
 
         return true;
     }

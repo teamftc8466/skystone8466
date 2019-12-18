@@ -8,12 +8,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class TestGoBildaDualServo extends RobotHardware {
 
     /// Degree positions
-    double hookGrabPosDegree_ = 280;
-    double hookInitPosDegree_ = 0;
+    final double INIT_LEFT_HOOK_DEGREE = 0;
+    final double INIT_RIGHT_HOOK_DEGREE = 280;
 
-    /// Cont. positions
-    final double LEFT_FULL_SPEED = 0;
-    final double RIGHT_FULL_SPEED = 1;
+    final double LEFT_HOOK_MOVE_STEP = 90;
+    final double RIGHT_HOOK_MOVE_STEP = -90;
 
     @Override
     public void runOpMode() {
@@ -27,21 +26,28 @@ public class TestGoBildaDualServo extends RobotHardware {
 
         initializeWhenStart();
 
+        leftHookServo_.showPosition(false);
+        rightHookServo_.showPosition(true);
 
-        while (opModeIsActive()) {
-            leftHookServo_.setServoModePositionInDegree(hookGrabPosDegree_, true);
+        sleep(3000);
+
+        double left_degree = INIT_LEFT_HOOK_DEGREE;
+        double right_degree = INIT_RIGHT_HOOK_DEGREE;
+        for (int i=0; i<4; ++i) {
+            left_degree += LEFT_HOOK_MOVE_STEP;
+            right_degree -= RIGHT_HOOK_MOVE_STEP;
+
+            leftHookServo_.setServoModePositionInDegree(left_degree, false);
+            rightHookServo_.setServoModePositionInDegree(right_degree, true);
+
+            sleep(3000);
         }
 
         cleanUpAtEndOfRun();
     }
 
     public void initialize() {
-        Servo left_servo = hardwareMap.get(Servo.class,"leftHookServo");
-
-        leftHookServo_ = new GoBildaDualServo(left_servo,
-                               false,
-                                              hookInitPosDegree_,
-                                              telemetry);
+        createHookServoSystem(INIT_LEFT_HOOK_DEGREE, INIT_RIGHT_HOOK_DEGREE);
     }
 
     void initializeWhenStart() {

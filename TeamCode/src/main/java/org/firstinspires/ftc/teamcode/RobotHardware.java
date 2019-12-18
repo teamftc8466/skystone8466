@@ -98,18 +98,21 @@ public class RobotHardware extends LinearOpMode {
                          telemetry);
     }
 
-    void createHookServoSystem() {
+    void createHookServoSystem(double init_left_hook_degree,
+                               double init_right_hook_degree) {
         Servo left_servo = hardwareMap.get(Servo.class,"leftHookServo");
         Servo right_servo = hardwareMap.get(Servo.class,"rightHookServo");
 
-        leftHookServo_ = new GoBildaDualServo(left_servo,
+        leftHookServo_ = new GoBildaDualServo("LeftHook",
+                                              left_servo,
                                false,
-                           45.0,
+                                              init_left_hook_degree,
                                               telemetry);
 
-        rightHookServo_ = new GoBildaDualServo(right_servo,
+        rightHookServo_ = new GoBildaDualServo("RightHook",
+                                               right_servo,
                                 false,
-                            235.0,
+                                               init_right_hook_degree,
                                                telemetry);
     }
 

@@ -16,22 +16,27 @@ public class GoBildaDualServo {
     private Servo servo_ = null;
     private boolean useInContMode_ = false;             // =true: Use in continuous mode, =false: Use in 280 degree mode (aka servo mode)
 
+    private String servoName_ = "";
+
     /// Constructor
-    public GoBildaDualServo(Servo servo,
+    public GoBildaDualServo(String servo_name,
+                            Servo servo,
                             boolean use_in_cont_mode,
                             double servo_mode_init_degree,
                             Telemetry telemetry) {
+        servoName_ = servo_name;
         servo_ = servo;
         useInContMode_ = use_in_cont_mode;
         telemetry_ = telemetry;
 
-        if (useInContMode_ = true) {
+        if (useInContMode_ == true) {
             setContinuousModePower(CONT_MODE_STOP);
         } else {
             setServoModePositionInDegree(servo_mode_init_degree, false);
         }
     }
 
+    String servoName() { return servoName_; }
     boolean useInContinuousMode() { return useInContMode_; }
 
     Servo servo() { return servo_; }
@@ -63,7 +68,7 @@ public class GoBildaDualServo {
     }
 
     void showPosition(boolean update_flag){
-        telemetry_.addData("Servor Position", String.valueOf(servo_.getPosition()));
+        telemetry_.addData("Servor Position", servoName_+" at " + String.valueOf(servo_.getPosition()));
         if (update_flag == true) telemetry_.update();
     }
 }

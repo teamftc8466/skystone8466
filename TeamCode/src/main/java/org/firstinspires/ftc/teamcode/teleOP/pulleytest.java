@@ -3,12 +3,9 @@ package org.firstinspires.ftc.teamcode.teleOP;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import java.util.concurrent.TimeUnit;
-import com.qualcomm.robotcore.hardware.CRServoImpl;
 
 //@Disabled
 @TeleOp(name = "WinchTest1")
@@ -20,28 +17,21 @@ public class pulleytest extends OpMode {
     public double deltafunctime = 0;
     public double motorpower1 = 0;//same with motorpower
 
-    public CRServo pulleyservo1;
-
         public void init() {
             //obtains the hardware map
             HardwareMap hvm = hardwareMap;
             pulleymotor1 = hvm.get(DcMotor.class, "pulleymotor1");
-            pulleyservo1 = hvm.get(CRServo.class, "servo");
         }
 
         public void loop() {
-            pulleymotor1.setPower(gamepad1.right_stick_y);
-            pulleyservo1.setPower(gamepad1.right_stick_y);
-
-
             //I maka da deadzone
-            /*gamepad1.setJoystickDeadzone(0.1f);
+            gamepad1.setJoystickDeadzone(0.1f);
             if(gamepad1.right_stick_y < .1 && gamepad1.right_stick_y > -.1) {
                 pulleymotor1.setPower(0);
                 deltafunctime = 0;
                 //functime = getRuntime();
-            }*/
-            /*else {
+            }
+            else {
                 do {
                     motorpower1 = Math.pow((1/300) * deltafunctime * (1/gamepad1.right_stick_y), 3);
                     pulleymotor1.setPower(motorpower1);
@@ -53,7 +43,7 @@ public class pulleytest extends OpMode {
 
                 if(deltafunctime>300) {
                     pulleymotor1.setPower(gamepad1.right_stick_y);
-                }*/
+                }
 
 
                 /*while (deltafunctime<20) {
@@ -89,7 +79,8 @@ public class pulleytest extends OpMode {
                 else if (deltafunctime > 5) {
                     pulleymotor1.setPower(gamepad1.right_stick_y);
                 }*/
+            }
         }
-}
+    }
 
 //motor wheel diameter 21.95mm

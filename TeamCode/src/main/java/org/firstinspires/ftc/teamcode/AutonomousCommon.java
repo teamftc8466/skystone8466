@@ -116,6 +116,7 @@ public class AutonomousCommon extends RobotHardware {
             case OP_MOVE_HOOK:
                 moveHooks(operand, getCurrentOperand(1), getCurrentOperand(2));
                 finish_flag = true;
+
                 break;
             default:
                 finish_flag = true;
@@ -141,32 +142,22 @@ public class AutonomousCommon extends RobotHardware {
         AutoOperation.OpCode opcode = getCurrentOpcode();
 
         // Automatically reset encoders when a new driveTrain operation begins
-        switch (opcode){
-            case OP_DRIVE_TRAIN_FORWARD:
-            case OP_DRIVE_TRAIN_BACKWARD:
-            case OP_DRIVE_TRAIN_TURN_LEFT:
-            case OP_DRIVE_TRAIN_TURN_RIGHT:
-            case OP_DRIVE_TRAIN_SHIFT_LEFT:
-            case OP_DRIVE_TRAIN_SHIFT_RIGHT:
-                driveTrain_.resetEncoder(currTime_);
-                break;
-            default:
-                break;
-        }
+        runDriveTrainResetEncoder(0.15); // Must allow 0.1 seconds for the encoders to reset to ensure that the encoders actually finish resetting before moving onto the next opMode
 
         return true;
     }
 
     boolean runDriveTrainResetEncoder(double time_limit){
-        do{
-            double time=timer_.time();
-            driveTrain_.resetEncoder(time);
+        driveTrain_.resetEncoder(time);
 
-            if (driveTrain_.allEncodersAreReset() == true) return true;
-        } while (time <= currOpStartTime_+time_limit);
+        if (time_limit > 0) {
+            sleep((long) (time_limit * 1000));
+        }
 
-        telemetry.addLine("Reset encoder failed");
-        telemetry.update();
+        if (driveTrain_.allEncodersAreReset() == false) {
+            telemetry.addLine("Reset encoder failed");
+            telemetry.update();
+        }
 
         return true;
     }
@@ -193,10 +184,11 @@ public class AutonomousCommon extends RobotHardware {
         leftHookServo_.setServoModePositionInDegree(left_hook_position_in_degree, false);
         rightHookServo_.setServoModePositionInDegree(right_hook_position_in_degree, false);
 
-        if (waiting_time > 0) {
-            do {
-                double time = timer_.time();
-            } while (time <= currOpStartTime_ + waiting_time);
-        }
+        sleep((long)(waiting_time * 1000));    // Declaration of the sleep function states that type long should be inputted
+        // if (waiting_time > 0) {
+        //    do {
+        //        double time = timer_.time();
+        //    } while (time <= currOpStartTime_ + waiting_time);
+        // }
     }
 }

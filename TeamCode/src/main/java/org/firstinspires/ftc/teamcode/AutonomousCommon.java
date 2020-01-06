@@ -116,7 +116,6 @@ public class AutonomousCommon extends RobotHardware {
             case OP_MOVE_HOOK:
                 moveHooks(operand, getCurrentOperand(1), getCurrentOperand(2));
                 finish_flag = true;
-
                 break;
             default:
                 finish_flag = true;
@@ -184,11 +183,8 @@ public class AutonomousCommon extends RobotHardware {
         leftHookServo_.setServoModePositionInDegree(left_hook_position_in_degree, false);
         rightHookServo_.setServoModePositionInDegree(right_hook_position_in_degree, false);
 
-        sleep((long)(waiting_time * 1000));    // Declaration of the sleep function states that type long should be inputted
-        // if (waiting_time > 0) {
-        //    do {
-        //        double time = timer_.time();
-        //    } while (time <= currOpStartTime_ + waiting_time);
-        // }
+        if (waiting_time > 0) {
+            sleep((long)(waiting_time * 1000));    // Declaration of the sleep function states that type long should be inputted
+        }
     }
 }

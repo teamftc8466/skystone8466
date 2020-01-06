@@ -359,10 +359,10 @@ public class MecanumDriveTrain {
     }
 
     boolean reachToTargetEncoderCount(int target_encoder_cnt) {
-        return (Math.abs(motorLF_.getCurrentPosition()) >= target_encoder_cnt &&
-                Math.abs(motorRF_.getCurrentPosition()) >= target_encoder_cnt &&
-                Math.abs(motorLB_.getCurrentPosition()) >= target_encoder_cnt &&
-                Math.abs(motorRB_.getCurrentPosition()) >= target_encoder_cnt);
+        return ((Math.abs(motorLF_.getCurrentPosition()) >= target_encoder_cnt ||
+                 Math.abs(motorLB_.getCurrentPosition()) >= target_encoder_cnt) &&
+                (Math.abs(motorRF_.getCurrentPosition()) >= target_encoder_cnt ||
+                 Math.abs(motorRB_.getCurrentPosition()) >= target_encoder_cnt));
     }
 
     boolean isEncoderStuck(double time) {
@@ -370,7 +370,7 @@ public class MecanumDriveTrain {
         int currEncPosMotorRF_ = motorRF_.getCurrentPosition();
 
         if (currEncPosMotorLF_ != prevReadEncCntMotorLF_ &&
-                currEncPosMotorLF_ != prevReadEncCntMotorRF_){
+                currEncPosMotorRF_ != prevReadEncCntMotorRF_){
             prevReadEncCntMotorLF_ = currEncPosMotorLF_;
             prevReadEncCntMotorRF_ = currEncPosMotorRF_;
             prevEncCntChangeStartTime_ = time;

@@ -34,7 +34,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
@@ -70,9 +69,9 @@ public class MecanumDriveTrain {
     static final double JOYSTICK_DEAD_ZONE = 0.1;
     static final double MAX_JOYSTICK_DRIVE_POWER = 1.0;
     static final double [] SCALE_JOYSTICK_DRIVE_POWER = {0.0,  0.14, 0.16, 0.18, 0.20,
-                                                         0.22, 0.24, 0.27, 0.30, 0.34,
-                                                         0.38, 0.43, 0.50, 0.60, 0.72,
-                                                         0.85, 1.00};
+            0.22, 0.24, 0.27, 0.30, 0.34,
+            0.38, 0.43, 0.50, 0.60, 0.72,
+            0.85, 1.00};
 
     /// Drive train motors
     private DcMotor motorLF_ = null;

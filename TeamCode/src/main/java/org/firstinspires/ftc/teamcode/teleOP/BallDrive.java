@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleOP;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -17,7 +17,7 @@ public class BallDrive {
 
         motor1 = hdm.dcMotor.get("Motor1");
         motor2 = hdm.dcMotor.get("Motor2");
-        motor3 = hdm.dcMotor.get("Motor2");
+        motor3 = hdm.dcMotor.get("Motor3");
 
         motor1.setDirection(DcMotorSimple.Direction.FORWARD);
         motor2.setDirection(DcMotorSimple.Direction.FORWARD);

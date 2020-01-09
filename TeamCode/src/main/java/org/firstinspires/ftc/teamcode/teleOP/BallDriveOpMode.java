@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.teleOP;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.BallDrive;
+import org.firstinspires.ftc.teamcode.teleOP.BallDrive;
 
 @TeleOp(name="BallDrive TeleOp", group="BallDrive")
 public class BallDriveOpMode extends OpMode{
@@ -13,7 +13,7 @@ public class BallDriveOpMode extends OpMode{
     @Override
     public void init() {
         ballDrive = new BallDrive(hardwareMap, telemetry);
-    }
+}
 
     @Override
     public void loop() {

@@ -6,11 +6,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Arm {
-    public DcMotor extendermotor;
+    public DcMotor extendermotor, pulleymotor1, pulleymotor2;
     public Servo rotationservo;
     public Servo grabbingservo;
 
     public Arm(HardwareMap hwm) {
+        pulleymotor1 = hwm.get(DcMotor.class, "pulleymotor1");
+        pulleymotor2 = hwm.get(DcMotor.class, "pulleymotor2");
         extendermotor = hwm.get(DcMotor.class, "extenderMotor");
         rotationservo = hwm.get(Servo.class, "rotationServo");
         grabbingservo = hwm.get(Servo.class, "grabbingServo");

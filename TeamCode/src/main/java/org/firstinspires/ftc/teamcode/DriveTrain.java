@@ -109,7 +109,7 @@ public class DriveTrain {
 
     void setPowerFactor(double input_power_factor) {
         if (mecanumDriveTrain_ != null) mecanumDriveTrain_.setPowerFactor(input_power_factor);
-        // if (ballDriveTrain_ != null) ballDriveTrain_.setPowerFactor(input_power_factor);
+        // if (ballDriveTrain_ != null) ballDriveTrain_.setPowerFactor(input_power_factor);         // Sample line for when the ball drive will be implemented
     }
 
     void driveByGamePad(Gamepad gamepad) {
@@ -120,6 +120,7 @@ public class DriveTrain {
                      double drive_parameter,
                      double time) {
         if (mecanumDriveTrain_ != null) return mecanumDriveByMode(drive_mode, drive_parameter, time);
+        //if (ballDriveTrain_ != null) return ballDriveByMode(drive_mode, drive_parameter, time);
 
         return true;
     }

@@ -21,6 +21,7 @@ public class AutonomousBlueLoading extends AutonomousCommon {
     @Override
     public void runOpMode() {
         opList_ = opBlueLoading;
+        isRedTeam_ = false;         // Remember to set this variable to false for all blue side programs!
         super.runOpMode();
     }
 }

@@ -21,6 +21,7 @@ public class AutonomousRedLoading extends AutonomousCommon {
     @Override
     public void runOpMode() {
         opList_ = opRedLoading_;
+        isRedTeam_ = true;
         super.runOpMode();
     }
 }

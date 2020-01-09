@@ -7,9 +7,22 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 @Disabled
 public class AutonomousCommon extends RobotHardware {
     AutoOperation [] opList_ = null;    // Lists all operations to be done in an autonomous
-    int numOpsInList_ = 0;               // Array size of opList_, will change based on invdividual autonomous programs' array sizes
-    int currOpIdInList_ = -1;            // Index (aka the id) of current opcode in opList_; the index of -1 indicates that the opList_ is still non-existent
+    int numOpsInList_ = 0;              // Array size of opList_, will change based on invdividual autonomous programs' array sizes
+    int currOpIdInList_ = -1;           // Index (aka the id) of current opcode in opList_; the index of -1 indicates that the opList_ is still non-existent
     double currOpStartTime_ = 0.0;      // Start time to run current opcode
+
+    boolean isRedTeam_ = true;          // This variale is for turning direction purposes
+    int firstSkystonePos_ = -1;         // Skystone position is determined by TensorFlow. The -1 represents that the position of the Skystone is unknown because, as explained below, the detected Skystone can only be in positions 0, 1, or 2.
+                                        // If the TensorFlow program returns a 0, the Skystone is the first farthest from the wall that the blocks are aligned against at a right angle
+                                        // If the TensorFlow program returns a 1, the Skystone is the second farthest from the said wall.
+                                        // If the TensorFlow program returns a 2, the Skystone is the third farthest from the said wall.
+
+    /// First parameter: Distance to shift in order to align with the Skystone
+    /// Second parameter: Distance forward to Skystone
+    /// Third parameter: Distance to foundation after collecting Skystone (the turning angle towards the foundation is constant for all three positions of the Skystones, so we do not need a fourth parameter)
+    double [][] grabFirstSkystone_ = {{   0, 0.8, 2.0},           // TODO: Determine actual measurements
+                                      {-0.2, 0.8, 2.2},
+                                      {-0.4, 0.8, 2.4}};
 
 
     @Override
@@ -38,8 +51,13 @@ public class AutonomousCommon extends RobotHardware {
 
         super.initializeAutonomous();
 
-        // Activate Tfod for detecting skystone
+        // TODO: Activate Tfod for detecting skystone
         // getDetectSkystone().setupTfod();
+
+        // If the returned skystone position is not a valid number (0, 1, or 2), then assume that the Skystone is at the zero position
+        if (firstSkystonePos_ < 0 || firstSkystonePos_ > 2) {
+            firstSkystonePos_ = 0;
+        }
     }
 
     void initializeWhenStart() {
@@ -114,8 +132,16 @@ public class AutonomousCommon extends RobotHardware {
                 finish_flag = true;
                 break;
             case OP_MOVE_HOOK:
-                moveHooks(operand, getCurrentOperand(1), getCurrentOperand(2));
-                finish_flag = true;
+                finish_flag = moveHooks(operand, getCurrentOperand(1), getCurrentOperand(2));
+                break;
+            case OP_DRIVE_TO_FIRST_SKYSTONE:
+                finish_flag = driveToFirstSkystone();
+                break;
+            case OP_GRAB_FIRST_SKYSTONE:
+                finish_flag = grabFirstSkystone();
+                break;
+            case OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION:
+                finish_flag = driveFromFirstSkystoneToFoundation();
                 break;
             default:
                 finish_flag = true;
@@ -161,6 +187,63 @@ public class AutonomousCommon extends RobotHardware {
         return true;
     }
 
+    boolean driveToFirstSkystone(){
+
+        // Retrieve the value in the grabFirstSkystone_ two dimensional array in row firstSkystonePos_
+        // (which can be 0, 1, or 2) and column 0 (aka the first column). This value will be the distance the robot shifts.
+        double shift_distance_to_align_with_skystone = grabFirstSkystone_[firstSkystonePos_][0];
+
+        if (shift_distance_to_align_with_skystone < 0) {
+            driveTrain_.driveByMode(DriveTrainMode.SHIFT_LEFT, -shift_distance_to_align_with_skystone, timer_.time()); // Negate the negative value because shifting distance cannot be negative
+        } else if (shift_distance_to_align_with_skystone > 0) {
+            driveTrain_.driveByMode(DriveTrainMode.SHIFT_RIGHT, shift_distance_to_align_with_skystone, timer_.time());
+        }
+
+        // Retrieve the value in the grabFirstSkystone_ two dimensional array in row firstSkystonePos_
+        // (which can be 0, 1, or 2) and column 1 (aka the second column). This value will be the distance the robot drives forwards.
+        double drive_forward_to_skystone = grabFirstSkystone_[firstSkystonePos_][1];
+
+        driveTrain_.driveByMode(DriveTrainMode.FORWARD, drive_forward_to_skystone, timer_.time());
+
+        return true;
+    }
+
+    // TODO: Write this subsystem when the grabber hardware is finished
+    boolean grabFirstSkystone(){
+        sleep(3000);
+        return true;
+    }
+
+    boolean driveFromFirstSkystoneToFoundation(){
+        /* Turn away from skystone towards foundation */
+
+        if (isRedTeam_ == true) {
+            driveTrain_.driveByMode(DriveTrainMode.TURN_RIGHT, 90, timer_.time());
+        } else {
+            driveTrain_.driveByMode(DriveTrainMode.TURN_LEFT, 90, timer_.time());
+        }
+
+
+        /* Drive from Skystone area to foundation area */
+
+        // Retrieve the value in the grabFirstSkystone_ two dimensional array in row firstSkystonePos_
+        // (which can be 0, 1, or 2) and column 2 (aka the third column). This value will be the distance the robot drives forwards.
+        double distance_from_skystone_to_foundation = grabFirstSkystone_[firstSkystonePos_][2];
+
+        driveTrain_.driveByMode(DriveTrainMode.FORWARD,distance_from_skystone_to_foundation, timer_.time());
+
+
+        /* Turn towards the foundation to prep for lowering the hooks */
+
+        if (isRedTeam_ == true) {
+            driveTrain_.driveByMode(DriveTrainMode.TURN_LEFT, 90, timer_.time());
+        } else {
+            driveTrain_.driveByMode(DriveTrainMode.TURN_RIGHT, 90, timer_.time());
+        }
+
+        return true;
+    }
+
     boolean runDriveTrain(DriveTrainMode drive_mode,
                           double drive_parameter){
         return driveTrain_.driveByMode(drive_mode, drive_parameter, currTime_);
@@ -170,21 +253,23 @@ public class AutonomousCommon extends RobotHardware {
         driveTrain_.driveByMode(DriveTrainMode.STOP, 0, timer_.time());
 
         if (time_limit > 0) {
-            final long sleep_time_in_ms= (long)(time_limit *1000.0);
+            final long sleep_time_in_ms = (long)(time_limit *1000.0);  // long type is required because the parameter for the sleep function is type long
             sleep(sleep_time_in_ms);
         }
 
         return true;
     }
 
-    void moveHooks(double left_hook_position_in_degree,
+    boolean moveHooks(double left_hook_position_in_degree,
                    double right_hook_position_in_degree,
-                   double waiting_time) {                     // Waiting time allows the servo to complete the instruction before the program moves to the next state? TODO: Wouldn't the program wait for the servos to reach their positions before moving to the next state anyways??
+                   double waiting_time) {                     // Waiting time allows the servo to complete the instruction before the program moves to the next state
         leftHookServo_.setServoModePositionInDegree(left_hook_position_in_degree, false);
         rightHookServo_.setServoModePositionInDegree(right_hook_position_in_degree, false);
 
         if (waiting_time > 0) {
             sleep((long)(waiting_time * 1000));    // Declaration of the sleep function states that type long should be inputted
         }
+
+        return true;
     }
 }

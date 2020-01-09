@@ -13,8 +13,12 @@ public class AutoOperation {
         OP_DRIVE_TRAIN_TURN_RIGHT,
         OP_DRIVE_TRAIN_SHIFT_LEFT,
         OP_DRIVE_TRAIN_SHIFT_RIGHT,
-        OP_MOVE_HOOK
-};
+        OP_MOVE_HOOK,
+        OP_DRIVE_TO_FIRST_SKYSTONE,
+        OP_GRAB_FIRST_SKYSTONE,
+        OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION
+    };
+
     private OpCode opcode_ = OpCode.OP_STOP;
     private double [] operand_ = {0, 0, 0};
 

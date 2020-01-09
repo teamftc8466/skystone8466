@@ -11,6 +11,7 @@ public class AutonomousCommon extends RobotHardware {
     int currOpIdInList_ = -1;            // Index (aka the id) of current opcode in opList_; the index of -1 indicates that the opList_ is still non-existent
     double currOpStartTime_ = 0.0;      // Start time to run current opcode
 
+
     @Override
     public void runOpMode() {
         initialize();
@@ -70,9 +71,9 @@ public class AutonomousCommon extends RobotHardware {
         return opList_[currOpIdInList_].opcode();
     }
 
-    double getCurrentOperand(){
+    double getCurrentOperand(int index){
         if (currOpIdInList_ >= 0 && currOpIdInList_ < numOpsInList_) {
-            return opList_[currOpIdInList_].operand();
+            return opList_[currOpIdInList_].operand(index);
         }
 
         return 0;
@@ -80,7 +81,7 @@ public class AutonomousCommon extends RobotHardware {
 
     void runCurrentOperation() {
         AutoOperation.OpCode opcode = getCurrentOpcode();
-        double operand = getCurrentOperand();
+        double operand = getCurrentOperand(0);
 
         boolean finish_flag = false;
         switch (opcode) {
@@ -112,6 +113,10 @@ public class AutonomousCommon extends RobotHardware {
                 driveTrain_.setPowerFactor(operand);
                 finish_flag = true;
                 break;
+            case OP_MOVE_HOOK:
+                moveHooks(operand, getCurrentOperand(1), getCurrentOperand(2));
+                finish_flag = true;
+                break;
             default:
                 finish_flag = true;
         }
@@ -119,17 +124,6 @@ public class AutonomousCommon extends RobotHardware {
         if (finish_flag == true) {
             moveToNextOpcode();
         }
-    }
-
-    boolean runDriveTrainWait (double time_limit){
-        driveTrain_.driveByMode(DriveTrainMode.STOP, 0, timer_.time());
-
-        if (time_limit > 0) {
-            final long sleep_time_in_ms= (long)(time_limit *1000.0);
-            sleep(sleep_time_in_ms);
-        }
-
-        return true;
     }
 
     boolean moveToNextOpcode() {
@@ -147,32 +141,22 @@ public class AutonomousCommon extends RobotHardware {
         AutoOperation.OpCode opcode = getCurrentOpcode();
 
         // Automatically reset encoders when a new driveTrain operation begins
-        switch (opcode){
-            case OP_DRIVE_TRAIN_FORWARD:
-            case OP_DRIVE_TRAIN_BACKWARD:
-            case OP_DRIVE_TRAIN_TURN_LEFT:
-            case OP_DRIVE_TRAIN_TURN_RIGHT:
-            case OP_DRIVE_TRAIN_SHIFT_LEFT:
-            case OP_DRIVE_TRAIN_SHIFT_RIGHT:
-                driveTrain_.resetEncoder(currTime_);
-                break;
-            default:
-                break;
-        }
+        runDriveTrainResetEncoder(0.15); // Must allow 0.1 seconds for the encoders to reset to ensure that the encoders actually finish resetting before moving onto the next opMode
 
         return true;
     }
 
     boolean runDriveTrainResetEncoder(double time_limit){
-        do{
-            double time=timer_.time();
-            driveTrain_.resetEncoder(time);
+        driveTrain_.resetEncoder(time);
 
-            if (driveTrain_.allEncodersAreReset() == true) return true;
-        } while (time <= currOpStartTime_+time_limit);
+        if (time_limit > 0) {
+            sleep((long) (time_limit * 1000));
+        }
 
-        telemetry.addLine("Reset encoder failed");
-        telemetry.update();
+        if (driveTrain_.allEncodersAreReset() == false) {
+            telemetry.addLine("Reset encoder failed");
+            telemetry.update();
+        }
 
         return true;
     }
@@ -180,5 +164,27 @@ public class AutonomousCommon extends RobotHardware {
     boolean runDriveTrain(DriveTrainMode drive_mode,
                           double drive_parameter){
         return driveTrain_.driveByMode(drive_mode, drive_parameter, currTime_);
+    }
+
+    boolean runDriveTrainWait(double time_limit){
+        driveTrain_.driveByMode(DriveTrainMode.STOP, 0, timer_.time());
+
+        if (time_limit > 0) {
+            final long sleep_time_in_ms= (long)(time_limit *1000.0);
+            sleep(sleep_time_in_ms);
+        }
+
+        return true;
+    }
+
+    void moveHooks(double left_hook_position_in_degree,
+                   double right_hook_position_in_degree,
+                   double waiting_time) {                     // Waiting time allows the servo to complete the instruction before the program moves to the next state? TODO: Wouldn't the program wait for the servos to reach their positions before moving to the next state anyways??
+        leftHookServo_.setServoModePositionInDegree(left_hook_position_in_degree, false);
+        rightHookServo_.setServoModePositionInDegree(right_hook_position_in_degree, false);
+
+        if (waiting_time > 0) {
+            sleep((long)(waiting_time * 1000));    // Declaration of the sleep function states that type long should be inputted
+        }
     }
 }

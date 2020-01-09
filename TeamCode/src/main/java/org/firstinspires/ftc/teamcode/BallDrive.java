@@ -11,9 +11,6 @@ public class BallDrive {
     public DcMotor motor3 = null;
 
     public BallDrive(HardwareMap hdm , Telemetry telemetry) {
-        motor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         motor1 = hdm.dcMotor.get("Motor1");
         motor2 = hdm.dcMotor.get("Motor2");
@@ -23,10 +20,14 @@ public class BallDrive {
         motor2.setDirection(DcMotorSimple.Direction.FORWARD);
         motor3.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        motor3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         telemetry = telemetry;
     }
 
-    public void vertical(double joystick) {
+    /*public void vertical(double joystick) {
         motor1.setPower(joystick);
         motor2.setPower(joystick);
 
@@ -39,5 +40,5 @@ public class BallDrive {
 
     public void horizontal(float joystick) {
         motor3.setPower(joystick);
-    }
+    }*/
 }

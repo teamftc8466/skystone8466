@@ -24,6 +24,12 @@ public class RobotHardware extends LinearOpMode {
     /// GoBuilda Servo for left and right hooks
     GoBildaDualServo leftHookServo_ = null;
     GoBildaDualServo rightHookServo_ = null;
+    final double INIT_LEFT_HOOK_DEGREE = 230;    // Initial positions for the left and right servos are on opposite ends of the position spectrum
+    final double INIT_RIGHT_HOOK_DEGREE = 50;    // (0 degrees to 280 degrees) because they are facing opposite directions when mounted on the robot
+    final double LEFT_HOOK_PULL_DEGREE = 80;
+    final double RIGHT_HOOK_PULL_DEGREE = 210;
+    final double LEFT_HOOK_RELEASE_DEGREE = 240;
+    final double RIGHT_HOOK_RELEASE_DEGREE = 40;
 
     /// Lift
     Lift lift_ = null;
@@ -45,11 +51,12 @@ public class RobotHardware extends LinearOpMode {
     // Code to run when op mode is initialized
     public void initializeAutonomous() {
         createMecanumDriveTrain();
+        createHookServoSystem(INIT_LEFT_HOOK_DEGREE, INIT_RIGHT_HOOK_DEGREE);
 
         // createDetectNavigationTarget();  // Create object to use Vuforia to detect navigation targets including skystone
         // createDetectSkystone();          // Create object to use tensor flow to detect skystone
         // createLift();
-        // createHookServoSystem();
+
     }
 
     public void initializeTeleOp(){

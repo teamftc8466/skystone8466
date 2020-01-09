@@ -12,7 +12,7 @@ public class TestGoBildaDualServo extends RobotHardware {
     final double INIT_RIGHT_HOOK_DEGREE = 0;     // (0 degrees to 280 degrees) because they are facing opposite directions when mounted on the robot
 
     final double LEFT_HOOK_PULL_DEGREE = 80;
-    final double RIGHT_HOOK_PULL_DEGREE = 200;
+    final double RIGHT_HOOK_PULL_DEGREE = 210;
 
     final double LEFT_HOOK_RELEASE_DEGREE = 240;
     final double RIGHT_HOOK_RELEASE_DEGREE = 40;

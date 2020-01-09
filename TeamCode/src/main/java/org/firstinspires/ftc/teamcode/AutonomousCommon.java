@@ -194,16 +194,16 @@ public class AutonomousCommon extends RobotHardware {
         double shift_distance_to_align_with_skystone = grabFirstSkystone_[firstSkystonePos_][0];
 
         if (shift_distance_to_align_with_skystone < 0) {
-            driveTrain_.driveByMode(DriveTrainMode.SHIFT_LEFT, -shift_distance_to_align_with_skystone, timer_.time()); // Negate the negative value because shifting distance cannot be negative
+            runDriveTrainTillFinish(DriveTrainMode.SHIFT_LEFT, -shift_distance_to_align_with_skystone); // Negate the negative value because shifting distance cannot be negative
         } else if (shift_distance_to_align_with_skystone > 0) {
-            driveTrain_.driveByMode(DriveTrainMode.SHIFT_RIGHT, shift_distance_to_align_with_skystone, timer_.time());
+            runDriveTrainTillFinish(DriveTrainMode.SHIFT_RIGHT, shift_distance_to_align_with_skystone);
         }
 
         // Retrieve the value in the grabFirstSkystone_ two dimensional array in row firstSkystonePos_
         // (which can be 0, 1, or 2) and column 1 (aka the second column). This value will be the distance the robot drives forwards.
         double drive_forward_to_skystone = grabFirstSkystone_[firstSkystonePos_][1];
 
-        driveTrain_.driveByMode(DriveTrainMode.FORWARD, drive_forward_to_skystone, timer_.time());
+        runDriveTrainTillFinish(DriveTrainMode.FORWARD, drive_forward_to_skystone);
 
         return true;
     }
@@ -215,14 +215,16 @@ public class AutonomousCommon extends RobotHardware {
     }
 
     boolean driveFromFirstSkystoneToFoundation(){
+        /// Need to move back before making a turn to avoid collapsing with stones
+        // driveTrain_.driveByMode(DriveTrainMode.BACKWARD, 0.2, timer_.time());
+
         /* Turn away from skystone towards foundation */
 
         if (isRedTeam_ == true) {
-            driveTrain_.driveByMode(DriveTrainMode.TURN_RIGHT, 90, timer_.time());
+            runDriveTrainTillFinish(DriveTrainMode.TURN_RIGHT, 90);
         } else {
-            driveTrain_.driveByMode(DriveTrainMode.TURN_LEFT, 90, timer_.time());
+            runDriveTrainTillFinish(DriveTrainMode.TURN_LEFT, 90);
         }
-
 
         /* Drive from Skystone area to foundation area */
 
@@ -230,18 +232,31 @@ public class AutonomousCommon extends RobotHardware {
         // (which can be 0, 1, or 2) and column 2 (aka the third column). This value will be the distance the robot drives forwards.
         double distance_from_skystone_to_foundation = grabFirstSkystone_[firstSkystonePos_][2];
 
-        driveTrain_.driveByMode(DriveTrainMode.FORWARD,distance_from_skystone_to_foundation, timer_.time());
+        runDriveTrainTillFinish(DriveTrainMode.FORWARD, distance_from_skystone_to_foundation);
 
 
         /* Turn towards the foundation to prep for lowering the hooks */
 
         if (isRedTeam_ == true) {
-            driveTrain_.driveByMode(DriveTrainMode.TURN_LEFT, 90, timer_.time());
+            runDriveTrainTillFinish(DriveTrainMode.TURN_LEFT, 90);
         } else {
-            driveTrain_.driveByMode(DriveTrainMode.TURN_RIGHT, 90, timer_.time());
+            runDriveTrainTillFinish(DriveTrainMode.TURN_RIGHT, 90);
         }
 
+        /* Drive to foundation */
+        runDriveTrainTillFinish(DriveTrainMode.FORWARD, 0.2);
+
         return true;
+    }
+
+    private void runDriveTrainTillFinish(DriveTrainMode drive_mode,
+                                         double drive_parameter) {
+        while (driveTrain_.driveByMode(drive_mode, drive_parameter, timer_.time()) == false) {
+            // Run till finish
+        }
+
+        // Must allow 0.1 seconds for the encoders to reset to ensure that the encoders actually finish resetting before moving onto the next opMode
+        runDriveTrainResetEncoder(0.1);
     }
 
     boolean runDriveTrain(DriveTrainMode drive_mode,

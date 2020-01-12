@@ -19,13 +19,21 @@ public class AutonomousCommon extends RobotHardware {
                                         // If the TensorFlow program returns a 1, the Skystone is the second farthest from the said wall.
                                         // If the TensorFlow program returns a 2, the Skystone is the third farthest from the said wall.
 
-    /// First parameter: Distance to shift in order to align with the Skystone
-    /// Second parameter: Distance forward to Skystone
-    /// Third parameter: Distance to foundation after collecting Skystone (the turning angle towards the foundation is constant for all three positions of the Skystones, so we do not need a fourth parameter)
-    double [][] grabFirstSkystone_ = {{   0, 0.95, 2.75},           // TODO: Determine actual measurements
-                                      {-0.2, 0.95, 2.95},
-                                      {-0.4, 0.95, 3.15}};
-
+    /// A 3X3 array to contain the driving distance to reach the first skystone and deliver it to the foundation.
+    /// It contents is depedent on red or blue team and will be defined in extended classes:
+    ///   - AutonomousRedLoading
+    ///   - AutomousBlueLoading
+    ///
+    /// Each row is associated with skystone position:
+    ///   - Row 0 : skystone is the first farthest from the wall.
+    ///   - Row 1 : skystone is the second farthest from the wall.
+    ///   - Row 2 : skystone is the third farthest from the wall.
+    ///
+    //  At each row:
+    ///   - First parameter: Distance to shift in order to align with the Skystone
+    ///   - Second parameter: Distance forward to Skystone
+    ///   - Third parameter: Distance to foundation after collecting Skystone (the turning angle towards the foundation is constant for all three positions of the Skystones, so we do not need a fourth parameter)
+    double [][] grabFirstSkystone_ = null;
 
     @Override
     public void runOpMode() {
@@ -145,6 +153,9 @@ public class AutonomousCommon extends RobotHardware {
             case OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION:
                 finish_flag = driveFromFirstSkystoneToFoundation();
                 break;
+            case OP_DROP_SKYSTONE_TO_FOUNDATION:
+                finish_flag = dropSkystoneToFoundation();
+                break;
             default:
                 finish_flag = true;
         }
@@ -195,11 +206,6 @@ public class AutonomousCommon extends RobotHardware {
         // (which can be 0, 1, or 2) and column 0 (aka the first column). This value will be the distance the robot shifts.
         double shift_distance_to_align_with_skystone = grabFirstSkystone_[firstSkystonePos_][0];
 
-        if (isRedTeam_ == false) {
-            shift_distance_to_align_with_skystone = -shift_distance_to_align_with_skystone;   // Directions must be reversed depending on the alliance color due to the layout of the field
-        }
-
-
         if (shift_distance_to_align_with_skystone < 0) {
             runDriveTrainTillFinish(DriveTrainMode.SHIFT_LEFT, -shift_distance_to_align_with_skystone); // Negate the negative value because shifting distance cannot be negative
         } else if (shift_distance_to_align_with_skystone > 0) {
@@ -212,12 +218,6 @@ public class AutonomousCommon extends RobotHardware {
 
         runDriveTrainTillFinish(DriveTrainMode.FORWARD, drive_forward_to_skystone);
 
-        return true;
-    }
-
-    // TODO: Write this subsystem when the grabber hardware is finished
-    boolean grabFirstSkystone(){
-        sleep(3000);
         return true;
     }
 
@@ -241,7 +241,6 @@ public class AutonomousCommon extends RobotHardware {
 
         runDriveTrainTillFinish(DriveTrainMode.FORWARD, distance_from_skystone_to_foundation);
 
-
         /* Turn towards the foundation to prep for lowering the hooks */
 
         if (isRedTeam_ == true) {
@@ -251,7 +250,7 @@ public class AutonomousCommon extends RobotHardware {
         }
 
         /* Drive to foundation */
-        runDriveTrainTillFinish(DriveTrainMode.FORWARD, 0.2);
+        runDriveTrainTillFinish(DriveTrainMode.FORWARD, 0.25);
 
         return true;
     }
@@ -292,6 +291,19 @@ public class AutonomousCommon extends RobotHardware {
             sleep((long)(waiting_time * 1000));    // Declaration of the sleep function states that type long should be inputted
         }
 
+        return true;
+    }
+
+
+    // TODO: Write this subsystem when the grabber hardware is finished
+    boolean grabFirstSkystone() {
+        sleep(3000);
+        return true;
+    }
+
+    // TODO: Write this subsystem when the grabber hardware is finished
+    boolean dropSkystoneToFoundation() {
+        sleep(1000);
         return true;
     }
 }

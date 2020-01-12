@@ -16,7 +16,8 @@ public class AutoOperation {
         OP_MOVE_HOOK,
         OP_DRIVE_TO_FIRST_SKYSTONE,
         OP_GRAB_FIRST_SKYSTONE,
-        OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION
+        OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION,
+        OP_DROP_SKYSTONE_TO_FOUNDATION
     };
 
     private OpCode opcode_ = OpCode.OP_STOP;

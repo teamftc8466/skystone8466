@@ -1,3 +1,5 @@
+/* Created by Melinda, last edited on 1/16/2020 */
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -71,7 +73,7 @@ public class AutonomousCommon extends RobotHardware {
     }
 
     void cleanUpAtEndOfRun() {
-        // TBD
+        // TODO
 
         // getDetectSkystone().shutdownTfod();
     }
@@ -167,7 +169,7 @@ public class AutonomousCommon extends RobotHardware {
         AutoOperation.OpCode opcode = getCurrentOpcode();
 
         // Automatically reset encoders when a new driveTrain operation begins
-        runDriveTrainResetEncoder(0.15); // Must allow 0.1 seconds for the encoders to reset to ensure that the encoders actually finish resetting before moving onto the next opMode
+        runDriveTrainResetEncoder(0.15); // Must allow 0.15 seconds for the encoders to reset to ensure that the encoders actually finish resetting before moving onto the next opMode
 
         return true;
     }
@@ -193,6 +195,11 @@ public class AutonomousCommon extends RobotHardware {
         // (which can be 0, 1, or 2) and column 0 (aka the first column). This value will be the distance the robot shifts.
         double shift_distance_to_align_with_skystone = grabFirstSkystone_[firstSkystonePos_][0];
 
+        if (isRedTeam_ == false) {
+            shift_distance_to_align_with_skystone = -shift_distance_to_align_with_skystone;   // Directions must be reversed depending on the alliance color due to the layout of the field
+        }
+
+
         if (shift_distance_to_align_with_skystone < 0) {
             runDriveTrainTillFinish(DriveTrainMode.SHIFT_LEFT, -shift_distance_to_align_with_skystone); // Negate the negative value because shifting distance cannot be negative
         } else if (shift_distance_to_align_with_skystone > 0) {
@@ -215,7 +222,7 @@ public class AutonomousCommon extends RobotHardware {
     }
 
     boolean driveFromFirstSkystoneToFoundation(){
-        /// Need to move back before making a turn to avoid collapsing with stones
+        /// Need to move back before making a turn to avoid colliding with stones
         // driveTrain_.driveByMode(DriveTrainMode.BACKWARD, 0.2, timer_.time());
 
         /* Turn away from skystone towards foundation */

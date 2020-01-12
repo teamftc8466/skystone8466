@@ -22,9 +22,9 @@ public class AutonomousCommon extends RobotHardware {
     /// First parameter: Distance to shift in order to align with the Skystone
     /// Second parameter: Distance forward to Skystone
     /// Third parameter: Distance to foundation after collecting Skystone (the turning angle towards the foundation is constant for all three positions of the Skystones, so we do not need a fourth parameter)
-    double [][] grabFirstSkystone_ = {{   0, 0.8, 2.0},           // TODO: Determine actual measurements
-                                      {-0.2, 0.8, 2.2},
-                                      {-0.4, 0.8, 2.4}};
+    double [][] grabFirstSkystone_ = {{   0, 0.95, 2.75},           // TODO: Determine actual measurements
+                                      {-0.2, 0.95, 2.95},
+                                      {-0.4, 0.95, 3.15}};
 
 
     @Override

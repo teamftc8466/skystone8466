@@ -17,9 +17,21 @@ public class BallDriveOpMode extends OpMode{
 
     @Override
     public void loop() {
-        ballDrive.motor1.setPower(-gamepad1.left_stick_y - gamepad1.right_stick_x);
+        /*ballDrive.motor1.setPower(-gamepad1.left_stick_y - gamepad1.right_stick_x);
         ballDrive.motor2.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
+        ballDrive.motor3.setPower(gamepad1.left_stick_x);*/
+        ballDrive.motor1.setPower(-1.5*gamepad1.left_stick_y - gamepad1.right_stick_x);
+        ballDrive.motor2.setPower(1.5*gamepad1.left_stick_y - gamepad1.right_stick_x);
         ballDrive.motor3.setPower(gamepad1.left_stick_x);
+
+        if (gamepad1.b) {
+            ballDrive.servo1.setPosition(90);
+            ballDrive.servo1.setPosition(90);
+        }
+        else if (gamepad1.a) {
+            ballDrive.servo1.setPosition(0);
+            ballDrive.servo1.setPosition(0);
+        }
         /*if(Math.abs(gamepad1.left_stick_x) <= .1 && Math.abs(gamepad1.right_stick_x) <= .1) {
             ballDrive.motor1.setPower(gamepad1.left_stick_y);
             ballDrive.motor2.setPower(-gamepad1.left_stick_y);

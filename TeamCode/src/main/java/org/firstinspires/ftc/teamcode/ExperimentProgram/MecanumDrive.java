@@ -1,8 +1,10 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.ExperimentProgram;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
@@ -12,11 +14,17 @@ public class MecanumDrive {
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
 
+    public Servo servo1;
+    public Servo servo2;
+
     public MecanumDrive(HardwareMap hwm, Telemetry t) {
         frontLeft = hwm.get(DcMotor.class, "frontLeft");
         frontRight = hwm.get(DcMotor.class, "frontRight");
         backLeft = hwm.get(DcMotor.class, "backLeft");
         backRight = hwm.get(DcMotor.class, "backRight");
+
+        servo1 = hwm.servo.get("servo1");
+        servo2 = hwm.servo.get("servo2");
     }
     /*
     FrontLeft = Ch3 + Ch1 + Ch4

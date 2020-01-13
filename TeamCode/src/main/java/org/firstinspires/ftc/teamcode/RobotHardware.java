@@ -54,9 +54,10 @@ public class RobotHardware extends LinearOpMode {
         createHookServoSystem(INIT_LEFT_HOOK_DEGREE, INIT_RIGHT_HOOK_DEGREE);
 
         // createDetectNavigationTarget();  // Create object to use Vuforia to detect navigation targets including skystone
-        // createDetectSkystone();          // Create object to use tensor flow to detect skystone
-        // createLift();
 
+        createDetectSkystone();          // Create object to use tensor flow to detect skystone
+
+        // createLift();
     }
 
     public void initializeTeleOp(){

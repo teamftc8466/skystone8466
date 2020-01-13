@@ -61,8 +61,17 @@ public class AutonomousCommon extends RobotHardware {
 
         super.initializeAutonomous();
 
-        // TODO: Activate Tfod for detecting skystone
-        // getDetectSkystone().setupTfod();
+        // Activate Tfod for detecting skystone
+        getDetectSkystone().setupTfod();
+
+        final int max_try_times_to_detect_skystone = 10;
+        for(int i=0; i<max_try_times_to_detect_skystone; ++i) {
+            int det_pos=getDetectSkystone().detectSkystone();
+            if (det_pos >= 0) {
+                firstSkystonePos_ = det_pos;
+                break;
+            }
+        }
 
         // If the returned skystone position is not a valid number (0, 1, or 2), then assume that the Skystone is at the zero position
         if (firstSkystonePos_ < 0 || firstSkystonePos_ > 2) {

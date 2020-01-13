@@ -158,9 +158,9 @@ public class DetectSkystone {
         tfod_.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
-    public boolean detectSkystone() {
-        int skystonePosition;
-        if (tfod_ == null) return false;
+    public int detectSkystone() {
+        int skystonePosition = -1;
+        if (tfod_ == null) return -1;
         Recognition skystoneBlock = null;
         // getUpdatedRecognitions() will return null if no new information is available since
         // the last time that call was made.
@@ -171,11 +171,11 @@ public class DetectSkystone {
             // step through the list of recognitions and display boundary info.
             int i = 0;
             for (Recognition recognition : updatedRecognitions) {
-                telemetry_.addData(String.format("label (%d)", i), recognition.getLabel());
-                telemetry_.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                        recognition.getLeft(), recognition.getTop());
-                telemetry_.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                        recognition.getRight(), recognition.getBottom());
+                // telemetry_.addData(String.format("label (%d)", i), recognition.getLabel());
+                // telemetry_.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                //        recognition.getLeft(), recognition.getTop());
+                // telemetry_.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                //        recognition.getRight(), recognition.getBottom());
                 if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
                     skystoneBlock = recognition;
                     break;
@@ -183,31 +183,43 @@ public class DetectSkystone {
             }
 
             if (skystoneBlock != null) {
+                telemetry_.addData(String.format("label (%d)", i), skystoneBlock.getLabel());
+                telemetry_.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                   skystoneBlock.getLeft(), skystoneBlock.getTop());
+                telemetry_.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                   skystoneBlock.getRight(), skystoneBlock.getBottom());
 //                int skystoneBlockLeftX = (int) skystoneBlock.getLeft();
 //                int skystoneBlockRightX = (int) skystoneBlock.getRight();
-                int skystoneBlockTop = (int) skystoneBlock.getTop();
-                int skystoneBlockBottom = (int) skystoneBlock.getBottom();
-                int detectionWidth = (int) skystoneBlock.getHeight();
+//                int skystoneBlockTop = (int) skystoneBlock.getTop();
+//                int skystoneBlockBottom = (int) skystoneBlock.getBottom();
+//                int detectionWidth = (int) skystoneBlock.getHeight();
+//                telemetry_.addData()
 //              telemetry.addData("detectionWidth or height", detectionWidth);
 //              telemetry.addData("LeftX",  skystoneBlockLeftX);
 //              telemetry.addData("RightX", skystoneBlockRightX);
 //              telemetry.addData("top", skystoneBlockTop);
 //              telemetry.addData("bottom", skystoneBlockBottom);
 
-                if (detectionWidth < 870 ) { //change later maybe
-                    if ((skystoneBlockTop+skystoneBlockBottom) < 1200 ) {
-                        skystonePosition = 1; //left
+
+                    if (skystoneBlock.getRight() >500) {
+                        if(skystoneBlock.getLeft() > 130) {
+                            skystonePosition = 2;
+                        }else {
+                            skystonePosition = 1;
+                        }
                     }
-                    if( (skystoneBlockTop + skystoneBlockBottom) > 1200) {
-                        skystonePosition = 3; //right
+                    else {
+                        skystonePosition = 0;
                     }
-                }else {
-                    skystonePosition = 2; //middle
-                }
+            } else {
+               telemetry_.addData("Not detected", -1);
             }
+
+            telemetry_.addData(">", skystonePosition);
             telemetry_.update();
         }
+        
+        return skystonePosition;
 
-        return true;
     }
 }

@@ -18,6 +18,18 @@ public class LucasMecanum {
         backLeft = hwm.get(DcMotor.class, "backLeft");
         backRight = hwm.get(DcMotor.class, "backRight");
     }
+
+    public void StartEncoders() {
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
     /*
     FrontLeft = Ch3 + Ch1 + Ch4
             RearLeft = Ch3 + Ch1 - Ch4

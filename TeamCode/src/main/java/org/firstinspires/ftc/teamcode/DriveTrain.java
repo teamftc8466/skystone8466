@@ -52,7 +52,7 @@ public class DriveTrain {
 
     private MecanumDriveTrain mecanumDriveTrain_ = null;
 
-    // private BallDriveTrain ballDriveTrain_ = null;
+    private BallDriveTrain ballDriveTrain_ = null;
 
     /// Constructor
     public DriveTrain(Telemetry telemetry) {
@@ -84,10 +84,8 @@ public class DriveTrain {
         return true;
     }
 
-    void createBallDriveTrain(DcMotor motor_left,
-                              DcMotor motor_right,
-                              DcMotor motor_center) {
-        // ballDriveTrain = new BallDriveTrain();
+    void createBallDriveTrain(HardwareMap hardwave_map) {
+        ballDriveTrain_ = new BallDriveTrain(hardwave_map);
     }
 
     void useEncoder() {
@@ -112,15 +110,9 @@ public class DriveTrain {
         // if (ballDriveTrain_ != null) ballDriveTrain_.setPowerFactor(input_power_factor);         // Sample line for when the ball drive will be implemented
     }
 
-    double powerFactor() {
-        if (mecanumDriveTrain_ != null) return mecanumDriveTrain_.powerFactor();
-        // else if (ballDriveTrain_ != null) return ballDriveTrain_.powerFactor();
-
-        return 1;
-    }
-
     void driveByGamePad(Gamepad gamepad) {
         if (mecanumDriveTrain_ != null) mecanumDriveTrain_.driveByGamePad(gamepad);
+        else if (ballDriveTrain_ != null) ballDriveTrain_.driveByGamePad(gamepad);
     }
 
     boolean driveByMode(DriveTrainMode drive_mode,

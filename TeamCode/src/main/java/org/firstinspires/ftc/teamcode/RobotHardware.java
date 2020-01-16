@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,6 +15,9 @@ public class RobotHardware extends LinearOpMode {
     /// Main timer
     ElapsedTime timer_ = new ElapsedTime();
     double currTime_ = 0;
+
+    /// IMU used for detecting heading during autonomous
+    RevImu imu_ = null;
 
     /// Drive train
     DriveTrain driveTrain_ = null;
@@ -69,6 +73,8 @@ public class RobotHardware extends LinearOpMode {
         // createLift();
     }
 
+    RevImu getImu() { return imu_; }
+
     DetectSkystone getDetectSkystone() {
         return detectSkystone_;
     }
@@ -83,6 +89,11 @@ public class RobotHardware extends LinearOpMode {
 
     GoBildaDualServo getLeftHookServo_() { return leftHookServo_; }
     GoBildaDualServo getRightHookServo_() { return rightHookServo_; }
+
+    void createImu() {
+        imu_ = new RevImu(hardwareMap.get(BNO055IMU.class, "imu"),
+                          telemetry);
+    }
 
     void createMecanumDriveTrain() {
         driveTrain_ = new DriveTrain(telemetry);

@@ -39,11 +39,8 @@ public class AutonomousCommon extends RobotHardware {
     public void runOpMode() {
         initialize();
 
-        /** Wait for the game to begin */
-        telemetry.addData(">", "Press Play to start autonomous");
-        telemetry.update();
-
-        waitForStart();
+        /** Detect first skystone position and wait for the game to begin */
+        detectFirstSkystoneAndWaitForStart();
 
         initializeWhenStart();
 
@@ -63,19 +60,30 @@ public class AutonomousCommon extends RobotHardware {
 
         // Activate Tfod for detecting skystone
         getDetectSkystone().setupTfod();
+    }
 
-        final int max_try_times_to_detect_skystone = 10;
-        for(int i=0; i<max_try_times_to_detect_skystone; ++i) {
-            int det_pos=getDetectSkystone().detectSkystone();
-            if (det_pos >= 0) {
-                firstSkystonePos_ = det_pos;
-                break;
+    public synchronized void detectFirstSkystoneAndWaitForStart() {
+        while (!isStarted()) {
+            synchronized (this) {
+                try {
+                    if (getDetectSkystone().existTfod() == true) {
+                        int det_pos = getDetectSkystone().detectSkystone();
+                        if (det_pos >= 0) {
+                            firstSkystonePos_ = det_pos;
+                        }
+                    }
+
+                    telemetry.addData("Waiting for Start: ",
+                            "First_Skystone_Position=" + String.valueOf(firstSkystonePos_) +
+                             " Tfod_Active=" + String.valueOf(getDetectSkystone().existTfod()));
+                    telemetry.update();
+
+                    this.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
             }
-        }
-
-        // If the returned skystone position is not a valid number (0, 1, or 2), then assume that the Skystone is at the zero position
-        if (firstSkystonePos_ < 0 || firstSkystonePos_ > 2) {
-            firstSkystonePos_ = 0;
         }
     }
 
@@ -87,6 +95,11 @@ public class AutonomousCommon extends RobotHardware {
         currOpStartTime_ = 0.0;
 
         driveTrain_.resetEncoder(0);
+
+        // If the returned skystone position is not a valid number (0, 1, or 2), then assume that the Skystone is at the zero position
+        if (firstSkystonePos_ < 0 || firstSkystonePos_ > 2) {
+            firstSkystonePos_ = 0;
+        }
     }
 
     void cleanUpAtEndOfRun() {

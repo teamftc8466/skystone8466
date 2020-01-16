@@ -14,8 +14,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 // IMU
 public class RevImu {
 
-    static final double CALC_HEADING_DIFF_GUARD_BAND = 20;
-
     private Telemetry telemetry_;
 
     BNO055IMU imu_ = null;
@@ -68,8 +66,8 @@ public class RevImu {
     // 180 to -180 for right turn.
     double getHeadingDifference(double target_heading) {
         double diff = convertHeadingInRange(target_heading) - convertHeadingInRange(getHeading());
-        if (diff < (-180 - CALC_HEADING_DIFF_GUARD_BAND)) return (360 + diff);
-        else if (diff > (180 + CALC_HEADING_DIFF_GUARD_BAND)) return (-360 + diff);
+        if (diff < -180) return (360 + diff);
+        else if (diff > 180) return (-360 + diff);
         return diff;
     }
 

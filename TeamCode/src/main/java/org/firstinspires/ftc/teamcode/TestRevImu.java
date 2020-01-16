@@ -1,14 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="TestRevImu", group="FS")
 // @Disabled
-public class TestRevImu extends LinearOpMode {
-
-    RevImu imu_ = null;
+public class TestRevImu extends RobotHardware {
 
     @Override
     public void runOpMode() {
@@ -24,9 +20,9 @@ public class TestRevImu extends LinearOpMode {
         initializeWhenStart();
 
         while (opModeIsActive()) {
-            double heading = imu_.getHeading();
+            double heading = getImu().getHeading();
 
-            double heading_diff = imu_.getHeadingDifference(270);
+            double heading_diff = getImu().getHeadingDifference(-90);
             telemetry.addData("Imu", "heading="+ String.valueOf(heading) + " heading_diff=" + String.valueOf(heading_diff));
             telemetry.update();
 
@@ -37,8 +33,7 @@ public class TestRevImu extends LinearOpMode {
     }
 
     public void initialize() {
-        imu_ = new RevImu(hardwareMap.get(BNO055IMU.class, "imu"),
-                          telemetry);
+        createImu();
     }
 
     void initializeWhenStart() {

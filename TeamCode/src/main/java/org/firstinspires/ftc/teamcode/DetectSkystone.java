@@ -158,7 +158,7 @@ public class DetectSkystone {
         tfod_.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
 
-    public int detectSkystone() {
+    public int detectSkystone(boolean is_red_team) {
         int skystonePosition = -1;
         if (tfod_ == null) return -1;
         Recognition skystoneBlock = null;
@@ -201,15 +201,23 @@ public class DetectSkystone {
 //              telemetry.addData("bottom", skystoneBlockBottom);
 
 
-                    if (skystoneBlock.getRight() >500) {
+                    if (skystoneBlock.getRight() >450) {
                         if(skystoneBlock.getLeft() > 130) {
-                            skystonePosition = 2;
+                            if (is_red_team) {
+                                skystonePosition = 0;
+                            } else {
+                                skystonePosition = 2;
+                            }
                         }else {
                             skystonePosition = 1;
                         }
                     }
                     else {
+                        if (is_red_team) {
+                            skystonePosition = 2;
+                        }else {
                         skystonePosition = 0;
+                    }
                     }
             } else {
                telemetry_.addData("Not detected", -1);

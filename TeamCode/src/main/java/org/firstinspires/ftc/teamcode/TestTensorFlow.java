@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp(name = "TestTensorFlow", group = "FS")
 // @Disabled
 public class TestTensorFlow extends RobotHardware {
-
+    public boolean isRedteam = true;
     @Override
     public void runOpMode() {
         initialize();
@@ -22,7 +22,7 @@ public class TestTensorFlow extends RobotHardware {
         int num_calls=0;
         int [] cnt={0, 0, 0};
         while (opModeIsActive() ) {
-            int pos=getDetectSkystone().detectSkystone();
+            int pos=getDetectSkystone().detectSkystone(isRedteam);
             if (pos >= 0) cnt[pos]+=1;
             num_calls++;
             if (num_calls >= max_call_times) break;

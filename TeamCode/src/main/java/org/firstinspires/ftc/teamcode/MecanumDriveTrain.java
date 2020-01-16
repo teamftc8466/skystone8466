@@ -56,9 +56,9 @@ public class MecanumDriveTrain {
     static final double MAX_HEADING_CORRECTION = 0.95;
 
     /// Default drivetrain power
-    static final double DEFAULT_DRIVE_POWER = 0.75;              // defualt driving power, change later
+    static final double DEFAULT_DRIVE_POWER = 0.75;              // default driving power, change later
     static final double DEFAULT_TURN_POWER = 0.50;               // default turning power, change later
-    static final double DEFAULT_SHIFT_POWER = 0.75;               // default shifting power, change later
+    static final double DEFAULT_SHIFT_POWER = 0.75;              // default shifting power, change later
 
     /// Encoder length conversion scales                         // TODO: Adjust based on experiments
     static final double ENCODER_DISTANCE_SCALE = (2000.0 / 1.06);
@@ -329,14 +329,16 @@ public class MecanumDriveTrain {
     }
 
     void setPowerFactor(double input_power_factor) {         // Setting boundaries of power factors
-        if (input_power_factor <= 0.25) {
-            powerFactor_ = 0.25;
+        if (input_power_factor <= 0.1) {
+            powerFactor_ = 0.1;
         } else if (input_power_factor >= 4.0) {
             powerFactor_ = 4.0;
         } else {
             powerFactor_ = input_power_factor;
         }
     }
+
+    double powerFactor() { return powerFactor_; }
 
     int convertDistanceToEncoderCount(double distance_in_meters) {
         return (int)(distance_in_meters * (double)ENCODER_DISTANCE_SCALE);

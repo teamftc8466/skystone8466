@@ -3,21 +3,20 @@ package org.firstinspires.ftc.teamcode;
 public class AutoOperation {
     enum OpCode {
         OP_STOP,
-        OP_WAIT,
-        OP_DRIVE_TRAIN_RESET_ENCODER,
-        OP_DRIVE_TRAIN_RESET_HEADING,
-        OP_DRIVE_TRAIN_SHIFT_GEAR,
-        OP_DRIVE_TRAIN_FORWARD,
-        OP_DRIVE_TRAIN_BACKWARD,
-        OP_DRIVE_TRAIN_TURN_LEFT,
-        OP_DRIVE_TRAIN_TURN_RIGHT,
-        OP_DRIVE_TRAIN_SHIFT_LEFT,
-        OP_DRIVE_TRAIN_SHIFT_RIGHT,
-        OP_MOVE_HOOK,
-        OP_DRIVE_TO_FIRST_SKYSTONE,
-        OP_GRAB_FIRST_SKYSTONE,
-        OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION,
-        OP_DROP_SKYSTONE_TO_FOUNDATION
+        OP_WAIT,                                       // One operand: Waiting time (>=0)
+        OP_DRIVE_TRAIN_RESET_ENCODER,                  // One operand: time spent to reset encoder (>=0)
+        OP_DRIVE_TRAIN_SHIFT_GEAR,                     // One operand: multiple factor for driving train power (>0)
+        OP_DRIVE_TRAIN_FORWARD,                        // One operand: driving distance in meter (>=0)
+        OP_DRIVE_TRAIN_BACKWARD,                       // One operand: driving distance in meter (>=0)
+        OP_DRIVE_TRAIN_TURN_LEFT,                      // One or two operands: 1: turning degree (>=0); 2: optional minimum reduced power factor used for correcting heading (>=0).
+        OP_DRIVE_TRAIN_TURN_RIGHT,                     // Oe or two operands: 1. turning degree (>=0); 2: optional minimum reduced power factor used for correcting heading (>=0).
+        OP_DRIVE_TRAIN_SHIFT_LEFT,                     // One operand: shifting distance in meter (>=0)
+        OP_DRIVE_TRAIN_SHIFT_RIGHT,                    // One operand: shifting distance in meter (>=0)
+        OP_MOVE_HOOK,                                  // Two operands: 1: left hook position in degree; 2: right hook position in degree.
+        OP_DRIVE_TO_FIRST_SKYSTONE,                    // No operand needed
+        OP_GRAB_FIRST_SKYSTONE,                        // TBD
+        OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION,    // No operand needed
+        OP_DROP_SKYSTONE_TO_FOUNDATION                 // One operand: time spent to drop skystone
     };
 
     private OpCode opcode_ = OpCode.OP_STOP;

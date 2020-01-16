@@ -21,6 +21,8 @@ public class RevImu {
     Orientation imuAngles_;
     double imuHeading_ = 0;
 
+    double targetHeading_ = 0;
+
     public RevImu(BNO055IMU imu,
                   Telemetry telemetry) {
         imu_ = imu;
@@ -42,6 +44,12 @@ public class RevImu {
     public BNO055IMU getImu() {
 	    return imu_;
     }
+
+    void setTargetHeading(double set_heading) {
+        targetHeading_ = (set_heading % 360.0);
+    }
+
+    double targetHeading() { return targetHeading_; }
 
     // Return current robot heading based on gyro/IMU reading:
     //    - The heading starts from 0 when robot is initialized.

@@ -34,6 +34,9 @@ public class RobotHardware extends LinearOpMode {
     /// Lift
     Lift lift_ = null;
 
+    /// Grabber
+    Grabber grabber_ = null;
+
     /// Distance sensor
     KylaColorSensor color_ = null;
 
@@ -104,6 +107,19 @@ public class RobotHardware extends LinearOpMode {
         lift_ = new Lift(motor_left,
                          motor_right,
                          telemetry);
+    }
+
+    void createGrabber() {
+        DcMotor crane_motor = hardwareMap.get(DcMotor.class, "craneMotor");;
+        Servo rotation_servo = hardwareMap.get(Servo.class,"rotationServo");
+        Servo clamp_servo = hardwareMap.get(Servo.class,"clampServo");
+
+        grabber_ = new Grabber(crane_motor,
+              "rotatoionServo",
+                               rotation_servo,
+                "clampServo",
+                               clamp_servo,
+                               telemetry);
     }
 
     void createHookServoSystem(double init_left_hook_degree,

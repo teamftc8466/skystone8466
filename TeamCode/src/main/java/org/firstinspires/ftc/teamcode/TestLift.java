@@ -67,6 +67,7 @@ public class TestLift extends RobotHardware {
             if (lsy > 0) lift_.moveUp(lsy, currTime_);
             else lift_.moveDown(-lsy, currTime_);
 
+            lift_.showEncoderValue(true);
             return;
         }
 

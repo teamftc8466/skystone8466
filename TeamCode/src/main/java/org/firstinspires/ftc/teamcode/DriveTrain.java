@@ -170,4 +170,12 @@ public class DriveTrain {
         mecanumDriveTrain_.setPower(0,0,0,0);
         return true;
     }
+
+
+    /**
+     * TEMP METHOD PLEASE DELETE
+     */
+    double powerFactor() {
+        return 1.0;
+    }
 }

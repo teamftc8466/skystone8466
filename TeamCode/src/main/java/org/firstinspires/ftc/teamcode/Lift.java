@@ -25,6 +25,8 @@ public class Lift {
     //Motors
     private DcMotor motorLeft_ = null;
     private DcMotor motorRight_ = null;
+    private Servo grabberServo = null;
+    private Servo rotatorServo = null;
 
     static final int ENC_THRESHOLD_FOR_HOLD = 50;
 
@@ -48,10 +50,14 @@ public class Lift {
     //Constructor
     public Lift(DcMotor motor_left,
                 DcMotor motor_right,
+                Servo rotator,
+                Servo grabber,
                 Telemetry telemetry) {
         motorLeft_ = motor_left;
         motorRight_ = motor_right;
         telemetry_ = telemetry;
+        rotatorServo = rotator;
+        grabberServo = grabber;
 
         motorLeft_.setDirection(DcMotor.Direction.REVERSE);
         // motorRight_.setDirection(DcMotor.Direction.REVERSE);
@@ -146,6 +152,12 @@ public class Lift {
             double set_power = scaleLiftDownPowerByTime(1.0, used_time);
             if (set_power > power_val) set_power = power_val;
             setPower(set_power);
+        }
+    }
+
+    public void setRotatorServo(double position) {
+        if (position >= 0.05 && position <= 0.39) { //Servo position range
+            rotatorServo.setPosition(position);
         }
     }
 

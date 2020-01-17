@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 @TeleOp(name="TestLift", group="FS")
-@Disabled
+
 public class TestLift extends RobotHardware {
 
     int [] aCnt_ = {0, 0};                 // number of times A is pressed for pads 1 and 2
@@ -32,6 +32,7 @@ public class TestLift extends RobotHardware {
 
         while (opModeIsActive()) {
             driveLiftByGamePad();
+            rotateRotatorServo();
         }
 
         cleanUpAtEndOfRun();
@@ -48,6 +49,16 @@ public class TestLift extends RobotHardware {
 
     void cleanUpAtEndOfRun() {
         // TBD
+    }
+
+    void rotateRotatorServo() {
+        boolean left_bumper = gamepad2.left_bumper;
+        if (left_bumper == true) {
+            lift_.setRotatorServo(0.30); //0.39
+        }
+        else {
+            lift_.setRotatorServo(0.1);  //0.05
+        }
     }
 
     void driveLiftByGamePad() {

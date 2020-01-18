@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleOP;
+package org.firstinspires.ftc.teamcode.ExperimentProgram;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -7,52 +7,51 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.concurrent.TimeUnit;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 //@Disabled
 @TeleOp(name = "WinchTest1")
-public class pulleytest extends OpMode {
-
+public class ScurveTest extends OpMode {
     //motor declare
     public DcMotor pulleymotor1;
-    public CRServo pulleyservo1;
 
+    ElapsedTime elaptime;
     //public double functime = getRuntime();
     public double deltafunctime = 0;
+    public double startfunctime = 0;
     public double motorpower1 = 0;//same with motorpower
 
-        public void init() {
-            //obtains the hardware map
-            HardwareMap hvm = hardwareMap;
-            pulleymotor1 = hvm.get(DcMotor.class, "pulleymotor1");
-            pulleyservo1 = hvm.get(CRServo.class, "servo");
+    public void init() {
+        //obtains the hardware map
+        HardwareMap hvm = hardwareMap;
+        pulleymotor1 = hvm.get(DcMotor.class, "pulleymotor1");
+    }
+
+    public double timer(double time) {
+        deltafunctime = time - startfunctime;
+        return deltafunctime;
+    }
+
+    public void loop() {
+            /*pulleymotor1.setPower(gamepad1.right_stick_y);
+            pulleymotor1.setPower(gamepad1.right_stick_y);*/
+
+
+        //I maka da deadzone
+        if (Math.abs(gamepad1.right_stick_y) > .1) {
+            pulleymotor1.setPower(0);
         }
-
-        public void loop() {
-            pulleymotor1.setPower(gamepad1.right_stick_y);
-            pulleymotor1.setPower(gamepad1.right_stick_y);
-
-
-            //I maka da deadzone
-            /*gamepad1.setJoystickDeadzone(0.1f);
-            if(gamepad1.right_stick_y < .1 && gamepad1.right_stick_y > -.1) {
-                pulleymotor1.setPower(0);
-                deltafunctime = 0;
-                //functime = getRuntime();
+        else {
+            startfunctime = elaptime.time(TimeUnit.SECONDS);
+            while (deltafunctime <= 30) {
+                motorpower1 = Math.pow((1 / 30) * timer(elaptime.time(TimeUnit.SECONDS)) * (1 / gamepad1.right_stick_y), 3);
+                pulleymotor1.setPower(motorpower1);
             }
-            else {
-                do {
-                    motorpower1 = Math.pow((1/300) * deltafunctime * (1/gamepad1.right_stick_y), 3);
-                    pulleymotor1.setPower(motorpower1);
-                    //pulleymotor1.setPower(motorpower1);
 
-                    deltafunctime++;
-                }
-                while(deltafunctime<=300);
-
-                if(deltafunctime>300) {
-                    pulleymotor1.setPower(gamepad1.right_stick_y);
-                }*/
+            if (deltafunctime > 30) {
+                pulleymotor1.setPower(gamepad1.right_stick_y);
+            }
+        }
 
 
                 /*while (deltafunctime<20) {
@@ -88,7 +87,7 @@ public class pulleytest extends OpMode {
                 else if (deltafunctime > 5) {
                     pulleymotor1.setPower(gamepad1.right_stick_y);
                 }*/
-            }
-        }
+    }
+}
 
 //motor wheel diameter 21.95mm

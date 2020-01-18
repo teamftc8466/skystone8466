@@ -1,20 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Lift {
     // Lift position specified by encoder count
     public enum Position {
-        LIFT_INIT_POSITION(0),
-        LIFT_GRAB_STONE_READY(200),
-        LIFT_GRAB_STONE_CATCH(10),
+        LIFT_BOTTOM_POSITION(10),
+        LIFT_GRAB_STONE_CATCH(20),
         LIFT_DELIVER_STONE(50),
-        LIFT_TOP_POSITION(1000),
-        LIFT_BOTTOM_POSITION(10);
+        LIFT_GRAB_STONE_READY(200),
+        LIFT_TOP_POSITION(1000);
 
         private final int val_;
 
@@ -28,7 +29,7 @@ public class Lift {
     private Servo grabberServo = null;
     private Servo rotatorServo = null;
 
-    static final int ENC_THRESHOLD_FOR_HOLD = 50;
+    static final int ENCODER_THRESHOLD_FOR_TARGET_POSITION = 15;
 
     /// Encoder time out variables
     static final double AUTO_ENC_STUCK_TIME_OUT = 2.0;
@@ -36,14 +37,12 @@ public class Lift {
     private int prevReadEncCntMotorRight_ = 0;
     private double prevEncCntChangeStartTime_ = 0;
 
-    private int encoderCntForTargetPosition_ = -1;
+    private double lastSetPower_ = 0;
+    private int encoderCntForTargetPosition_ = 0;
     private double startTimeToTargetPosition_ = 0;
     static final double SCALE_LIFT_POWER_TIME_INTERVAL = 0.1;
-    static final double [] SCALE_LIFT_UP_POWER_BY_TIME = {0.05, 0.1, 0.15, 0.2, 0.25,
-                                                          0.3, 0.35, 0.4, 0.45,  0.5,
-                                                          0.6,  0.7, 0.8,  0.9,  1.0};    // Spend 1 sec to 50% of power and 1.5 sec to full power
-    static final double [] SCALE_LIFT_DOWN_POWER_BY_TIME = {0.1, 0.2, 0.35, 0.5, 0.65,
-                                                            0.8, 1.0,  1.0, 1.0,   1.0};   // Spend 0.7 sec to full power
+    static final double [] SCALE_LIFT_UP_POWER_BY_TIME = {0.2, 0.3, 0.35, 0.5, 0.7, 0.85, 1.0};    // Spend 0.7 sec to full power
+    static final double [] SCALE_LIFT_DOWN_POWER_BY_TIME = {0.2, 0.35, 0.6, 0.9, 1.0}; // Spend 0.5 sec to full power
 
     private Telemetry telemetry_;
 
@@ -59,18 +58,18 @@ public class Lift {
         rotatorServo = rotator;
         grabberServo = grabber;
 
-        motorLeft_.setDirection(DcMotor.Direction.REVERSE);
-        // motorRight_.setDirection(DcMotor.Direction.REVERSE);
+        motorLeft_.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorRight_.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         resetEncoder(0);
     }
 
     void useEncoder(){
-        motorLeft_.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorRight_.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorLeft_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motorRight_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    void resetEncoder(double time){
+    private void resetEncoder(double time){
         motorLeft_.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorRight_.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -81,78 +80,40 @@ public class Lift {
         useEncoder();
     }
 
-    // public void setStartTimeToMovelift(double time) { startTimeToTargetPosition_ = time; }
-    public void setCurrentEncoderCountAsTargetPosition() { encoderCntForTargetPosition_ = motorLeft_.getCurrentPosition(); }
+    int encoderCountForTargetPosition() { return encoderCntForTargetPosition_;}
+
+    public void setCurrentPositionAsTargetPosition(double time) {
+        int curr_encoder_cnt = motorRight_.getCurrentPosition();
+        if (curr_encoder_cnt > Position.LIFT_TOP_POSITION.getValue()) {
+            curr_encoder_cnt = Position.LIFT_TOP_POSITION.getValue();
+        } else if (curr_encoder_cnt < Position.LIFT_BOTTOM_POSITION.getValue()) {
+            curr_encoder_cnt = Position.LIFT_BOTTOM_POSITION.getValue();
+        }
+
+        setEncoderCountForTargetPosition(curr_encoder_cnt, time);
+    }
+
+    public void holdAtTargetPosition(double time) {
+        moveToTargetPosition(0.4, time);
+    }
 
     public boolean moveToPosition(Position position,
                                   double time) {
-        if (time < 0) time = 0;
-
         final int target_encoder_cnt = position.getValue();
-        if (target_encoder_cnt != encoderCntForTargetPosition_) {
-            startTimeToTargetPosition_ = time;
-            encoderCntForTargetPosition_ = target_encoder_cnt;
-        }
+        setEncoderCountForTargetPosition(target_encoder_cnt, time);
 
-        int drive_to_encoder_cnt = target_encoder_cnt + ENC_THRESHOLD_FOR_HOLD;
-        int curr_enc_pos_motor_left = motorLeft_.getCurrentPosition();
-        int curr_enc_pos_motor_right = motorRight_.getCurrentPosition();
-        if (curr_enc_pos_motor_left < target_encoder_cnt) {
-            if (curr_enc_pos_motor_left <= drive_to_encoder_cnt || curr_enc_pos_motor_right <= drive_to_encoder_cnt) {
-                motorLeft_.setTargetPosition(drive_to_encoder_cnt);
-                motorRight_.setTargetPosition(drive_to_encoder_cnt);
+        moveToTargetPosition(1.0, time);
 
-                double used_time = time - startTimeToTargetPosition_;
-                setPower(scaleLiftUpPowerByTime(1.0, used_time));
-                return false;
-            }
-        } else if (curr_enc_pos_motor_left > target_encoder_cnt) {
-            motorLeft_.setTargetPosition(target_encoder_cnt);
-            motorRight_.setTargetPosition(target_encoder_cnt);
-
-            if (curr_enc_pos_motor_left > drive_to_encoder_cnt) {
-                double used_time = time - startTimeToTargetPosition_;
-                setPower(scaleLiftDownPowerByTime(1.0, used_time));
-            } else {
-                setPower(0.1);
-            }
-
-            return false;
-        }
-
-        setPower(0);
-        startTimeToTargetPosition_ = 0;
-        return true;
+        return reachToTargetEncoderCount();
     }
 
     // Move the lift up. This method is used by teleop only.
     public void moveUp(double power_val,
                        double time) {
         final int enc_cnt_at_top_position = Position.LIFT_TOP_POSITION.getValue();
-        if (encoderCntForTargetPosition_ != enc_cnt_at_top_position) {
-            startTimeToTargetPosition_ = time;
-            encoderCntForTargetPosition_ = enc_cnt_at_top_position;
-        }
+        setEncoderCountForTargetPosition(enc_cnt_at_top_position, time);
 
-        if (power_val > 1.0) power_val = 1.0;
-
-        int curr_enc_pos_motor_left = motorLeft_.getCurrentPosition();
-        int curr_enc_pos_motor_right = motorRight_.getCurrentPosition();
-
-        if (power_val <= 0 ||
-                curr_enc_pos_motor_left >= enc_cnt_at_top_position ||
-                curr_enc_pos_motor_right >= enc_cnt_at_top_position) {
-            startTimeToTargetPosition_ = 0;
-            hold();
-        } else {
-            motorLeft_.setTargetPosition(enc_cnt_at_top_position);
-            motorRight_.setTargetPosition(enc_cnt_at_top_position);
-
-            double used_time = time - startTimeToTargetPosition_;
-            double set_power = scaleLiftDownPowerByTime(1.0, used_time);
-            if (set_power > power_val) set_power = power_val;
-            setPower(set_power);
-        }
+        moveToTargetPosition(enc_cnt_at_top_position, time);
     }
 
     public void setRotatorServo(double position) {
@@ -165,53 +126,60 @@ public class Lift {
     public void moveDown(double power_val,
                          double time) {
         final int enc_cnt_at_bottom_position = Position.LIFT_BOTTOM_POSITION.getValue();
-        if (encoderCntForTargetPosition_ != enc_cnt_at_bottom_position) {
-            startTimeToTargetPosition_ = time;
-            encoderCntForTargetPosition_ = enc_cnt_at_bottom_position;
-        }
+        setEncoderCountForTargetPosition(enc_cnt_at_bottom_position, time);
 
-        if (power_val > 1.0) power_val = 1.0;
-
-        int curr_enc_pos_motor_left = motorLeft_.getCurrentPosition();
-        int curr_enc_pos_motor_right = motorRight_.getCurrentPosition();
-        if (power_val <= 0 ||
-                curr_enc_pos_motor_left <= enc_cnt_at_bottom_position ||
-                curr_enc_pos_motor_right <= enc_cnt_at_bottom_position) {
-            startTimeToTargetPosition_ = 0;
-            hold();
-        } else {
-            motorLeft_.setTargetPosition(enc_cnt_at_bottom_position);
-            motorRight_.setTargetPosition(enc_cnt_at_bottom_position);
-
-            double used_time = time - startTimeToTargetPosition_;
-            double set_power = scaleLiftDownPowerByTime(1.0, used_time);
-            if (set_power > power_val) set_power = power_val;
-            setPower(set_power);
-        }
+        moveToTargetPosition(enc_cnt_at_bottom_position, time);
     }
 
-    void hold() {
-        if (encoderCntForTargetPosition_ <= Position.LIFT_BOTTOM_POSITION.getValue()) {
-            setPower(0);
-            return;
+    private void moveToTargetPosition(double power_val,
+                                      double time) {
+        if (time < startTimeToTargetPosition_) time = startTimeToTargetPosition_;
+
+        power_val = Math.abs(power_val);
+        power_val = Range.clip(power_val, 0, 1);
+
+        int curr_enc_pos_motor_right = motorRight_.getCurrentPosition();
+
+        // telemetry_.addData("Time", "time="+String.valueOf(time)+
+        //                    " start="+String.valueOf(startTimeToTargetPosition_)+
+        //                    " diff="+String.valueOf(time-startTimeToTargetPosition_));
+
+        double set_power = 0;
+        if (curr_enc_pos_motor_right < encoderCntForTargetPosition_) {
+            double used_time = time - startTimeToTargetPosition_;
+            set_power = scaleLiftUpPowerByTime(1.0, used_time);
+            if (set_power > power_val) set_power = power_val;
+
+            int enc_diff = encoderCntForTargetPosition_ - curr_enc_pos_motor_right;
+            if (enc_diff < 10) {
+                if (set_power > 0.1) set_power = 0.1;
+            } else if (enc_diff < 50) {
+                if (set_power > 0.175) set_power = 0.175;
+            } else if (enc_diff < 150) {
+                if (set_power > 0.275) set_power = 0.275;
+            } else if (enc_diff < 250) {
+                if (set_power > 0.4) set_power = 0.4;
+            }
+        } else if (curr_enc_pos_motor_right > encoderCntForTargetPosition_) {
+            double used_time = time - startTimeToTargetPosition_;
+            set_power = scaleLiftDownPowerByTime(1.0, used_time);
+            if (set_power > power_val) set_power = power_val;
+
+            int enc_diff = curr_enc_pos_motor_right - encoderCntForTargetPosition_;
+            if (enc_diff < 20) {
+                set_power = 0;
+            } else if (enc_diff < 50) {
+                if (set_power > 0.125) set_power = 0.125;
+            } else if (enc_diff < 150) {
+                if (set_power > 0.25) set_power = 0.25;
+            } else if (enc_diff < 250) {
+                if (set_power > 0.4) set_power = 0.4;
+            }
+
+            set_power = -set_power;
         }
 
-        int drive_to_encoder_cnt = encoderCntForTargetPosition_ + ENC_THRESHOLD_FOR_HOLD;
-        if (drive_to_encoder_cnt > Position.LIFT_TOP_POSITION.getValue()) {
-            drive_to_encoder_cnt = Position.LIFT_TOP_POSITION.getValue();
-        }
-
-        motorLeft_.setTargetPosition(drive_to_encoder_cnt);
-        motorRight_.setTargetPosition(drive_to_encoder_cnt);
-
-        final int curr_enc_pos_motor_left = motorLeft_.getCurrentPosition();
-        final int curr_enc_pos_motor_right = motorRight_.getCurrentPosition();
-        if (curr_enc_pos_motor_left < drive_to_encoder_cnt ||
-            curr_enc_pos_motor_right < drive_to_encoder_cnt) {
-            setPower(0.1);
-        } else {
-            setPower(0);
-        }
+        setPower(set_power);
     }
 
     private double scaleLiftUpPowerByTime(double power_val,
@@ -221,6 +189,7 @@ public class Lift {
         else if (time_used >= SCALE_LIFT_UP_POWER_BY_TIME[last_scale_id]) return power_val;
 
         int index = (int)(time_used / SCALE_LIFT_POWER_TIME_INTERVAL);
+        if (index > last_scale_id) index = last_scale_id;
         return (power_val * SCALE_LIFT_UP_POWER_BY_TIME[index]);
     }
 
@@ -231,27 +200,31 @@ public class Lift {
         else if (time_used >= SCALE_LIFT_UP_POWER_BY_TIME[last_scale_id]) return power_val;
 
         int index = (int)(time_used / SCALE_LIFT_POWER_TIME_INTERVAL);
+        if (index > last_scale_id) index = last_scale_id;
         return (power_val * SCALE_LIFT_DOWN_POWER_BY_TIME[index]);
     }
 
+    void setEncoderCountForTargetPosition(int enc_cnt_at_target_pos,
+                                          double time) {
+        if (encoderCntForTargetPosition_ == enc_cnt_at_target_pos) return;
+
+        startTimeToTargetPosition_ = time;
+        encoderCntForTargetPosition_ = enc_cnt_at_target_pos;
+    }
+
     void setPower(double power) {
-        motorLeft_.setPower(power);
+        if (lastSetPower_ == power) return;
+
+        motorLeft_.setPower(-power);
         motorRight_.setPower(power);
+
+        lastSetPower_ = power;
     }
 
-    boolean allEncodersAreReset() {
-        return (motorLeft_.getCurrentPosition() == 0 &&
-                motorRight_.getCurrentPosition() == 0);
-    }
-
-    boolean reachToTargetEncoderCount(int target_encoder_cnt) {
-        int curr_enc_pos_motor_left = motorLeft_.getCurrentPosition();
-        int curr_enc_pos_motor_right = motorRight_.getCurrentPosition();
-
-        return ((curr_enc_pos_motor_left >= target_encoder_cnt &&
-                 curr_enc_pos_motor_left <= (target_encoder_cnt + ENC_THRESHOLD_FOR_HOLD)) ||
-                (curr_enc_pos_motor_right >= target_encoder_cnt &&
-                 curr_enc_pos_motor_right <= (target_encoder_cnt + ENC_THRESHOLD_FOR_HOLD)));
+    boolean reachToTargetEncoderCount() {
+        final int curr_enc_pos_motor_left = motorRight_.getCurrentPosition();
+        return (curr_enc_pos_motor_left >= encoderCntForTargetPosition_ &&
+                curr_enc_pos_motor_left < (encoderCntForTargetPosition_ + ENCODER_THRESHOLD_FOR_TARGET_POSITION));
     }
 
     boolean isEncoderStuck(double time) {
@@ -271,9 +244,10 @@ public class Lift {
     }
 
     public void showEncoderValue(boolean update_flag){
+        telemetry_.addData("Power", String.valueOf(lastSetPower_));
         telemetry_.addData("Current lift encoder value",
                 "Target="+String.valueOf(encoderCntForTargetPosition_)+
-                      "Left="+String.valueOf(motorLeft_.getCurrentPosition())+
+                      ", Left="+String.valueOf(motorLeft_.getCurrentPosition())+
                       ", Right="+String.valueOf(motorRight_.getCurrentPosition()));
 
         if (update_flag == true) telemetry_.update();

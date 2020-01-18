@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 @TeleOp(name="TestLift", group="FS")
-
+// @Disabled
 public class TestLift extends RobotHardware {
 
     int [] aCnt_ = {0, 0};                 // number of times A is pressed for pads 1 and 2
@@ -31,6 +31,7 @@ public class TestLift extends RobotHardware {
         initializeWhenStart();
 
         while (opModeIsActive()) {
+            currTime_ = timer_.time();
             driveLiftByGamePad();
             rotateRotatorServo();
         }
@@ -75,15 +76,16 @@ public class TestLift extends RobotHardware {
 
             lsyActive_ = true;
 
-            if (lsy > 0) lift_.moveUp(lsy, currTime_);
-            else lift_.moveDown(-lsy, currTime_);
+            if (lsy < 0) lift_.moveUp(-lsy, currTime_);
+            else lift_.moveDown(lsy, currTime_);
 
+            telemetry.addData("LSY", String.valueOf(lsy));
             lift_.showEncoderValue(true);
             return;
         }
 
         if (lsyActive_ == true) {
-            lift_.setCurrentEncoderCountAsTargetPosition();  // Hold position reached by left shift stick
+            lift_.setCurrentPositionAsTargetPosition(currTime_);
             lsyActive_ = false;
         }
 
@@ -130,9 +132,15 @@ public class TestLift extends RobotHardware {
         } else if (lbCnt_[1] != 0) {
             lift_.moveToPosition(Lift.Position.LIFT_BOTTOM_POSITION, currTime_);
         } else {
-            lift_.hold();
+            lift_.holdAtTargetPosition(currTime_);
         }
 
+        telemetry.addData("Cnt",
+                          " A="+String.valueOf(aCnt_[1])+
+                           " B="+String.valueOf(bCnt_[1])+
+                           " X="+String.valueOf(xCnt_[1])+
+                           " Y="+String.valueOf(yCnt_[1])+
+                           " lb="+String.valueOf(lbCnt_[1]));
         lift_.showEncoderValue(true);
     }
 }

@@ -55,7 +55,6 @@ public class RobotHardware extends LinearOpMode {
         // Do nothing
     }
 
-
     // Code to run when op mode is initialized
     public void initializeAutonomous() {
         createMecanumDriveTrain();
@@ -116,13 +115,8 @@ public class RobotHardware extends LinearOpMode {
         DcMotor motor_left = hardwareMap.dcMotor.get("motorLiftLeft");
         DcMotor motor_right = hardwareMap.dcMotor.get("motorLiftRight");
 
-        Servo rotatorServo = hardwareMap.servo.get("rotatingServoLift");
-        Servo grabberServo = hardwareMap.servo.get("grabberServo");
-
         lift_ = new Lift(motor_left,
                          motor_right,
-                        rotatorServo,
-                        grabberServo,
                          telemetry);
     }
 

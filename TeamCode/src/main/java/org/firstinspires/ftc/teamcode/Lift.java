@@ -26,8 +26,6 @@ public class Lift {
     //Motors
     private DcMotor motorLeft_ = null;
     private DcMotor motorRight_ = null;
-    private Servo grabberServo = null;
-    private Servo rotatorServo = null;
 
     static final int ENCODER_THRESHOLD_FOR_TARGET_POSITION = 15;
 
@@ -49,14 +47,10 @@ public class Lift {
     //Constructor
     public Lift(DcMotor motor_left,
                 DcMotor motor_right,
-                Servo rotator,
-                Servo grabber,
                 Telemetry telemetry) {
         motorLeft_ = motor_left;
         motorRight_ = motor_right;
         telemetry_ = telemetry;
-        rotatorServo = rotator;
-        grabberServo = grabber;
 
         motorLeft_.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorRight_.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -114,12 +108,6 @@ public class Lift {
         setEncoderCountForTargetPosition(enc_cnt_at_top_position, time);
 
         moveToTargetPosition(enc_cnt_at_top_position, time);
-    }
-
-    public void setRotatorServo(double position) {
-        if (position >= 0.05 && position <= 0.39) { //Servo position range
-            rotatorServo.setPosition(position);
-        }
     }
 
     // Move the lift down. This method is used by teleop only.

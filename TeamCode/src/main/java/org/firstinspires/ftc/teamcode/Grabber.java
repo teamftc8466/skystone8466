@@ -12,7 +12,7 @@ public class Grabber {
     public enum CranePosition {
         CRANE_DRAW_BACK_POSITION(50),
         CRANE_GRAB_STONE(200),
-        CRANE_MAX_STRETCH_OUT_POSITION(2000);
+        CRANE_MAX_STRETCH_OUT_POSITION(1000);
 
         private final int val_;
 
@@ -21,9 +21,9 @@ public class Grabber {
     };
 
     public enum RotationPosition {
-        ROTATION_IN(0),
+        ROTATION_IN(28),
         ROTATION_HALF_OUT(45),
-        ROTATION_OUT(90);
+        ROTATION_OUT(84);
 
         private final int val_;
 

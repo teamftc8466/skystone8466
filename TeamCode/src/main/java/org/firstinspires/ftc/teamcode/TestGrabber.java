@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 // @Disabled
 public class TestGrabber extends RobotHardware {
 
+    static final double  MIN_PRESS_BUTTON_INTERVAL = 0.3;   // Recognize pressed button at least every 0.3 sec
+    double lastPressButtonTime_ = 0;
+
     int [] aCnt_ = {0, 0};                 // number of times A is pressed for pads 1 and 2
     int [] bCnt_ = {0, 0};                 // number of times B is pressed for pads 1 and 2
     int [] xCnt_ = {0, 0};                 // number of times X is pressed for pads 1 and 2
@@ -73,49 +76,63 @@ public class TestGrabber extends RobotHardware {
             rsyActive_ = false;
         }
 
-        if (gamepad2.x) {
-            aCnt_[1] = 0;
-            bCnt_[1] = 0;
-            xCnt_[1] += 1;
-            yCnt_[1] = 0;
-            lbCnt_[1] = 0;
-            switch (xCnt_[1] % 4) {
-                case 1 : grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_MAX_STRETCH_OUT_POSITION);
-                         break;
-                case 3 : grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DRAW_BACK_POSITION);
-                         break;
-                default: grabber_.stopCrane();
+        boolean any_pressed_button_flag = false;
+        if ((currTime_ - lastPressButtonTime_) > MIN_PRESS_BUTTON_INTERVAL) {
+            if (gamepad2.x) {
+                any_pressed_button_flag = true;
+                aCnt_[1] = 0;
+                bCnt_[1] = 0;
+                xCnt_[1] += 1;
+                yCnt_[1] = 0;
+                lbCnt_[1] = 0;
+                switch (xCnt_[1] % 4) {
+                    case 1:
+                        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_MAX_STRETCH_OUT_POSITION);
+                        break;
+                    case 3:
+                        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DRAW_BACK_POSITION);
+                        break;
+                    default:
+                        grabber_.stopCrane();
+                }
+            } else if (gamepad2.y) {
+                any_pressed_button_flag = true;
+                aCnt_[1] = 0;
+                bCnt_[1] = 0;
+                xCnt_[1] = 0;
+                yCnt_[1] += 1;
+                lbCnt_[1] = 0;
+                grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
+            } else if (gamepad2.a) {
+                any_pressed_button_flag = true;
+                aCnt_[1] += 1;
+                bCnt_[1] = 0;
+                xCnt_[1] = 0;
+                yCnt_[1] = 0;
+                lbCnt_[1] = 0;
+                if ((aCnt_[1] % 2) == 1) grabber_.clampOpen();
+                else grabber_.clampClose();
+            } else if (gamepad2.b) {
+                any_pressed_button_flag = true;
+                aCnt_[1] = 0;
+                bCnt_[1] += 1;
+                xCnt_[1] = 0;
+                yCnt_[1] = 0;
+                lbCnt_[1] = 0;
+                switch (bCnt_[1] % 4) {
+                    case 0: grabber_.rotationIn(); break;
+                    case 1: grabber_.rotationHalfOut(); break;
+                    case 2: grabber_.rotationOut(); break;
+                    case 3: grabber_.rotationHalfOut(); break;
+                    default: grabber_.rotationIn(); bCnt_[1] = 0;
+                }
             }
-        } else if (gamepad2.y) {
-            aCnt_[1] = 0;
-            bCnt_[1] = 0;
-            xCnt_[1] = 0;
-            yCnt_[1] += 1;
-            lbCnt_[1] = 0;
-            grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
-        } else if (gamepad2.a) {
-            aCnt_[1] += 1;
-            bCnt_[1] = 0;
-            xCnt_[1] = 0;
-            yCnt_[1] = 0;
-            lbCnt_[1] = 0;
-            if ((aCnt_[1] % 2) == 1) grabber_.clampOpen();
-            else grabber_.clampClose();
-        } else if (gamepad2.b) {
-            aCnt_[1] = 0;
-            bCnt_[1] += 1;
-            xCnt_[1] = 0;
-            yCnt_[1] = 0;
-            lbCnt_[1] = 0;
-            switch (bCnt_[1] % 4) {
-                case 0 : grabber_.rotationIn(); break;
-                case 1 : grabber_.rotationHalfOut(); break;
-                case 2 : grabber_.rotationOut(); break;
-                case 3 : grabber_.rotationHalfOut(); break;
-                default: grabber_.rotationIn(); bCnt_[1]=0;
-            }
-        } else {
+        }
+
+        if (any_pressed_button_flag == false) {
             grabber_.holdCraneAtTargetPosition();
+        } else {
+            lastPressButtonTime_ = currTime_;
         }
 
         telemetry.addData("Cnt",

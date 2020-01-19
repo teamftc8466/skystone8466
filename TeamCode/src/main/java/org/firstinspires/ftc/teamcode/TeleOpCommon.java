@@ -133,9 +133,9 @@ public class TeleOpCommon extends RobotHardware {
                 break;
         }
 
-        if (leftHookServo_ != null) {
-            if (move_hook_to_pull_position == true) moveHooksToPullPosition();
-            else moveHooksToReleasePosition();
+        if (hooks_ != null) {
+            if (move_hook_to_pull_position == true) hooks_.moveHooksToPosition(Hooks.Position.PULL);
+            else hooks_.moveHooksToPosition(Hooks.Position.RELEASE);
         }
 
         if (lift_ != null) {

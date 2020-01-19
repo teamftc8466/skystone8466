@@ -25,15 +25,8 @@ public class RobotHardware extends LinearOpMode {
     /// Tfod for detecting skystone
     DetectSkystone detectSkystone_ = null;
 
-    /// GoBuilda Servo for left and right hooks
-    GoBildaDualServo leftHookServo_ = null;
-    GoBildaDualServo rightHookServo_ = null;
-    final double INIT_LEFT_HOOK_DEGREE = 230;    // Initial positions for the left and right servos are on opposite ends of the position spectrum
-    final double INIT_RIGHT_HOOK_DEGREE = 50;    // (0 degrees to 280 degrees) because they are facing opposite directions when mounted on the robot
-    final double LEFT_HOOK_PULL_DEGREE = 80;
-    final double RIGHT_HOOK_PULL_DEGREE = 210;
-    final double LEFT_HOOK_RELEASE_DEGREE = 240;
-    final double RIGHT_HOOK_RELEASE_DEGREE = 40;
+    /// Hooks including left and right hooks
+    Hooks hooks_ = null;
 
     /// Lift
     Lift lift_ = null;
@@ -58,12 +51,11 @@ public class RobotHardware extends LinearOpMode {
     // Code to run when op mode is initialized
     public void initializeAutonomous() {
         createMecanumDriveTrain();
-        createHookServoSystem(INIT_LEFT_HOOK_DEGREE, INIT_RIGHT_HOOK_DEGREE);
 
         // createDetectNavigationTarget();  // Create object to use Vuforia to detect navigation targets including skystone
-
         createDetectSkystone();          // Create object to use tensor flow to detect skystone
 
+        createHooks(Hooks.Position.INIT);
         // createLift();
         // createGrabber();
     }
@@ -71,7 +63,7 @@ public class RobotHardware extends LinearOpMode {
     public void initializeTeleOp() {
         createMecanumDriveTrain();
 
-        // createHookServoSystem(INIT_LEFT_HOOK_DEGREE, INIT_RIGHT_HOOK_DEGREE);
+        // createHooks(Hooks.Position.INIT);
         // createLift();
         // createGrabber();
     }
@@ -92,12 +84,8 @@ public class RobotHardware extends LinearOpMode {
         return lift_;
     }
 
-    GoBildaDualServo getLeftHookServo_() {
-        return leftHookServo_;
-    }
-
-    GoBildaDualServo getRightHookServo_() {
-        return rightHookServo_;
+    Hooks getHooks() {
+        return hooks_;
     }
 
     void createImu() {
@@ -144,40 +132,16 @@ public class RobotHardware extends LinearOpMode {
                 telemetry);
     }
 
-    void createHookServoSystem(double init_left_hook_degree,
-                               double init_right_hook_degree) {
+    void createHooks(Hooks.Position init_position) {
         Servo left_servo = hardwareMap.get(Servo.class, "leftHookServo");
         Servo right_servo = hardwareMap.get(Servo.class, "rightHookServo");
 
-        leftHookServo_ = new GoBildaDualServo("LeftHook",
-                left_servo,
-                false,
-                init_left_hook_degree,
-                telemetry);
-
-        rightHookServo_ = new GoBildaDualServo("RightHook",
+        hooks_ = new Hooks(left_servo,
+                "leftHookServo",
                 right_servo,
-                false,
-                init_right_hook_degree,
+                "rightHookServo",
+                init_position,
                 telemetry);
-    }
-
-    void moveHooksToPullPosition() {
-        if (leftHookServo_ != null) {
-            leftHookServo_.setServoModePositionInDegree(LEFT_HOOK_PULL_DEGREE, false);
-        }
-        if (rightHookServo_ != null) {
-            rightHookServo_.setServoModePositionInDegree(RIGHT_HOOK_PULL_DEGREE, false);
-        }
-    }
-
-    void moveHooksToReleasePosition() {
-        if (leftHookServo_ != null) {
-            leftHookServo_.setServoModePositionInDegree(LEFT_HOOK_RELEASE_DEGREE, false);
-        }
-        if (rightHookServo_ != null) {
-            rightHookServo_.setServoModePositionInDegree(RIGHT_HOOK_RELEASE_DEGREE, false);
-        }
     }
 
     void createColor() {

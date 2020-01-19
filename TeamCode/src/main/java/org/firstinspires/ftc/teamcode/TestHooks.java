@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="TestGoBuildaDualServo", group="FS")
+@TeleOp(name="TestHooks", group="FS")
 // @Disabled
-public class TestGoBildaDualServo extends RobotHardware {
+public class TestHooks extends RobotHardware {
 
     @Override
     public void runOpMode() {

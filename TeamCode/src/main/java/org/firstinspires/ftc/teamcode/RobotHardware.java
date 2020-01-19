@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.text.method.Touch;
+import android.view.View;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -42,6 +46,9 @@ public class RobotHardware extends LinearOpMode {
 
     /// Distance sensor
     KylaDistanceSensor distance_ = null;
+
+    //Touch Sensors
+    GobildaTouchSensors gobildaTouchSensors_;
 
     @Override
     public void runOpMode() {
@@ -165,6 +172,13 @@ public class RobotHardware extends LinearOpMode {
         DistanceSensor dis = hardwareMap.get(DistanceSensor.class, "sensor_range");
 
         distance_ = new KylaDistanceSensor(dis, telemetry);
+    }
+
+    void createGobildaTouchSensors() {
+        TouchSensor touch1 = hardwareMap.touchSensor.get("TouchSensor1");
+        TouchSensor touch2 = hardwareMap.touchSensor.get("TouchSensor2");
+
+        gobildaTouchSensors_ = new GobildaTouchSensors(touch1, touch2, telemetry);
     }
 
 }

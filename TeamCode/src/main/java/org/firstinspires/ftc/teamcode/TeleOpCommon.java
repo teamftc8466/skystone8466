@@ -10,9 +10,9 @@ public class TeleOpCommon extends RobotHardware {
 
     GamepadButtons gamepadButtons_ = new GamepadButtons(gamepad1, gamepad2);
 
-    boolean activatedCtlLiftByJoystick__ = false;          // Indicate if the joystick in gamepad is active to control lift.
+    boolean activatedCtlLiftByJoystick_ = false;           // Indicate if the joystick in gamepad is active to control lift.
                                                            // If it is active, ignore the pressed buttons used to control lift.
-    boolean activatedCtlGrabberCraneByJoystick__ = false;  // Indicate if the joystick in gamepad is active to control grabber crane
+    boolean activatedCtlGrabberCraneByJoystick_ = false;   // Indicate if the joystick in gamepad is active to control grabber crane
                                                            // If it is active, ignore the pressed buttons used to control grabber crane.
 
     boolean holdLiftAtCurrentPosition_ = false;
@@ -97,7 +97,7 @@ public class TeleOpCommon extends RobotHardware {
         GamepadButtons.Button pressed_button_in_gamepad_1 = gamepadButtons_.pressedButton(GamepadButtons.GamepadId.PAD_1, currTime_);
         switch (pressed_button_in_gamepad_1) {
             case LEFT_BUMPER:
-                if (activatedCtlLiftByJoystick__ == false) {
+                if (activatedCtlLiftByJoystick_ == false) {
                     if (lift_!= null) lift_.moveToPosition(Lift.Position.LIFT_DELIVER_STONE, currTime_);
                 }
                 break;
@@ -118,7 +118,7 @@ public class TeleOpCommon extends RobotHardware {
                 }
                 break;
             case RIGHT_BUMPER:
-                if (activatedCtlGrabberCraneByJoystick__ == false) {
+                if (activatedCtlGrabberCraneByJoystick_ == false) {
                     if (grabber_ != null) grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
                 }
                 break;
@@ -152,7 +152,7 @@ public class TeleOpCommon extends RobotHardware {
 
         final double lsy_in_gamepad_2 = gamepad2.left_stick_y;
         if (Math.abs(lsy_in_gamepad_2) > JOY_STICK_DEAD_ZONE) {
-            activatedCtlLiftByJoystick__ = true;
+            activatedCtlLiftByJoystick_ = true;
 
             if (lift_ != null) {
                 if (lsy_in_gamepad_2 < 0) lift_.moveUp(-lsy_in_gamepad_2, currTime_);
@@ -169,8 +169,8 @@ public class TeleOpCommon extends RobotHardware {
                pressed_button_in_gamepad_1 = GamepadButtons.Button.UNKNOWN; // Cancel move lift to grab stone position
             }
             */
-        } else if (activatedCtlLiftByJoystick__ == true) {
-            activatedCtlLiftByJoystick__ = false;
+        } else if (activatedCtlLiftByJoystick_ == true) {
+            activatedCtlLiftByJoystick_ = false;
 
             // Hold the lift at current position
             if (lift_ != null) lift_.setCurrentPositionAsTargetPosition(currTime_);
@@ -182,7 +182,7 @@ public class TeleOpCommon extends RobotHardware {
 
         final double rsy_in_gamepad_2 = gamepad2.right_stick_y;
         if (Math.abs(rsy_in_gamepad_2) > JOY_STICK_DEAD_ZONE) {
-            activatedCtlGrabberCraneByJoystick__ = true;
+            activatedCtlGrabberCraneByJoystick_ = true;
 
             if (grabber_ != null) {
                 if (rsy_in_gamepad_2 < 0) grabber_.craneStretchOut(-rsy_in_gamepad_2);
@@ -199,8 +199,8 @@ public class TeleOpCommon extends RobotHardware {
                 pressed_button_in_gamepad_1 = GamepadButtons.Button.UNKNOWN; // Cancel move lift to grab stone position
             }
             */
-        } else if (activatedCtlGrabberCraneByJoystick__ == true) {
-            activatedCtlGrabberCraneByJoystick__ = false;
+        } else if (activatedCtlGrabberCraneByJoystick_ == true) {
+            activatedCtlGrabberCraneByJoystick_ = false;
 
             if (grabber_ != null) grabber_.setCurrentCranePositionAsTargetPosition();
         }

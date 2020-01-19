@@ -125,7 +125,7 @@ public class RobotHardware extends LinearOpMode {
         Servo clamp_servo = hardwareMap.get(Servo.class, "clampServo");
 
         grabber_ = new Grabber(crane_motor,
-                "rotatoionServo",
+                "rotationServo",
                 rotation_servo,
                 "clampServo",
                 clamp_servo,

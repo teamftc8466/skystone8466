@@ -65,34 +65,44 @@ public class RobotHardware extends LinearOpMode {
         createDetectSkystone();          // Create object to use tensor flow to detect skystone
 
         // createLift();
+        // createGrabber();
     }
 
-    public void initializeTeleOp(){
+    public void initializeTeleOp() {
         createMecanumDriveTrain();
 
+        // createHookServoSystem(INIT_LEFT_HOOK_DEGREE, INIT_RIGHT_HOOK_DEGREE);
         // createLift();
+        // createGrabber();
     }
 
-    RevImu getImu() { return imu_; }
+    RevImu getImu() {
+        return imu_;
+    }
 
     DetectSkystone getDetectSkystone() {
         return detectSkystone_;
     }
 
     DriveTrain getDriveTrain() {
-        return  driveTrain_;
+        return driveTrain_;
     }
 
-    Lift getLift(){
+    Lift getLift() {
         return lift_;
     }
 
-    GoBildaDualServo getLeftHookServo_() { return leftHookServo_; }
-    GoBildaDualServo getRightHookServo_() { return rightHookServo_; }
+    GoBildaDualServo getLeftHookServo_() {
+        return leftHookServo_;
+    }
+
+    GoBildaDualServo getRightHookServo_() {
+        return rightHookServo_;
+    }
 
     void createImu() {
         imu_ = new RevImu(hardwareMap.get(BNO055IMU.class, "imu"),
-                          telemetry);
+                telemetry);
     }
 
     void createMecanumDriveTrain() {
@@ -107,8 +117,8 @@ public class RobotHardware extends LinearOpMode {
         // WebcamName webcam_name = null;
 
         detectSkystone_ = new DetectSkystone(webcam_name,
-                                             tfod_monitor_view_id,
-                                             telemetry);
+                tfod_monitor_view_id,
+                telemetry);
     }
 
     void createLift() {
@@ -116,39 +126,58 @@ public class RobotHardware extends LinearOpMode {
         DcMotor motor_right = hardwareMap.dcMotor.get("motorLiftRight");
 
         lift_ = new Lift(motor_left,
-                         motor_right,
-                         telemetry);
+                motor_right,
+                telemetry);
     }
 
     void createGrabber() {
-        DcMotor crane_motor = hardwareMap.get(DcMotor.class, "craneMotor");;
-        Servo rotation_servo = hardwareMap.get(Servo.class,"rotationServo");
-        Servo clamp_servo = hardwareMap.get(Servo.class,"clampServo");
+        DcMotor crane_motor = hardwareMap.get(DcMotor.class, "craneMotor");
+        ;
+        Servo rotation_servo = hardwareMap.get(Servo.class, "rotationServo");
+        Servo clamp_servo = hardwareMap.get(Servo.class, "clampServo");
 
         grabber_ = new Grabber(crane_motor,
-              "rotatoionServo",
-                               rotation_servo,
+                "rotatoionServo",
+                rotation_servo,
                 "clampServo",
-                               clamp_servo,
-                               telemetry);
+                clamp_servo,
+                telemetry);
     }
 
     void createHookServoSystem(double init_left_hook_degree,
                                double init_right_hook_degree) {
-        Servo left_servo = hardwareMap.get(Servo.class,"leftHookServo");
-        Servo right_servo = hardwareMap.get(Servo.class,"rightHookServo");
+        Servo left_servo = hardwareMap.get(Servo.class, "leftHookServo");
+        Servo right_servo = hardwareMap.get(Servo.class, "rightHookServo");
 
         leftHookServo_ = new GoBildaDualServo("LeftHook",
-                                              left_servo,
-                               false,
-                                              init_left_hook_degree,
-                                              telemetry);
+                left_servo,
+                false,
+                init_left_hook_degree,
+                telemetry);
 
         rightHookServo_ = new GoBildaDualServo("RightHook",
-                                               right_servo,
-                                false,
-                                               init_right_hook_degree,
-                                               telemetry);
+                right_servo,
+                false,
+                init_right_hook_degree,
+                telemetry);
+    }
+
+    void moveHooksToPullPosition() {
+        if (leftHookServo_ != null) {
+            leftHookServo_.setServoModePositionInDegree(LEFT_HOOK_PULL_DEGREE, false);
+        }
+        if (rightHookServo_ != null) {
+            rightHookServo_.setServoModePositionInDegree(RIGHT_HOOK_PULL_DEGREE, false);
+        }
+    }
+
+    void moveHooksToReleasePosition() {
+        if (leftHookServo_ != null) {
+            leftHookServo_.setServoModePositionInDegree(LEFT_HOOK_RELEASE_DEGREE, false);
+        }
+        if (rightHookServo_ != null) {
+            rightHookServo_.setServoModePositionInDegree(RIGHT_HOOK_RELEASE_DEGREE, false);
+        }
     }
 
     void createColor() {

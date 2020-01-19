@@ -153,11 +153,13 @@ public class DetectSkystone {
      */
     private void initTfod() {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId_);
-        tfodParameters.minimumConfidence = 0.8;
+        tfodParameters.minimumConfidence = 0.4;
         tfod_ = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia_);
         tfod_.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
-
+// 380 630
+    // 1 450
+    //juj
     public int detectSkystone(boolean is_red_team) {
         int skystonePosition = -1;
         if (tfod_ == null) return -1;

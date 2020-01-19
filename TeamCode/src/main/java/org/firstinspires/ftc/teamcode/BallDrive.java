@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleOP;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -8,29 +8,29 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class BallDrive {
-    public DcMotor motor1;
-    public DcMotor motor2;
-    public DcMotor motor3;
+    public DcMotor lmotor;
+    public DcMotor rmotor;
+    public DcMotor xmotor;
 
-    public Servo servo1;
-    public Servo servo2;
+    public Servo lservo;
+    public Servo rservo;
 
     public BallDrive(HardwareMap hdm , Telemetry telemetry) {
 
-        motor1 = hdm.dcMotor.get("Motor1");
-        motor2 = hdm.dcMotor.get("Motor2");
-        motor3 = hdm.dcMotor.get("Motor3");
+        lmotor = hdm.dcMotor.get("MotorL");
+        rmotor = hdm.dcMotor.get("MotorR");
+        xmotor = hdm.dcMotor.get("MotorX");
 
-        servo1 = hdm.servo.get("servo1");
-        servo2 = hdm.servo.get("servo2");
+        lservo = hdm.servo.get("servo1");
+        rservo = hdm.servo.get("servo2");
 
-        motor1.setDirection(DcMotorSimple.Direction.FORWARD);
-        motor2.setDirection(DcMotorSimple.Direction.FORWARD);
-        motor3.setDirection(DcMotorSimple.Direction.FORWARD);
+        lmotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rmotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        xmotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        motor3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        lmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        xmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         telemetry = telemetry;
     }

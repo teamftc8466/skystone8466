@@ -178,7 +178,7 @@ public class AutonomousCommon extends RobotHardware {
                 finish_flag = true;
                 break;
             case OP_MOVE_HOOK:
-                finish_flag = moveHooks(operand, getCurrentOperand(1), getCurrentOperand(2));
+                finish_flag = moveHooks((int)operand, getCurrentOperand(1));
                 break;
             case OP_DRIVE_TO_FIRST_SKYSTONE:
                 finish_flag = driveToFirstSkystone();
@@ -409,11 +409,9 @@ public class AutonomousCommon extends RobotHardware {
         return true;
     }
 
-    boolean moveHooks(double left_hook_position_in_degree,
-                   double right_hook_position_in_degree,
-                   double waiting_time) {                     // Waiting time allows the servo to complete the instruction before the program moves to the next state
-        leftHookServo_.setServoModePositionInDegree(left_hook_position_in_degree, false);
-        rightHookServo_.setServoModePositionInDegree(right_hook_position_in_degree, false);
+    boolean moveHooks(int position,
+                      double waiting_time) {                     // Waiting time allows the servo to complete the instruction before the program moves to the next state
+        hooks_.moveHooksToPosition(hooks_.convertToPosition(position));
 
         if (waiting_time > 0) {
             sleep((long)(waiting_time * 1000));    // Declaration of the sleep function states that type long should be inputted

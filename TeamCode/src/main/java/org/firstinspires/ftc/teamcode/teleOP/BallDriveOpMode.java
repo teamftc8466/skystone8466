@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.teleOP;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.teleOP.BallDrive;
+import org.firstinspires.ftc.teamcode.BallDrive;
 
 @TeleOp(name="BallDrive TeleOp", group="BallDrive")
 public class BallDriveOpMode extends OpMode{
@@ -20,17 +20,17 @@ public class BallDriveOpMode extends OpMode{
         /*ballDrive.motor1.setPower(-gamepad1.left_stick_y - gamepad1.right_stick_x);
         ballDrive.motor2.setPower(gamepad1.left_stick_y - gamepad1.right_stick_x);
         ballDrive.motor3.setPower(gamepad1.left_stick_x);*/
-        ballDrive.motor1.setPower(-1.5*gamepad1.left_stick_y - gamepad1.right_stick_x);
-        ballDrive.motor2.setPower(1.5*gamepad1.left_stick_y - gamepad1.right_stick_x);
-        ballDrive.motor3.setPower(gamepad1.left_stick_x);
+        ballDrive.lmotor.setPower(-1.5*gamepad1.left_stick_y - gamepad1.right_stick_x);
+        ballDrive.rmotor.setPower(1.5*gamepad1.left_stick_y - gamepad1.right_stick_x);
+        ballDrive.xmotor.setPower(gamepad1.left_stick_x);
 
         if (gamepad1.b) {
-            ballDrive.servo1.setPosition(90);
-            ballDrive.servo1.setPosition(90);
+            ballDrive.lservo.setPosition(90);
+            ballDrive.rservo.setPosition(90);
         }
         else if (gamepad1.a) {
-            ballDrive.servo1.setPosition(0);
-            ballDrive.servo1.setPosition(0);
+            ballDrive.lservo.setPosition(0);
+            ballDrive.rservo.setPosition(0);
         }
         /*if(Math.abs(gamepad1.left_stick_x) <= .1 && Math.abs(gamepad1.right_stick_x) <= .1) {
             ballDrive.motor1.setPower(gamepad1.left_stick_y);

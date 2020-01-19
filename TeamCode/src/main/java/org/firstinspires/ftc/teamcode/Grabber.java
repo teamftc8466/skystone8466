@@ -3,16 +3,16 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Grabber {
     // Lift position specified by encoder count
     public enum CranePosition {
-        CRANE_INIT_POSITION(0),
+        CRANE_DRAW_BACK_POSITION(50),
         CRANE_GRAB_STONE(200),
-        CRANE_MAX_STRETCH_OUT_POSITION(1000),
-        CRANE_DRAW_BACK_POSITION(50);
+        CRANE_MAX_STRETCH_OUT_POSITION(1000);
 
         private final int val_;
 
@@ -21,9 +21,9 @@ public class Grabber {
     };
 
     public enum RotationPosition {
-        ROTATION_IN(0),
+        ROTATION_IN(28),
         ROTATION_HALF_OUT(45),
-        ROTATION_OUT(90);
+        ROTATION_OUT(84);
 
         private final int val_;
 
@@ -40,10 +40,15 @@ public class Grabber {
         public int getValue() { return val_; }
     };
 
-    //Motors
+    static final int CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION = 25;
+
+    // Motors and servos
     private DcMotor craneMotor_ = null;
     private GoBildaDualServo rotationServo_ = null;
     private GoBildaDualServo clampServo_ = null;
+
+    private int encoderCntForTargetPosition_ = 0;
+    private double lastSetPower_ = 0;
 
     /// Encoder time out variables
     static final double AUTO_ENC_STUCK_TIME_OUT = 2.0;
@@ -75,17 +80,19 @@ public class Grabber {
 
         telemetry_ = telemetry;
 
+        craneMotor_.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // craneMotor_.setDirection(DcMotor.Direction.REVERSE);
 
         resetEncoder(0);
     }
 
     void useEncoder(){
-        craneMotor_.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        craneMotor_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     void resetEncoder(double time){
         craneMotor_.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // craneMotor_.setTargetPosition(0);
 
         prevReadEncCnt_ = 0;
         prevEncCntChangeStartTime_ = time;
@@ -98,62 +105,88 @@ public class Grabber {
         setCranePower(0);
     }
 
+    public void setCurrentCranePositionAsTargetPosition() {
+        int curr_encoder_cnt = craneMotor_.getCurrentPosition();
+        if (curr_encoder_cnt > CranePosition.CRANE_MAX_STRETCH_OUT_POSITION.getValue()) {
+            curr_encoder_cnt = CranePosition.CRANE_MAX_STRETCH_OUT_POSITION.getValue();
+        } else if (curr_encoder_cnt < CranePosition.CRANE_DRAW_BACK_POSITION.getValue()) {
+            curr_encoder_cnt = CranePosition.CRANE_DRAW_BACK_POSITION.getValue();
+        }
+
+        setEncoderCountForTargetPosition(curr_encoder_cnt);
+    }
+
+    public void holdCraneAtTargetPosition() {
+        moveCraneToTargetPosition(0.4);
+    }
+
     public boolean moveCraneToPosition(CranePosition position) {
-        int target_encoder_cnt = position.getValue();
-        if (target_encoder_cnt < 0) target_encoder_cnt = 0;
-        else if (target_encoder_cnt >= CranePosition.CRANE_MAX_STRETCH_OUT_POSITION.getValue()) {
-            target_encoder_cnt = CranePosition.CRANE_MAX_STRETCH_OUT_POSITION.getValue();
-        }
+        final int target_encoder_cnt = position.getValue();
+        setEncoderCountForTargetPosition(target_encoder_cnt);
 
-        int curr_enc_pos = craneMotor_.getCurrentPosition();
-        if (curr_enc_pos != target_encoder_cnt) {
-            craneMotor_.setTargetPosition(target_encoder_cnt);
-            setCranePower(1.0);
-            return false;
-        }
+        moveCraneToTargetPosition(1.0);
 
-        setCranePower(0);
-        return true;
+        return craneReachToTargetEncoderCount();
     }
 
     // Stretch crane out. This method is used by teleop only.
     public void craneStretchOut(double power_val) {
         final int enc_cnt_at_max_stretch_out_position = CranePosition.CRANE_MAX_STRETCH_OUT_POSITION.getValue();
+        setEncoderCountForTargetPosition(enc_cnt_at_max_stretch_out_position);
 
-        if (power_val > 1.0) power_val = 1.0;
-
-        int curr_enc_pos = craneMotor_.getCurrentPosition();
-        if (power_val <= 0 ||
-                curr_enc_pos >= enc_cnt_at_max_stretch_out_position) {
-            setCranePower(0);
-        } else {
-            craneMotor_.setTargetPosition(enc_cnt_at_max_stretch_out_position);
-            setCranePower(power_val);
-        }
+        moveCraneToTargetPosition(power_val);
     }
 
     // Move the lift down. This method is used by teleop only.
     public void craneDrawBack(double power_val) {
         final int enc_cnt_at_draw_back_position = CranePosition.CRANE_DRAW_BACK_POSITION.getValue();
+        setEncoderCountForTargetPosition(enc_cnt_at_draw_back_position);
 
-        if (power_val > 1.0) power_val = 1.0;
+        moveCraneToTargetPosition(power_val);
+    }
 
-        int curr_enc_pos = craneMotor_.getCurrentPosition();
-        if (power_val <= 0 ||
-                curr_enc_pos <= enc_cnt_at_draw_back_position) {
-            setCranePower(0);
-        } else {
-            craneMotor_.setTargetPosition(enc_cnt_at_draw_back_position);
-            setCranePower(power_val);
+    private void moveCraneToTargetPosition(double power_val) {
+        power_val = Math.abs(power_val);
+        power_val = Range.clip(power_val, 0, 1);
+
+        final int curr_enc_pos = craneMotor_.getCurrentPosition();
+        final int enc_diff = Math.abs(encoderCntForTargetPosition_ - curr_enc_pos);
+        double set_power = power_val;
+        if (enc_diff < 15) {
+            set_power = 0;
+        } else if (enc_diff < 50) {
+            if (set_power > 0.1) set_power = 0.1;
+        } else if (enc_diff < 90) {
+            if (set_power > 0.15) set_power = 0.15;
+        } else if (enc_diff < 150) {
+            if (set_power > 0.2) set_power = 0.2;
+        } else if (enc_diff < 250) {
+            if (set_power > 0.4) set_power = 0.4;
+        } else if (enc_diff < 500) {
+            if (set_power > 0.7) set_power = 0.7;
         }
+
+        if (encoderCntForTargetPosition_ >= curr_enc_pos) setCranePower(set_power);
+        else setCranePower(-set_power);
+    }
+
+    void setEncoderCountForTargetPosition(int enc_cnt_at_target_pos) {
+        if (encoderCntForTargetPosition_ == enc_cnt_at_target_pos) return;
+
+        encoderCntForTargetPosition_ = enc_cnt_at_target_pos;
     }
 
     void setCranePower(double power) {
+        if (lastSetPower_ == power) return;
+
         craneMotor_.setPower(power);
+        lastSetPower_ = power;
     }
 
-    boolean allEncodersAreReset() {
-        return (craneMotor_.getCurrentPosition() == 0);
+    boolean craneReachToTargetEncoderCount() {
+        final int curr_enc_pos = craneMotor_.getCurrentPosition();
+        return (curr_enc_pos >= encoderCntForTargetPosition_ &&
+                curr_enc_pos < (encoderCntForTargetPosition_ + CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION));
     }
 
     boolean isEncoderStuck(double time) {
@@ -192,7 +225,9 @@ public class Grabber {
     }
 
     public void showValues(boolean update_flag){
-        telemetry_.addData("Crane encoder value", String.valueOf(craneMotor_.getCurrentPosition()));
+        telemetry_.addData("Crane",  "Power"+String.valueOf(lastSetPower_)+
+                        " Target="+String.valueOf(encoderCntForTargetPosition_)+
+                        " Encoder="+String.valueOf(craneMotor_.getCurrentPosition()));
         clampServo_.showPosition(false);
         rotationServo_.showPosition(false);
         if (update_flag == true) telemetry_.update();

@@ -11,11 +11,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Lift {
     // Lift position specified by encoder count
     public enum Position {
-        LIFT_BOTTOM_POSITION(10),
-        LIFT_GRAB_STONE_CATCH(20),
-        LIFT_DELIVER_STONE(50),
-        LIFT_GRAB_STONE_READY(200),
-        LIFT_TOP_POSITION(1000);
+        LIFT_BOTTOM_POSITION(2),
+        LIFT_GRAB_STONE_CATCH(2),
+        LIFT_DELIVER_STONE(70),
+        LIFT_GRAB_STONE_READY(500),
+        LIFT_TOP_POSITION(2050);
 
         private final int val_;
 
@@ -27,6 +27,8 @@ public class Lift {
     private DcMotor motorLeft_ = null;
     private DcMotor motorRight_ = null;
 
+    // Since the motor cannot be exactly accurate mostly due to the momentum of the linear slide,
+    // this threshold allows for some wiggle room
     static final int ENCODER_THRESHOLD_FOR_TARGET_POSITION = 15;
 
     /// Encoder time out variables
@@ -38,6 +40,7 @@ public class Lift {
     private double lastSetPower_ = 0;
     private int encoderCntForTargetPosition_ = 0;
     private double startTimeToTargetPosition_ = 0;
+    private double maxMoveDownPower_ = 0.6;          // Need to give a threshold for moving down power to avoid dropping too fast
     static final double SCALE_LIFT_POWER_TIME_INTERVAL = 0.1;
     static final double [] SCALE_LIFT_UP_POWER_BY_TIME = {0.2, 0.3, 0.35, 0.5, 0.7, 0.85, 1.0};    // Spend 0.7 sec to full power
     static final double [] SCALE_LIFT_DOWN_POWER_BY_TIME = {0.2, 0.35, 0.6, 0.9, 1.0}; // Spend 0.5 sec to full power
@@ -91,6 +94,9 @@ public class Lift {
         moveToTargetPosition(0.4, time);
     }
 
+    // Time is used to allow us to implement the control by using the power in the s-curve
+    // i.e., at beginning of moving to target position, we cannot use full power to immediately
+    // and the power is increased with time till reach to the full power after certain time.
     public boolean moveToPosition(Position position,
                                   double time) {
         final int target_encoder_cnt = position.getValue();
@@ -142,22 +148,27 @@ public class Lift {
             if (enc_diff < 10) {
                 if (set_power > 0.1) set_power = 0.1;
             } else if (enc_diff < 50) {
-                if (set_power > 0.175) set_power = 0.175;
+                if (set_power > 0.2) set_power = 0.2;
             } else if (enc_diff < 150) {
-                if (set_power > 0.275) set_power = 0.275;
-            } else if (enc_diff < 250) {
                 if (set_power > 0.4) set_power = 0.4;
+            } else if (enc_diff < 250) {
+                if (set_power > 0.5) set_power = 0.5;
             }
         } else if (curr_enc_pos_motor_right > encoderCntForTargetPosition_) {
             double used_time = time - startTimeToTargetPosition_;
             set_power = scaleLiftDownPowerByTime(1.0, used_time);
             if (set_power > power_val) set_power = power_val;
+            if (set_power > maxMoveDownPower_) set_power = maxMoveDownPower_;
 
             int enc_diff = curr_enc_pos_motor_right - encoderCntForTargetPosition_;
-            if (enc_diff < 20) {
-                set_power = 0;
+            if (enc_diff < 10) {
+                if (encoderCntForTargetPosition_ > Position.LIFT_DELIVER_STONE.getValue()) set_power = 0;
+                else if (enc_diff >= 5) set_power = 0.1;
+                else set_power = 0;
+            } else if (enc_diff < 20) {
+                set_power = 0.125;
             } else if (enc_diff < 50) {
-                if (set_power > 0.125) set_power = 0.125;
+                if (set_power > 0.175) set_power = 0.175;
             } else if (enc_diff < 150) {
                 if (set_power > 0.25) set_power = 0.25;
             } else if (enc_diff < 250) {
@@ -211,8 +222,18 @@ public class Lift {
 
     boolean reachToTargetEncoderCount() {
         final int curr_enc_pos_motor_left = motorRight_.getCurrentPosition();
+        int threshold = ENCODER_THRESHOLD_FOR_TARGET_POSITION;
+        if (encoderCntForTargetPosition_<= Position.LIFT_DELIVER_STONE.getValue() ||
+            encoderCntForTargetPosition_ < 10) {
+            if (encoderCntForTargetPosition_ < 10) {
+                if (threshold > 3) threshold = 3;
+            } else {
+                if (threshold > 7) threshold = 7;
+            }
+        }
+
         return (curr_enc_pos_motor_left >= encoderCntForTargetPosition_ &&
-                curr_enc_pos_motor_left < (encoderCntForTargetPosition_ + ENCODER_THRESHOLD_FOR_TARGET_POSITION));
+                curr_enc_pos_motor_left < (encoderCntForTargetPosition_ + threshold));
     }
 
     boolean isEncoderStuck(double time) {

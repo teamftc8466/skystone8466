@@ -40,7 +40,7 @@ public class Lift {
     private double lastSetPower_ = 0;
     private int encoderCntForTargetPosition_ = 0;
     private double startTimeToTargetPosition_ = 0;
-    private double maxMoveDownPower_ = 0.6;          // Need to give a threshold for moving down power to avoid dropping too fast
+    static final double MAX_MOVE_DOWN_POWER = 0.6;          // Need to give a threshold for moving down power to avoid dropping too fast
     static final double SCALE_LIFT_POWER_TIME_INTERVAL = 0.1;
     static final double [] SCALE_LIFT_UP_POWER_BY_TIME = {0.2, 0.3, 0.35, 0.5, 0.7, 0.85, 1.0};    // Spend 0.7 sec to full power
     static final double [] SCALE_LIFT_DOWN_POWER_BY_TIME = {0.2, 0.35, 0.6, 0.9, 1.0}; // Spend 0.5 sec to full power
@@ -91,7 +91,7 @@ public class Lift {
     }
 
     public void holdAtTargetPosition(double time) {
-        moveToTargetPosition(0.4, time);
+        moveToTargetPosition(0.6, time);
     }
 
     // Time is used to allow us to implement the control by using the power in the s-curve
@@ -158,7 +158,7 @@ public class Lift {
             double used_time = time - startTimeToTargetPosition_;
             set_power = scaleLiftDownPowerByTime(1.0, used_time);
             if (set_power > power_val) set_power = power_val;
-            if (set_power > maxMoveDownPower_) set_power = maxMoveDownPower_;
+            if (set_power > MAX_MOVE_DOWN_POWER) set_power = MAX_MOVE_DOWN_POWER;
 
             int enc_diff = curr_enc_pos_motor_right - encoderCntForTargetPosition_;
             if (enc_diff < 10) {

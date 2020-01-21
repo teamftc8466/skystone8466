@@ -176,9 +176,9 @@ public class RobotHardware extends LinearOpMode {
 
     void createGobildaTouchSensors() {
         TouchSensor touch1 = hardwareMap.touchSensor.get("TouchSensor1");
-        TouchSensor touch2 = hardwareMap.touchSensor.get("TouchSensor2");
+      //  TouchSensor touch2 = hardwareMap.touchSensor.get("TouchSensor2");
 
-        gobildaTouchSensors_ = new GobildaTouchSensors(touch1, touch2, telemetry);
+        gobildaTouchSensors_ = new GobildaTouchSensors(touch1, telemetry);
     }
 
 }

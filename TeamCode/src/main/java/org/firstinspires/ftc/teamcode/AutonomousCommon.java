@@ -42,7 +42,7 @@ public class AutonomousCommon extends RobotHardware {
         initialize();
 
         /** Detect first skystone position and wait for the game to begin */
-        detectFirstSkystoneAndWaitForStart();
+        if (getDetectSkystone() != null) detectFirstSkystoneAndWaitForStart();
 
         initializeWhenStart();
 
@@ -61,7 +61,7 @@ public class AutonomousCommon extends RobotHardware {
         super.initializeAutonomous();
 
         // Activate Tfod for detecting skystone
-        getDetectSkystone().setupTfod();
+        if (getDetectSkystone() != null) getDetectSkystone().setupTfod();
     }
 
     public synchronized void detectFirstSkystoneAndWaitForStart() {
@@ -395,6 +395,13 @@ public class AutonomousCommon extends RobotHardware {
 
     boolean runDriveTrain(DriveTrainMode drive_mode,
                           double drive_parameter){
+        if (imu_ != null) { // Disable it after finishing debugging.
+            double heading = getImu().getHeading();
+            double heading_diff = getImu().getHeadingDifference(0);
+            telemetry.addData("Imu", "heading="+ String.valueOf(heading) + " heading_diff=" + String.valueOf(heading_diff));
+            // telemetry.update();
+        }
+
         return driveTrain_.driveByMode(drive_mode, drive_parameter, currTime_);
     }
 

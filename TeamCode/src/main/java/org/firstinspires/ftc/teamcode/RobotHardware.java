@@ -59,10 +59,12 @@ public class RobotHardware extends LinearOpMode {
     public void initializeAutonomous() {
         createMecanumDriveTrain();
 
-        // createDetectNavigationTarget();  // Create object to use Vuforia to detect navigation targets including skystone
-        createDetectSkystone();          // Create object to use tensor flow to detect skystone
+        createImu();
 
-        createHooks(Hooks.Position.INIT);
+        // createDetectNavigationTarget();  // Create object to use Vuforia to detect navigation targets including skystone
+        // createDetectSkystone();          // Create object to use tensor flow to detect skystone
+
+        // createHooks(Hooks.Position.INIT);
         // createLift();
         // createGrabber();
     }

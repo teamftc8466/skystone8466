@@ -11,8 +11,9 @@ public class Grabber {
     // Lift position specified by encoder count
     public enum CranePosition {
         CRANE_DRAW_BACK_POSITION(50),
-        CRANE_GRAB_STONE(200),
-        CRANE_MAX_STRETCH_OUT_POSITION(1000);
+        CRANE_GRAB_STONE(600),
+        CRANE_PROTECT_ROTATION_POSITION(1300),
+        CRANE_MAX_STRETCH_OUT_POSITION(1700);
 
         private final int val_;
 
@@ -21,9 +22,9 @@ public class Grabber {
     };
 
     public enum RotationPosition {
-        ROTATION_IN(28),
-        ROTATION_HALF_OUT(45),
-        ROTATION_OUT(84);
+        ROTATION_IN(50),
+        ROTATION_HALF_OUT(95),
+        ROTATION_OUT(140);
 
         private final int val_;
 
@@ -31,8 +32,8 @@ public class Grabber {
         public int getValue() { return val_; }
     };
     public enum ClampPosition {
-        CLAMP_OPEN(0),
-        CLAMP_CLOSE(90);
+        CLAMP_OPEN(30),
+        CLAMP_CLOSE(140);
 
         private final int val_;
 
@@ -41,6 +42,8 @@ public class Grabber {
     };
 
     static final int CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION = 25;
+    static final double MAX_CRANE_MOTOR_POWER = 0.8;
+    static final boolean PROTECT_CLAMP_WHEN_ROTATING_OUT = true;
 
     // Motors and servos
     private DcMotor craneMotor_ = null;
@@ -49,6 +52,8 @@ public class Grabber {
 
     private int encoderCntForTargetPosition_ = 0;
     private double lastSetPower_ = 0;
+
+    private RotationPosition lastRotationPositoin_ = RotationPosition.ROTATION_IN;
 
     /// Encoder time out variables
     static final double AUTO_ENC_STUCK_TIME_OUT = 2.0;
@@ -66,10 +71,11 @@ public class Grabber {
                    Telemetry telemetry) {
         craneMotor_ = crane_motor;
 
+        lastRotationPositoin_ = RotationPosition.ROTATION_IN;
         rotationServo_ = new GoBildaDualServo(rotation_servo_name,
                                               rotation_servo,
                                false,
-                                              RotationPosition.ROTATION_IN.getValue(),
+                                              lastRotationPositoin_.getValue(),
                                               telemetry);
 
         clampServo_ = new GoBildaDualServo(clamp_servo_name,
@@ -106,7 +112,7 @@ public class Grabber {
     }
 
     public void setCurrentCranePositionAsTargetPosition() {
-        int curr_encoder_cnt = craneMotor_.getCurrentPosition();
+        int curr_encoder_cnt = Math.abs(craneMotor_.getCurrentPosition());
         if (curr_encoder_cnt > CranePosition.CRANE_MAX_STRETCH_OUT_POSITION.getValue()) {
             curr_encoder_cnt = CranePosition.CRANE_MAX_STRETCH_OUT_POSITION.getValue();
         } else if (curr_encoder_cnt < CranePosition.CRANE_DRAW_BACK_POSITION.getValue()) {
@@ -117,14 +123,14 @@ public class Grabber {
     }
 
     public void holdCraneAtTargetPosition() {
-        moveCraneToTargetPosition(0.4);
+        moveCraneToTargetPosition(MAX_CRANE_MOTOR_POWER);
     }
 
     public boolean moveCraneToPosition(CranePosition position) {
         final int target_encoder_cnt = position.getValue();
         setEncoderCountForTargetPosition(target_encoder_cnt);
 
-        moveCraneToTargetPosition(1.0);
+        moveCraneToTargetPosition(MAX_CRANE_MOTOR_POWER);
 
         return craneReachToTargetEncoderCount();
     }
@@ -149,31 +155,38 @@ public class Grabber {
         power_val = Math.abs(power_val);
         power_val = Range.clip(power_val, 0, 1);
 
-        final int curr_enc_pos = craneMotor_.getCurrentPosition();
-        final int enc_diff = Math.abs(encoderCntForTargetPosition_ - curr_enc_pos);
-        double set_power = power_val;
-        if (enc_diff < 15) {
-            set_power = 0;
-        } else if (enc_diff < 50) {
-            if (set_power > 0.1) set_power = 0.1;
-        } else if (enc_diff < 90) {
-            if (set_power > 0.15) set_power = 0.15;
-        } else if (enc_diff < 150) {
-            if (set_power > 0.2) set_power = 0.2;
-        } else if (enc_diff < 250) {
-            if (set_power > 0.4) set_power = 0.4;
-        } else if (enc_diff < 500) {
-            if (set_power > 0.7) set_power = 0.7;
+        final int curr_enc_pos = Math.abs(craneMotor_.getCurrentPosition());
+        if (PROTECT_CLAMP_WHEN_ROTATING_OUT == true &&
+                lastRotationPositoin_ != RotationPosition.ROTATION_IN) {
+            // Protect the clamp when it is rotated out
+            if (curr_enc_pos < CranePosition.CRANE_PROTECT_ROTATION_POSITION.getValue()) {
+                setCranePower(0);
+                return;
+            };
         }
 
-        if (encoderCntForTargetPosition_ >= curr_enc_pos) setCranePower(set_power);
-        else setCranePower(-set_power);
+        final int enc_diff = Math.abs(encoderCntForTargetPosition_ - curr_enc_pos);
+        double set_power = power_val;
+        if (enc_diff < 10) {
+            set_power = 0;
+        } else if (enc_diff < 50) {
+            if (set_power > 0.25) set_power = 0.25;
+        } else if (enc_diff < 150) {
+            if (set_power > 0.4) set_power = 0.4;
+        } else if (enc_diff < 250) {
+            if (set_power > 0.5) set_power = 0.5;
+        }
+
+        // Postive power draws back the crane.
+        // Negative power stretches the crane.
+        if (encoderCntForTargetPosition_ >= curr_enc_pos) setCranePower(-set_power);
+        else setCranePower(set_power);
     }
 
     void setEncoderCountForTargetPosition(int enc_cnt_at_target_pos) {
-        if (encoderCntForTargetPosition_ == enc_cnt_at_target_pos) return;
+        if (encoderCntForTargetPosition_ == Math.abs(enc_cnt_at_target_pos)) return;
 
-        encoderCntForTargetPosition_ = enc_cnt_at_target_pos;
+        encoderCntForTargetPosition_ = Math.abs(enc_cnt_at_target_pos);
     }
 
     void setCranePower(double power) {
@@ -184,7 +197,7 @@ public class Grabber {
     }
 
     boolean craneReachToTargetEncoderCount() {
-        final int curr_enc_pos = craneMotor_.getCurrentPosition();
+        final int curr_enc_pos = Math.abs(craneMotor_.getCurrentPosition());
         return (curr_enc_pos >= encoderCntForTargetPosition_ &&
                 curr_enc_pos < (encoderCntForTargetPosition_ + CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION));
     }
@@ -212,16 +225,46 @@ public class Grabber {
     }
 
     // Methods for rotation servo
-    void rotationIn() {
+    boolean rotationIn() {
+        if (PROTECT_CLAMP_WHEN_ROTATING_OUT == true &&
+                lastRotationPositoin_ != RotationPosition.ROTATION_IN) {
+            final int curr_enc_pos = Math.abs(craneMotor_.getCurrentPosition());
+            if (curr_enc_pos < CranePosition.CRANE_PROTECT_ROTATION_POSITION.getValue()) {
+                return false;
+            }
+        }
+
+        lastRotationPositoin_ = RotationPosition.ROTATION_IN;
         rotationServo_.setServoModePositionInDegree(RotationPosition.ROTATION_IN.getValue(), false);
+        return true;
     }
 
-    void rotationOut() {
+    boolean rotationOut() {
+        if (PROTECT_CLAMP_WHEN_ROTATING_OUT == true &&
+                lastRotationPositoin_ != RotationPosition.ROTATION_OUT) {
+            final int curr_enc_pos = Math.abs(craneMotor_.getCurrentPosition());
+            if (curr_enc_pos < CranePosition.CRANE_PROTECT_ROTATION_POSITION.getValue()) {
+                return false;
+            }
+        }
+
+        lastRotationPositoin_ = RotationPosition.ROTATION_OUT;
         rotationServo_.setServoModePositionInDegree(RotationPosition.ROTATION_OUT.getValue(), false);
+        return true;
     }
 
-    void rotationHalfOut() {
+    boolean rotationHalfOut() {
+        if (PROTECT_CLAMP_WHEN_ROTATING_OUT == true &&
+                lastRotationPositoin_ != RotationPosition.ROTATION_HALF_OUT) {
+            final int curr_enc_pos = Math.abs(craneMotor_.getCurrentPosition());
+            if (curr_enc_pos < CranePosition.CRANE_PROTECT_ROTATION_POSITION.getValue()) {
+                return false;
+            }
+        }
+
+        lastRotationPositoin_ = RotationPosition.ROTATION_HALF_OUT;
         rotationServo_.setServoModePositionInDegree(RotationPosition.ROTATION_HALF_OUT.getValue(), false);
+        return true;
     }
 
     public void showValues(boolean update_flag){

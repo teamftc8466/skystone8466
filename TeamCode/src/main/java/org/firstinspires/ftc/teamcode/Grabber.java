@@ -10,10 +10,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Grabber {
     // Lift position specified by encoder count
     public enum CranePosition {
-        CRANE_DRAW_BACK_POSITION(50),
-        CRANE_GRAB_STONE(600),
-        CRANE_PROTECT_ROTATION_POSITION(1300),
-        CRANE_MAX_STRETCH_OUT_POSITION(1700);
+        CRANE_DRAW_BACK_POSITION(1),
+        CRANE_GRAB_STONE(1180),
+        CRANE_PROTECT_ROTATION_POSITION(1700),
+        CRANE_MAX_STRETCH_OUT_POSITION(1750);
 
         private final int val_;
 
@@ -43,17 +43,20 @@ public class Grabber {
 
     static final int CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION = 25;
     static final double MAX_CRANE_MOTOR_POWER = 0.8;
-    static final boolean PROTECT_CLAMP_WHEN_ROTATING_OUT = true;
+    static final boolean PROTECT_CLAMP_WHEN_ROTATING_OUT = false;
 
     // Motors and servos
     private DcMotor craneMotor_ = null;
     private GoBildaDualServo rotationServo_ = null;
     private GoBildaDualServo clampServo_ = null;
 
+    private boolean craneWithMoveToPositionAppliedFlag_ = false;
+    private CranePosition craneTargetMoveToPosition_ = CranePosition.CRANE_DRAW_BACK_POSITION;
     private int encoderCntForTargetPosition_ = 0;
     private double lastSetPower_ = 0;
 
-    private RotationPosition lastRotationPositoin_ = RotationPosition.ROTATION_IN;
+    private RotationPosition lastRotationPosition_ = RotationPosition.ROTATION_IN;
+    private ClampPosition lastClampPosition_ = ClampPosition.CLAMP_OPEN;
 
     /// Encoder time out variables
     static final double AUTO_ENC_STUCK_TIME_OUT = 2.0;
@@ -71,17 +74,18 @@ public class Grabber {
                    Telemetry telemetry) {
         craneMotor_ = crane_motor;
 
-        lastRotationPositoin_ = RotationPosition.ROTATION_IN;
+        lastRotationPosition_ = RotationPosition.ROTATION_IN;
         rotationServo_ = new GoBildaDualServo(rotation_servo_name,
                                               rotation_servo,
                                false,
-                                              lastRotationPositoin_.getValue(),
+                                              lastRotationPosition_.getValue(),
                                               telemetry);
 
+        lastClampPosition_ = ClampPosition.CLAMP_OPEN;
         clampServo_ = new GoBildaDualServo(clamp_servo_name,
                                            clamp_servo,
                             false,
-                                           ClampPosition.CLAMP_CLOSE.getValue(),
+                                           lastClampPosition_.getValue(),
                                            telemetry);
 
         telemetry_ = telemetry;
@@ -126,7 +130,15 @@ public class Grabber {
         moveCraneToTargetPosition(MAX_CRANE_MOTOR_POWER);
     }
 
+    boolean isCraneWithMoveToPositionApplied(CranePosition position) {
+        return (craneWithMoveToPositionAppliedFlag_ == true &&
+                craneTargetMoveToPosition_ == position);
+    }
+
     public boolean moveCraneToPosition(CranePosition position) {
+        craneWithMoveToPositionAppliedFlag_ = true;
+        craneTargetMoveToPosition_ = position;
+
         final int target_encoder_cnt = position.getValue();
         setEncoderCountForTargetPosition(target_encoder_cnt);
 
@@ -137,6 +149,8 @@ public class Grabber {
 
     // Stretch crane out. This method is used by teleop only.
     public void craneStretchOut(double power_val) {
+        craneWithMoveToPositionAppliedFlag_ = false;
+
         final int enc_cnt_at_max_stretch_out_position = CranePosition.CRANE_MAX_STRETCH_OUT_POSITION.getValue();
         setEncoderCountForTargetPosition(enc_cnt_at_max_stretch_out_position);
 
@@ -145,6 +159,8 @@ public class Grabber {
 
     // Move the lift down. This method is used by teleop only.
     public void craneDrawBack(double power_val) {
+        craneWithMoveToPositionAppliedFlag_ = false;
+
         final int enc_cnt_at_draw_back_position = CranePosition.CRANE_DRAW_BACK_POSITION.getValue();
         setEncoderCountForTargetPosition(enc_cnt_at_draw_back_position);
 
@@ -157,7 +173,7 @@ public class Grabber {
 
         final int curr_enc_pos = Math.abs(craneMotor_.getCurrentPosition());
         if (PROTECT_CLAMP_WHEN_ROTATING_OUT == true &&
-                lastRotationPositoin_ != RotationPosition.ROTATION_IN) {
+                lastRotationPosition_ != RotationPosition.ROTATION_IN) {
             // Protect the clamp when it is rotated out
             if (curr_enc_pos < CranePosition.CRANE_PROTECT_ROTATION_POSITION.getValue()) {
                 setCranePower(0);
@@ -216,53 +232,63 @@ public class Grabber {
     }
 
     // Methods for clamp servo
+    ClampPosition clampPosition() {
+        return lastClampPosition_;
+    }
+
     void clampOpen() {
         clampServo_.setServoModePositionInDegree(ClampPosition.CLAMP_OPEN.getValue(), false);
+        lastClampPosition_ = ClampPosition.CLAMP_OPEN;
     }
 
     void clampClose() {
         clampServo_.setServoModePositionInDegree(ClampPosition.CLAMP_CLOSE.getValue(), false);
+        lastClampPosition_ = ClampPosition.CLAMP_CLOSE;
     }
 
     // Methods for rotation servo
+    RotationPosition rotationPosition() {
+        return lastRotationPosition_;
+    }
+
     boolean rotationIn() {
         if (PROTECT_CLAMP_WHEN_ROTATING_OUT == true &&
-                lastRotationPositoin_ != RotationPosition.ROTATION_IN) {
+                lastRotationPosition_ != RotationPosition.ROTATION_IN) {
             final int curr_enc_pos = Math.abs(craneMotor_.getCurrentPosition());
             if (curr_enc_pos < CranePosition.CRANE_PROTECT_ROTATION_POSITION.getValue()) {
                 return false;
             }
         }
 
-        lastRotationPositoin_ = RotationPosition.ROTATION_IN;
+        lastRotationPosition_ = RotationPosition.ROTATION_IN;
         rotationServo_.setServoModePositionInDegree(RotationPosition.ROTATION_IN.getValue(), false);
         return true;
     }
 
     boolean rotationOut() {
         if (PROTECT_CLAMP_WHEN_ROTATING_OUT == true &&
-                lastRotationPositoin_ != RotationPosition.ROTATION_OUT) {
+                lastRotationPosition_ != RotationPosition.ROTATION_OUT) {
             final int curr_enc_pos = Math.abs(craneMotor_.getCurrentPosition());
             if (curr_enc_pos < CranePosition.CRANE_PROTECT_ROTATION_POSITION.getValue()) {
                 return false;
             }
         }
 
-        lastRotationPositoin_ = RotationPosition.ROTATION_OUT;
+        lastRotationPosition_ = RotationPosition.ROTATION_OUT;
         rotationServo_.setServoModePositionInDegree(RotationPosition.ROTATION_OUT.getValue(), false);
         return true;
     }
 
     boolean rotationHalfOut() {
         if (PROTECT_CLAMP_WHEN_ROTATING_OUT == true &&
-                lastRotationPositoin_ != RotationPosition.ROTATION_HALF_OUT) {
+                lastRotationPosition_ != RotationPosition.ROTATION_HALF_OUT) {
             final int curr_enc_pos = Math.abs(craneMotor_.getCurrentPosition());
             if (curr_enc_pos < CranePosition.CRANE_PROTECT_ROTATION_POSITION.getValue()) {
                 return false;
             }
         }
 
-        lastRotationPositoin_ = RotationPosition.ROTATION_HALF_OUT;
+        lastRotationPosition_ = RotationPosition.ROTATION_HALF_OUT;
         rotationServo_.setServoModePositionInDegree(RotationPosition.ROTATION_HALF_OUT.getValue(), false);
         return true;
     }

@@ -37,6 +37,8 @@ public class Lift {
     private int prevReadEncCntMotorRight_ = 0;
     private double prevEncCntChangeStartTime_ = 0;
 
+    private boolean moveToPositionAppliedFlag_ = false;
+    private Position targetMoveToPosition_ = Position.LIFT_BOTTOM_POSITION;
     private double lastSetPower_ = 0;
     private int encoderCntForTargetPosition_ = 0;
     private double startTimeToTargetPosition_ = 0;
@@ -80,6 +82,8 @@ public class Lift {
     int encoderCountForTargetPosition() { return encoderCntForTargetPosition_;}
 
     public void setCurrentPositionAsTargetPosition(double time) {
+        moveToPositionAppliedFlag_ = false;
+
         int curr_encoder_cnt = motorRight_.getCurrentPosition();
         if (curr_encoder_cnt > Position.LIFT_TOP_POSITION.getValue()) {
             curr_encoder_cnt = Position.LIFT_TOP_POSITION.getValue();
@@ -94,11 +98,19 @@ public class Lift {
         moveToTargetPosition(0.6, time);
     }
 
+    boolean isMoveToPositionApplied(Position position) {
+        return (moveToPositionAppliedFlag_ == true &&
+                targetMoveToPosition_ == position);
+    }
+
     // Time is used to allow us to implement the control by using the power in the s-curve
     // i.e., at beginning of moving to target position, we cannot use full power to immediately
     // and the power is increased with time till reach to the full power after certain time.
     public boolean moveToPosition(Position position,
                                   double time) {
+        moveToPositionAppliedFlag_ = true;
+        targetMoveToPosition_ = position;
+
         final int target_encoder_cnt = position.getValue();
         setEncoderCountForTargetPosition(target_encoder_cnt, time);
 
@@ -110,6 +122,8 @@ public class Lift {
     // Move the lift up. This method is used by teleop only.
     public void moveUp(double power_val,
                        double time) {
+        moveToPositionAppliedFlag_ = false;
+
         final int enc_cnt_at_top_position = Position.LIFT_TOP_POSITION.getValue();
         setEncoderCountForTargetPosition(enc_cnt_at_top_position, time);
 
@@ -119,6 +133,8 @@ public class Lift {
     // Move the lift down. This method is used by teleop only.
     public void moveDown(double power_val,
                          double time) {
+        moveToPositionAppliedFlag_ = false;
+
         final int enc_cnt_at_bottom_position = Position.LIFT_BOTTOM_POSITION.getValue();
         setEncoderCountForTargetPosition(enc_cnt_at_bottom_position, time);
 

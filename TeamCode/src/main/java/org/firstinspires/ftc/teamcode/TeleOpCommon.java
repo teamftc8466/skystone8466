@@ -7,8 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 // @Disabled
 public class TeleOpCommon extends RobotHardware {
     final double JOY_STICK_DEAD_ZONE = 0.1;
+    final double WAITING_TIME_FOR_CLOSE_CLAMP = 0.3;   // Time spent by closing clamp for auto operation
 
-    GamepadButtons gamepadButtons_ = new GamepadButtons(gamepad1, gamepad2);
+    GamepadButtons gamepadButtons_ = null;
 
     boolean activatedCtlLiftByJoystick_ = false;           // Indicate if the joystick in gamepad is active to control lift.
                                                            // If it is active, ignore the pressed buttons used to control lift.
@@ -17,6 +18,10 @@ public class TeleOpCommon extends RobotHardware {
 
     boolean holdLiftAtCurrentPosition_ = false;
     boolean holdGrabberCraneAtCurrentPosition = false;
+    boolean allowAutoMoveToCatchStoneReadyPosition_ = false;
+    boolean allowAutoCatchStone_ = true;
+    boolean autoCloseClampForCatchStoneApplied_ = false;
+    double startTimeToAutoCloseClampForCatchStone_ = 0;
 
     @Override
     public void runOpMode() {
@@ -39,6 +44,8 @@ public class TeleOpCommon extends RobotHardware {
     }
 
     public void initialize() {
+        gamepadButtons_ = new GamepadButtons(gamepad1, gamepad2);
+
         initializeTeleOp();
     }
 
@@ -78,8 +85,11 @@ public class TeleOpCommon extends RobotHardware {
     //       + Pressed again: Grabber clamp open
     //    - right bumper
     //       + Pressed (no hold needed): Move lift and grabber to be ready for grabbing stone
-    //       + Released: do nothing
-    //    - Button B: Repeat following modes
+    //       + Released: Do nothing
+    //    - Button B: Catch the stone
+    //       + Pressed: Move lift down to catch stone position and close the clamp
+    //       + Released: Do nothing
+    //    - Button A: Repeat following modes
     //       + Pressed once: Grabber rotates out
     //       + Pressed again: Grabber rotates in
     void operateRobot() {
@@ -99,6 +109,10 @@ public class TeleOpCommon extends RobotHardware {
             case LEFT_BUMPER:
                 if (activatedCtlLiftByJoystick_ == false) {
                     if (lift_!= null) lift_.moveToPosition(Lift.Position.LIFT_DELIVER_STONE, currTime_);
+
+                    allowAutoCatchStone_ = false;
+                    autoCloseClampForCatchStoneApplied_ = false;
+                    allowAutoMoveToCatchStoneReadyPosition_ = false;
                 }
                 break;
             case RIGHT_BUMPER:
@@ -113,20 +127,59 @@ public class TeleOpCommon extends RobotHardware {
             case LEFT_BUMPER:
                 if (grabber_ != null) {
                     int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.LEFT_BUMPER);
-                    if ((cnt % 2) != 0) grabber_.clampClose();
-                    else grabber_.clampOpen();
+                    if ((cnt % 2) != 0) {
+                        grabber_.clampClose();
+
+                        // Disable to move to catch stone ready position in order to allow clamp close
+                        allowAutoMoveToCatchStoneReadyPosition_ = false;
+                    } else {
+                        grabber_.clampOpen();
+                    }
+
+                    allowAutoCatchStone_ = false;
+                    autoCloseClampForCatchStoneApplied_ = false;
                 }
                 break;
             case RIGHT_BUMPER:
                 if (activatedCtlGrabberCraneByJoystick_ == false) {
                     if (grabber_ != null) grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
                 }
+
+                if (activatedCtlLiftByJoystick_ == false) {
+                    if (lift_ != null) lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, currTime_);
+                }
+
+                allowAutoMoveToCatchStoneReadyPosition_ = (activatedCtlGrabberCraneByJoystick_ == true &&
+                                                           activatedCtlLiftByJoystick_ == true);
+                allowAutoCatchStone_ = false;
+                autoCloseClampForCatchStoneApplied_ = false;
                 break;
-            case B:
+            case A:
                 if (grabber_ != null){
                     int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.B);
                     if ((cnt % 2) != 0) grabber_.rotationOut();
                     else grabber_.rotationIn();
+
+                    allowAutoCatchStone_ = false;
+                    autoCloseClampForCatchStoneApplied_ = false;
+                }
+                break;
+            case B:
+                if (activatedCtlGrabberCraneByJoystick_ == true ||
+                        activatedCtlLiftByJoystick_ == true) {
+                    allowAutoCatchStone_ = false;
+                    autoCloseClampForCatchStoneApplied_ = false;
+                } else if (grabber_ != null &&
+                           lift_ != null) {
+                    if (grabber_.clampPosition() == Grabber.ClampPosition.CLAMP_OPEN &&
+                            grabber_.isCraneWithMoveToPositionApplied(Grabber.CranePosition.CRANE_GRAB_STONE) ==  true &&
+                            grabber_.craneReachToTargetEncoderCount() == true) {
+                        lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, currTime_);
+
+                        allowAutoMoveToCatchStoneReadyPosition_ = false;
+                        allowAutoCatchStone_ = true;
+                        autoCloseClampForCatchStoneApplied_ = false;
+                    }
                 }
                 break;
             default:
@@ -138,12 +191,41 @@ public class TeleOpCommon extends RobotHardware {
             else hooks_.moveHooksToPosition(Hooks.Position.RELEASE);
         }
 
-        if (lift_ != null) {
-            if (holdLiftAtCurrentPosition_ == true) lift_.holdAtTargetPosition(currTime_);
-        }
-
         if (grabber_ != null) {
-            if (holdGrabberCraneAtCurrentPosition == true) grabber_.holdCraneAtTargetPosition();
+            if (holdGrabberCraneAtCurrentPosition == true) {
+                grabber_.holdCraneAtTargetPosition();
+
+                if (allowAutoMoveToCatchStoneReadyPosition_ == true) {
+                    if (grabber_.isCraneWithMoveToPositionApplied(Grabber.CranePosition.CRANE_GRAB_STONE) ==  true &&
+                            grabber_.craneReachToTargetEncoderCount() == true) {
+                        grabber_.clampOpen();
+                        allowAutoMoveToCatchStoneReadyPosition_ = false; // Auto disable it after finish
+                    }
+                } else if (allowAutoCatchStone_ == true) {
+                    if (lift_ != null &&
+                        lift_.isMoveToPositionApplied(Lift.Position.LIFT_GRAB_STONE_CATCH) == true) {
+                        if (autoCloseClampForCatchStoneApplied_ == false) {
+                            grabber_.clampClose();
+                            autoCloseClampForCatchStoneApplied_ = true;
+                            startTimeToAutoCloseClampForCatchStone_ = timer_.time();
+                        } else if (grabber_.clampPosition() == Grabber.ClampPosition.CLAMP_CLOSE) {
+                            double time = timer_.time();
+                            if ((time - startTimeToAutoCloseClampForCatchStone_) >= WAITING_TIME_FOR_CLOSE_CLAMP) {
+                                lift_.moveToPosition(Lift.Position.LIFT_DELIVER_STONE, time);
+
+                                allowAutoCatchStone_ = false; // Disable it to indicate finishing auto catch the stone
+                                autoCloseClampForCatchStoneApplied_ = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Must put the control of hold lift after handling grabber since auto catch the stone will change
+            // lift position.
+            if (lift_ != null) {
+                if (holdLiftAtCurrentPosition_ == true) lift_.holdAtTargetPosition(currTime_);
+            }
         }
     }
 

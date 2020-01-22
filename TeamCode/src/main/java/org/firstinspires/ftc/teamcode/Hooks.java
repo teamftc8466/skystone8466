@@ -78,6 +78,8 @@ public class Hooks {
                 false,
                 init_right_hook_position.getValue(),
                 telemetry);
+
+        telemetry_ = telemetry;
     }
 
     Position convertToPosition(int position) {

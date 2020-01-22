@@ -50,10 +50,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class MecanumDriveTrain {
     private Telemetry telemetry_ = null;
 
-    /// Heading variables                                        // TODO: Correct numbers later
-    static final double MAX_HEADING_CORRECTION_ERROR = 40;
-    static final double MAX_HEADING_CORRECTION_GAIN = 0.012;
-    static final double MAX_HEADING_CORRECTION = 0.95;
+    /// IMU used for detecting heading during autonomous
+    private RevImu imu_ = null;
+    private boolean useImu_ = false;
+    private final double AUTO_CORRECT_MAX_HEADING_ERROR = 40;  // Max degree to allow heading correction
+    private final double AUTO_CORRECT_HEADING_POWER_PER_DEGREE = 0.0125;
 
     /// Default drivetrain power
     static final double DEFAULT_DRIVE_POWER = 0.65;              // default driving power, change later
@@ -91,11 +92,16 @@ public class MecanumDriveTrain {
 
     /// Constructor
     public MecanumDriveTrain(HardwareMap hardware_map,
+                             RevImu imu,
                              Telemetry telemetry) {
         motorLF_ = hardware_map.get(DcMotor.class, "motorLF");
         motorRF_ = hardware_map.get(DcMotor.class,"motorRF");
         motorLB_ = hardware_map.get(DcMotor.class,"motorLB");
         motorRB_ = hardware_map.get(DcMotor.class,"motorRB");
+
+        imu_ = imu;
+        useImu_ = (imu_ != null);
+
         telemetry_ = telemetry;
 
         motorLF_.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -107,6 +113,9 @@ public class MecanumDriveTrain {
 
         resetEncoder(0);
     }
+
+    void disableToUseImu() { useImu_=false; }
+    void enableToUseImu() { useImu_=(imu_ != null); }
 
     void reverseMotorDirection(){
         motorLF_.setDirection(DcMotor.Direction.REVERSE);

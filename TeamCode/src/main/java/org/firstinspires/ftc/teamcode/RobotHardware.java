@@ -57,24 +57,22 @@ public class RobotHardware extends LinearOpMode {
 
     // Code to run when op mode is initialized
     public void initializeAutonomous() {
-        createMecanumDriveTrain();
-
-        createImu();
+        createMecanumDriveTrain(true);
 
         // createDetectNavigationTarget();  // Create object to use Vuforia to detect navigation targets including skystone
-        // createDetectSkystone();          // Create object to use tensor flow to detect skystone
+        createDetectSkystone();          // Create object to use tensor flow to detect skystone
 
-        // createHooks(Hooks.Position.INIT);
-        // createLift();
-        // createGrabber();
+        createHooks(Hooks.Position.INIT);
+        createLift();
+        createGrabber();
     }
 
     public void initializeTeleOp() {
-        createMecanumDriveTrain();
+        createMecanumDriveTrain(false);
 
-        // createHooks(Hooks.Position.INIT);
-        // createLift();
-        // createGrabber();
+        createHooks(Hooks.Position.INIT);
+        createLift();
+        createGrabber();
     }
 
     RevImu getImu() {
@@ -102,8 +100,11 @@ public class RobotHardware extends LinearOpMode {
                 telemetry);
     }
 
-    void createMecanumDriveTrain() {
-        driveTrain_ = new DriveTrain(telemetry);
+    void createMecanumDriveTrain(boolean create_imu) {
+        if (create_imu == true && imu_ == null) createImu();
+
+        driveTrain_ = new DriveTrain(imu_, telemetry);
+
         driveTrain_.createMecanumDriveTrain(hardwareMap);
     }
 

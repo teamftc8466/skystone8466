@@ -50,17 +50,31 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class DriveTrain {
     private Telemetry telemetry_ = null;
 
+    /// IMU used for detecting heading during autonomous
+    private RevImu imu_ = null;
+
     private MecanumDriveTrain mecanumDriveTrain_ = null;
 
     private BallDriveTrain ballDriveTrain_ = null;
 
     /// Constructor
-    public DriveTrain(Telemetry telemetry) {
+    public DriveTrain(RevImu imu,
+                      Telemetry telemetry) {
+        imu_ = imu;
         telemetry_ = telemetry;
+    }
+
+    void disableToUseImu() {
+        if (mecanumDriveTrain_ != null) mecanumDriveTrain_.disableToUseImu();
+    }
+
+    void enableToUseImu() {
+        if (mecanumDriveTrain_ != null) mecanumDriveTrain_.enableToUseImu();
     }
 
     void createMecanumDriveTrain(HardwareMap hardware_map) {
         mecanumDriveTrain_ = new MecanumDriveTrain(hardware_map,
+                                                   imu_,
                                                    telemetry_);
         mecanumDriveTrain_.useEncoder();
         mecanumDriveTrain_.resetEncoder(0);

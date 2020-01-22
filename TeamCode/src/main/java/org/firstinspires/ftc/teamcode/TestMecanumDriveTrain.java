@@ -27,7 +27,7 @@ public class TestMecanumDriveTrain extends RobotHardware {
     }
 
     public void initialize() {
-        createMecanumDriveTrain();
+        createMecanumDriveTrain(false);
     }
 
     void initializeWhenStart() {

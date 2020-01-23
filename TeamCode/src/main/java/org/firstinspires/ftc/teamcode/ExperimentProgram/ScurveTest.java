@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 //@Disabled
-@TeleOp(name = "WinchTest1")
+@TeleOp(name = "S-curve Test")
 public class ScurveTest extends OpMode {
     //motor declare
     public DcMotor pulleymotor1;
@@ -43,12 +43,12 @@ public class ScurveTest extends OpMode {
         }
         else {
             startfunctime = elaptime.time(TimeUnit.SECONDS);
-            while (deltafunctime <= 30) {
-                motorpower1 = Math.pow((1 / 30) * timer(elaptime.time(TimeUnit.SECONDS)) * (1 / gamepad1.right_stick_y), 3);
+            while (deltafunctime <= 10) {
+                motorpower1 = Math.pow((1 / 10) * timer(elaptime.time(TimeUnit.SECONDS)) * (1 / gamepad1.right_stick_y), 3);
                 pulleymotor1.setPower(motorpower1);
             }
 
-            if (deltafunctime > 30) {
+            if (deltafunctime > 10) {
                 pulleymotor1.setPower(gamepad1.right_stick_y);
             }
         }

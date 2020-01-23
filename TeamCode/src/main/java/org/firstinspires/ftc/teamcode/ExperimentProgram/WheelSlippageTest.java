@@ -42,7 +42,7 @@ public class WheelSlippageTest extends OpMode {
         imu.initialize(parameters);
 
         while (imu.isSystemCalibrated() == true) {
-            telemetry.addData("beans: ", imu.getCalibrationStatus());
+            telemetry.addData("status:  ", imu.getCalibrationStatus());
             telemetry.update();
         }
     }
@@ -66,8 +66,8 @@ public class WheelSlippageTest extends OpMode {
 
     @Override
     public void loop() {
-        telemetry.addData("beaned: ", imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS));
-        telemetry.addData("beaned: ", imu.getPosition());
+        telemetry.addData("orientation: ", imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS));
+        telemetry.addData("position: ", imu.getPosition());
         telemetry.update();
     }
 }

@@ -3,7 +3,12 @@ package org.firstinspires.ftc.teamcode.ExperimentProgram;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.sql.Time;
+import java.util.concurrent.TimeUnit;
 
 
 public class LucasMecanum {
@@ -11,6 +16,15 @@ public class LucasMecanum {
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
+
+    public boolean wheelslippage = false;
+
+    double accumulatederror = 0;
+
+    double olderror = 0;
+    double oldtime = 0;
+
+    ElapsedTime elaptime;
 
     public LucasMecanum(HardwareMap hwm, Telemetry t) {
         frontLeft = hwm.get(DcMotor.class, "frontLeft");
@@ -29,7 +43,11 @@ public class LucasMecanum {
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        wheelslippage = true;
     }
+
+
     /*
     FrontLeft = Ch3 + Ch1 + Ch4
             RearLeft = Ch3 + Ch1 - Ch4
@@ -47,6 +65,54 @@ public class LucasMecanum {
     double frontRightPower;
     double backRightPower;
 
+    double targetflp;
+    double targetfrp;
+    double targetblp;
+    double targetbrp;
+
+    public void Target() {
+        targetflp += frontLeftPower;
+        targetfrp += frontRightPower;
+        targetblp += backLeftPower;
+        targetbrp += backRightPower;
+
+        Error(targetflp, targetfrp, targetblp, targetbrp);
+    }
+
+    public void Error(double flp, double frp, double blp, double brp) {
+        double flperror = flp - frontLeft.getCurrentPosition();
+        double frperror = frp - frontLeft.getCurrentPosition();
+        double blperror = blp - frontLeft.getCurrentPosition();
+        double brperror = brp - frontLeft.getCurrentPosition();
+
+        double trueflp = P(flperror) + I(flperror) + D(flperror);
+        double truefrp = P(frperror) + I(frperror) + D(frperror);
+        double trueblp = P(blperror) + I(blperror) + D(blperror);
+        double truebrp = P(brperror) + I(brperror) + D(brperror);
+
+        setMecanumDrive(trueflp, trueblp, truefrp, truebrp);
+    }
+
+    public double P(double error) {
+        double proportional = error * 1.2;
+
+        return proportional;
+    }
+
+    public double I(double error) {
+        accumulatederror += error;
+        double integral = accumulatederror * 1.5;
+
+        return integral;
+    }
+
+    public double D(double error) {
+        double derivitive = ((error - olderror)/(elaptime.time(TimeUnit.SECONDS) - oldtime)) * 3;
+
+        olderror = error;
+        oldtime = elaptime.time(TimeUnit.SECONDS);
+        return derivitive;
+    }
     /*public void turndrive(Gamepad gamepad) {
         frontLeftPower = gamepad.right_stick_x;
         backLeftPower = gamepad.right_stick_x;
@@ -68,7 +134,12 @@ public class LucasMecanum {
         frontRightPower = (power * Math.cos(angle - (Math.PI / 4)) + Math.cos(angle) * turn);
         backRightPower = (power * Math.sin(angle - (Math.PI / 4)) + Math.cos(angle) * turn); //back
 
-        setMecanumDrive(frontLeftPower, backLeftPower, frontRightPower, backRightPower);
+        if (wheelslippage == true) {
+            Target();
+        }
+        else {
+            setMecanumDrive(frontLeftPower, backLeftPower, frontRightPower, backRightPower);
+        }
     }
     /*public void setPowersMecanum(Gamepad gamepad) {
         frontLeftPower = gamepad.left_stick_y + gamepad.left_stick_x;

@@ -8,13 +8,14 @@ public class GobildaTouchSensors {
     TouchSensor touch2;
     Telemetry telemetry;
 
-    public GobildaTouchSensors(TouchSensor t1, Telemetry t) {
+    public GobildaTouchSensors(TouchSensor t1, TouchSensor t2, Telemetry t) {
         touch1 = t1;
+        touch2 = t2;
         telemetry = t;
     }
 
     boolean touching() {
-        if (touch1.isPressed()) {
+        if (touch1.isPressed() && touch2.isPressed()) {
             return true;
         }
         return false;

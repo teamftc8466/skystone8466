@@ -239,8 +239,8 @@ public class MecanumDriveTrain {
 
                             // Decrease left power and increase right power if heading is biased to right
                             // Increase left power and decrease right power if heading is biased to left
-                            power_lf *= (1 + heading_correct_factor);
-                            power_rf *= (1 - heading_correct_factor);
+                            power_lf *= (1 - heading_correct_factor);
+                            power_rf *= (1 + heading_correct_factor);
                         }
                     }
                     break;

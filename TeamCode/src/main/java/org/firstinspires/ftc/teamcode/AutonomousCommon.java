@@ -79,16 +79,21 @@ public class AutonomousCommon extends RobotHardware {
         while (!isStarted()) {
             synchronized (this) {
                 try {
-                    if (getDetectSkystone().existTfod() == true) {
-                        int det_pos = getDetectSkystone().detectSkystone(isRedTeam_);
-                        if (det_pos >= 0) {
-                            firstSkystonePos_ = det_pos;
+                    if (getDetectSkystone() !=null) {
+                        if (getDetectSkystone().existTfod() == true) {
+                            int det_pos = getDetectSkystone().detectSkystone(isRedTeam_);
+                            if (det_pos >= 0) {
+                                firstSkystonePos_ = det_pos;
+                            }
                         }
+
+                        telemetry.addData("Waiting for Start: ",
+                                "First_Skystone_Position=" + String.valueOf(firstSkystonePos_) +
+                                        " Tfod_Active=" + String.valueOf(getDetectSkystone().existTfod()));
+                    } else {
+                        telemetry.addData("Waiting for Start: ", "No Tfod");
                     }
 
-                    telemetry.addData("Waiting for Start: ",
-                            "First_Skystone_Position=" + String.valueOf(firstSkystonePos_) +
-                             " Tfod_Active=" + String.valueOf(getDetectSkystone().existTfod()));
                     telemetry.update();
 
                     this.wait();
@@ -294,7 +299,11 @@ public class AutonomousCommon extends RobotHardware {
 
     boolean driveFromFirstSkystoneToFoundation(){
         /// Need to move back before making a turn to avoid colliding with stones
-        // driveTrain_.driveByMode(DriveTrainMode.BACKWARD, 0.2, timer_.time());
+        runDriveTrainTillFinish(DriveTrainMode.BACKWARD,
+                0.2,
+                true,
+                (autoCorrectHeadingDuringDriving_ == false),
+                0);
 
         /* Turn away from skystone towards foundation */
 
@@ -342,7 +351,7 @@ public class AutonomousCommon extends RobotHardware {
 
         /* Drive to foundation */
         runDriveTrainTillFinish(DriveTrainMode.FORWARD,
-                0.25,
+                0.3,
                 true,
                 false,
                 0);
@@ -369,6 +378,7 @@ public class AutonomousCommon extends RobotHardware {
             }
         }
 
+        currOpStartTime_ = timer_.time();
         while (driveTrain_.driveByMode(drive_mode, drive_parameter, timer_.time()) == false) {
             // Run till finish
         }
@@ -391,6 +401,12 @@ public class AutonomousCommon extends RobotHardware {
     }
 
     private void correctHeading(double target_heading,
+                                double max_tolerated_error_in_degree,
+                                double min_reduced_power_factor) {
+        return;
+    }
+
+    private void correctHeading_bad(double target_heading,
                                 double max_tolerated_error_in_degree,
                                 double min_reduced_power_factor) {
         double tolerated_error = max_tolerated_error_in_degree;

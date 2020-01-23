@@ -175,9 +175,26 @@ public class DriveTrain {
         if (finish_flag == false){
             if (mecanumDriveTrain_.reachToTargetEncoderCount(target_enc_cnt) == false) {
                 boolean debug_show_set_motor_info = true; // Change it to false during competition
+                if (debug_show_set_motor_info == true) {
+                    telemetry_.addData("Taget encoder count", String.valueOf(target_enc_cnt));
+                }
+
                 mecanumDriveTrain_.driveByMode(drive_mode, debug_show_set_motor_info);
 
                 if (mecanumDriveTrain_.isEncoderStuck(time) == false) {
+                    if (mecanumDriveTrain_.useImu() == true) {
+                        switch (drive_mode) {
+                            case TURN_LEFT:
+                            case TURN_RIGHT:
+                                if (Math.abs(imu_.getHeadingDifference(imu_.targetHeading())) < 3) {
+                                    return true;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
                     return false;
                 } else {
                     // Encoder is stuck. Force current drive mode to end.

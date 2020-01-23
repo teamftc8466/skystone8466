@@ -85,10 +85,10 @@ public class LucasMecanum {
         double blperror = blp - frontLeft.getCurrentPosition();
         double brperror = brp - frontLeft.getCurrentPosition();
 
-        double trueflp = P(flperror) + I(flperror) + D(flperror);
-        double truefrp = P(frperror) + I(frperror) + D(frperror);
-        double trueblp = P(blperror) + I(blperror) + D(blperror);
-        double truebrp = P(brperror) + I(brperror) + D(brperror);
+        double trueflp = targetflp + P(flperror) + I(flperror) + D(flperror);
+        double truefrp = targetfrp + P(frperror) + I(frperror) + D(frperror);
+        double trueblp = targetblp + P(blperror) + I(blperror) + D(blperror);
+        double truebrp = targetbrp + P(brperror) + I(brperror) + D(brperror);
 
         setMecanumDrive(trueflp, trueblp, truefrp, truebrp);
     }
@@ -107,11 +107,11 @@ public class LucasMecanum {
     }
 
     public double D(double error) {
-        double derivitive = ((error - olderror)/(elaptime.time(TimeUnit.SECONDS) - oldtime)) * 3;
+        double derivative = ((error - olderror)/(elaptime.time(TimeUnit.SECONDS) - oldtime)) * 3;
 
         olderror = error;
         oldtime = elaptime.time(TimeUnit.SECONDS);
-        return derivitive;
+        return derivative;
     }
     /*public void turndrive(Gamepad gamepad) {
         frontLeftPower = gamepad.right_stick_x;

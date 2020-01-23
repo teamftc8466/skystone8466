@@ -12,9 +12,9 @@ public class AutoOperation {
         OP_DRIVE_TRAIN_TURN_RIGHT,                     // Oe or two operands: 1. turning degree (>=0); 2: optional minimum reduced power factor used for correcting heading (>=0).
         OP_DRIVE_TRAIN_SHIFT_LEFT,                     // One operand: shifting distance in meter (>=0)
         OP_DRIVE_TRAIN_SHIFT_RIGHT,                    // One operand: shifting distance in meter (>=0)
-        OP_MOVE_HOOK,                                  // Two operands: 1: left hook position in degree; 2: right hook position in degree.
+        OP_MOVE_HOOK,                                  // One operand: Hook position.
         OP_DRIVE_TO_FIRST_SKYSTONE,                    // No operand needed
-        OP_GRAB_FIRST_SKYSTONE,                        // TBD
+        OP_GRAB_FIRST_SKYSTONE,                        // One operand: maximal allowed time spent by this operation
         OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION,    // No operand needed
         OP_DROP_SKYSTONE_TO_FOUNDATION                 // One operand: time spent to drop skystone
     };

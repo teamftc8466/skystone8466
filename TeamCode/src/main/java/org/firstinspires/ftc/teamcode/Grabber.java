@@ -12,6 +12,7 @@ public class Grabber {
     public enum CranePosition {
         CRANE_DRAW_BACK_POSITION(1),
         CRANE_GRAB_STONE(1180),
+        CRANE_DROP_STONE(1400),
         CRANE_PROTECT_ROTATION_POSITION(1700),
         CRANE_MAX_STRETCH_OUT_POSITION(1750);
 

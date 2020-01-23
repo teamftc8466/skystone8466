@@ -8,9 +8,9 @@ public class AutonomousRedLoading extends AutonomousCommon {
     AutoOperation [] opRedLoading_ = {
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TO_FIRST_SKYSTONE, 0),
-            new AutoOperation(AutoOperation.OpCode.OP_GRAB_FIRST_SKYSTONE, 0),
+            new AutoOperation(AutoOperation.OpCode.OP_GRAB_FIRST_SKYSTONE, 3),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION, 0),
-            new AutoOperation(AutoOperation.OpCode.OP_DROP_SKYSTONE_TO_FOUNDATION, 0),
+            new AutoOperation(AutoOperation.OpCode.OP_DROP_SKYSTONE_TO_FOUNDATION, 1),
             new AutoOperation(AutoOperation.OpCode.OP_MOVE_HOOK, (double)(Hooks.Position.PULL.getValue()), 1),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_LEFT, 0.3),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_BACKWARD, 1.0),
@@ -41,6 +41,7 @@ public class AutonomousRedLoading extends AutonomousCommon {
     @Override
     public void runOpMode() {
         useImu_ = true;
+        // autoCorrectHeadingDuringDriving_ = true;
         opList_ = opRedLoading_;
         isRedTeam_ = true;
         grabFirstSkystone_ = redGrabFirstSkystone_;

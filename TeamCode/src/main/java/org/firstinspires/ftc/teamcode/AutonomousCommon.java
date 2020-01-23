@@ -51,6 +51,8 @@ public class AutonomousCommon extends RobotHardware {
             currTime_ = timer_.time();
 
             runCurrentOperation();
+
+            if (lift_ != null) lift_.holdAtTargetPosition(currTime_);
         }
 
         cleanUpAtEndOfRun();
@@ -118,12 +120,24 @@ public class AutonomousCommon extends RobotHardware {
         if (firstSkystonePos_ < 0 || firstSkystonePos_ > 2) {
             firstSkystonePos_ = 0;
         }
+
+        // Move grabber and lift to grab stone ready position
+        moveLiftAndGrabberToCatchStoneReadyPosition();
+
     }
 
     void cleanUpAtEndOfRun() {
         // TODO
 
-        // getDetectSkystone().shutdownTfod();
+        if (getDetectSkystone() != null) getDetectSkystone().shutdownTfod();
+    }
+
+    void moveLiftAndGrabberToCatchStoneReadyPosition() {
+        if (lift_ == null || grabber_ == null) return;
+
+        lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, timer_.time());
+        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
+        grabber_.clampOpen();
     }
 
     AutoOperation.OpCode getCurrentOpcode() {
@@ -200,13 +214,13 @@ public class AutonomousCommon extends RobotHardware {
                 finish_flag = driveToFirstSkystone();
                 break;
             case OP_GRAB_FIRST_SKYSTONE:
-                finish_flag = grabFirstSkystone();
+                finish_flag = grabFirstSkystone(operand);
                 break;
             case OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION:
                 finish_flag = driveFromFirstSkystoneToFoundation();
                 break;
             case OP_DROP_SKYSTONE_TO_FOUNDATION:
-                finish_flag = dropSkystoneToFoundation();
+                finish_flag = dropSkystoneToFoundation(operand);
                 break;
             default:
                 finish_flag = true;
@@ -378,9 +392,11 @@ public class AutonomousCommon extends RobotHardware {
             }
         }
 
+        // Run till finish
         currOpStartTime_ = timer_.time();
         while (driveTrain_.driveByMode(drive_mode, drive_parameter, timer_.time()) == false) {
-            // Run till finish
+            currTime_ = timer_.time();
+            if (lift_ != null) lift_.holdAtTargetPosition(currTime_);
         }
 
         // Must allow 0.1 seconds for the encoders to reset to ensure that the encoders actually finish resetting before moving onto the next opMode
@@ -492,14 +508,54 @@ public class AutonomousCommon extends RobotHardware {
 
 
     // TODO: Write this subsystem when the grabber hardware is finished
-    boolean grabFirstSkystone() {
-        sleep(3000);
+    boolean grabFirstSkystone(double max_allowed_time) {
+        if (lift_ == null || grabber_ == null) return true;
+
+        if (lift_.isMoveToPositionApplied(Lift.Position.LIFT_GRAB_STONE_READY) == false) {
+            lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, timer_.time());
+        }
+
+        if (grabber_.isCraneWithMoveToPositionApplied(Grabber.CranePosition.CRANE_GRAB_STONE) == false) {
+            grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
+        }
+
+        if (grabber_.clampPosition() != Grabber.ClampPosition.CLAMP_OPEN) {
+            grabber_.clampOpen();
+            // sleep(200);   // Wait for opening clamp
+        }
+
+        if (max_allowed_time < 1) max_allowed_time = 1;
+
+        if (lift_.reachToTargetEncoderCount() == false ||
+               grabber_.craneReachToTargetEncoderCount() == false) {
+            final double used_time = timer_.time() - currOpStartTime_;
+            if (used_time < (max_allowed_time - 0.7)) return false;
+        }
+
+        lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_CATCH, timer_.time());
+        while (lift_.reachToTargetEncoderCount() == false) {
+            if ((timer_.time() - currOpStartTime_) >= max_allowed_time) break;
+        }
+
+        grabber_.clampClose();
+        sleep(200);
+
+        lift_.moveToPosition(Lift.Position.LIFT_DELIVER_STONE, timer_.time());
+        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DROP_STONE);
+
         return true;
     }
 
     // TODO: Write this subsystem when the grabber hardware is finished
-    boolean dropSkystoneToFoundation() {
-        sleep(1000);
-        return true;
+    boolean dropSkystoneToFoundation(double max_allowed_time) {
+        if (lift_ == null || grabber_ == null) return true;
+
+        if (max_allowed_time < 0.5) max_allowed_time = 0.5;
+
+        grabber_.clampOpen();
+        lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, timer_.time());
+
+        final double used_time = timer_.time() - currOpStartTime_;
+        return (used_time >= max_allowed_time);
     }
 }

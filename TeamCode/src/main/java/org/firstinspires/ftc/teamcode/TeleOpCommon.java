@@ -196,14 +196,14 @@ public class TeleOpCommon extends RobotHardware {
                 grabber_.holdCraneAtTargetPosition();
 
                 if (allowAutoMoveToCatchStoneReadyPosition_ == true) {
-                    if (grabber_.isCraneWithMoveToPositionApplied(Grabber.CranePosition.CRANE_GRAB_STONE) ==  true &&
+                    if (grabber_.isCraneWithMoveToPositionApplied(Grabber.CranePosition.CRANE_GRAB_STONE) == true &&
                             grabber_.craneReachToTargetEncoderCount() == true) {
                         grabber_.clampOpen();
                         allowAutoMoveToCatchStoneReadyPosition_ = false; // Auto disable it after finish
                     }
                 } else if (allowAutoCatchStone_ == true) {
                     if (lift_ != null &&
-                        lift_.isMoveToPositionApplied(Lift.Position.LIFT_GRAB_STONE_CATCH) == true) {
+                            lift_.isMoveToPositionApplied(Lift.Position.LIFT_GRAB_STONE_CATCH) == true) {
                         if (autoCloseClampForCatchStoneApplied_ == false) {
                             grabber_.clampClose();
                             autoCloseClampForCatchStoneApplied_ = true;
@@ -220,12 +220,12 @@ public class TeleOpCommon extends RobotHardware {
                     }
                 }
             }
+        }
 
-            // Must put the control of hold lift after handling grabber since auto catch the stone will change
-            // lift position.
-            if (lift_ != null) {
-                if (holdLiftAtCurrentPosition_ == true) lift_.holdAtTargetPosition(currTime_);
-            }
+        // Must put the control of hold lift after handling grabber since auto catch the stone will change
+        // lift position.
+        if (lift_ != null) {
+            if (holdLiftAtCurrentPosition_ == true) lift_.holdAtTargetPosition(currTime_);
         }
     }
 

@@ -52,8 +52,6 @@ public class DriveTrain {
 
     /// IMU used for detecting heading during autonomous
     private RevImu imu_ = null;
-    private double lastCheckImuHeadingTime_ = 0;
-    private final double CHECK_IMU_HEADING_INTERVAL = 0.1;   // Every CHECK_IMU_HEADING_INTERVAL, checking IMU heading
 
     private MecanumDriveTrain mecanumDriveTrain_ = null;
 
@@ -155,10 +153,6 @@ public class DriveTrain {
             return true;
         }
 
-        final boolean allow_chk_heading = (mecanumDriveTrain_.useImu() == true &&
-                (Math.abs(time - lastCheckImuHeadingTime_) >= CHECK_IMU_HEADING_INTERVAL));
-        if (allow_chk_heading == true) lastCheckImuHeadingTime_ = time;
-
         int target_enc_cnt = 0;
         boolean finish_flag = false;
         switch (drive_mode){
@@ -181,7 +175,7 @@ public class DriveTrain {
         if (finish_flag == false){
             if (mecanumDriveTrain_.reachToTargetEncoderCount(target_enc_cnt) == false) {
                 boolean debug_show_set_motor_info = true; // Change it to false during competition
-                mecanumDriveTrain_.driveByMode(drive_mode, allow_chk_heading, debug_show_set_motor_info);
+                mecanumDriveTrain_.driveByMode(drive_mode, debug_show_set_motor_info);
 
                 if (mecanumDriveTrain_.isEncoderStuck(time) == false) {
                     return false;

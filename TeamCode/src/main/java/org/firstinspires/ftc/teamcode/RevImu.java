@@ -73,7 +73,12 @@ public class RevImu {
     // CALC_HEADING_DIFF_GUARD_BAND to avoid confusion due to sudden change from -180 to 180 for left turn or
     // 180 to -180 for right turn.
     double getHeadingDifference(double target_heading) {
-        double diff = convertHeadingInRange(target_heading) - convertHeadingInRange(getHeading());
+        return getHeadingDifference(target_heading, getHeading());
+    }
+
+    double getHeadingDifference(double target_heading,
+                                double curr_heading) {
+        double diff = convertHeadingInRange(target_heading) - convertHeadingInRange(curr_heading);
         if (diff < -180) return (360 + diff);
         else if (diff > 180) return (-360 + diff);
         return diff;

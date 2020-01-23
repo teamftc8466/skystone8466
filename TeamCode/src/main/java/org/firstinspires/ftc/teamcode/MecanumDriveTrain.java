@@ -220,10 +220,34 @@ public class MecanumDriveTrain {
     }
 
     void driveByMode(DriveTrainMode drive_mode,
-                     boolean allow_chk_heading,
                      boolean show_set_motor_info) {
         double power_lf = getMotorLFPowerByMode(drive_mode);
         double power_rf = getMotorRFPowerByMode(drive_mode);
+
+        if (useImu_ == true) {
+            switch (drive_mode) {
+                case FORWARD:
+                case BACKWARD:
+                    {
+                        double heading_diff = imu_.getHeadingDifference(imu_.targetHeading());
+                        if (Math.abs(heading_diff) <= AUTO_CORRECT_MAX_HEADING_ERROR) {
+                            // Prevent incorrect heading error causing robot to spin
+                            if (drive_mode == DriveTrainMode.BACKWARD) heading_diff = -heading_diff;
+
+                            double heading_correct_factor = heading_diff * AUTO_CORRECT_HEADING_POWER_PER_DEGREE;
+                            heading_correct_factor = Range.clip(heading_correct_factor, -0.95, 0.95);
+
+                            // Decrease left power and increase right power if heading is biased to right
+                            // Increase left power and decrease right power if heading is biased to left
+                            power_lf *= (1 + heading_correct_factor);
+                            power_rf *= (1 - heading_correct_factor);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
 
         double power_lb = power_lf;
         double power_rb = power_rf;
@@ -254,8 +278,10 @@ public class MecanumDriveTrain {
         if (imu_ == null) return;
 
         double heading = imu_.getHeading();
-        double heading_diff = imu_.getHeadingDifference(imu_.targetHeading());
-        telemetry_.addData("Imu", "heading="+ String.valueOf(heading) + " heading_diff=" + String.valueOf(heading_diff));
+        double heading_diff = imu_.getHeadingDifference(imu_.targetHeading(), heading);
+        telemetry_.addData("Imu", "used="+String.valueOf(useImu_) +
+                " heading="+ String.valueOf(heading) +
+                " heading_diff=" + String.valueOf(heading_diff));
         if (update_flag == true) telemetry_.update();
     }
 

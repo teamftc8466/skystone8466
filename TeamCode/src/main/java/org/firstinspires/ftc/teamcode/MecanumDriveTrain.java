@@ -64,7 +64,7 @@ public class MecanumDriveTrain {
     /// Encoder length conversion scales                         // TODO: Adjust based on experiments
     static final double ENCODER_DISTANCE_SCALE = (2000.0 / 0.88);
     static final double ENCODER_SHIFT_DISTANCE_SCALE = (2000.0 / 0.785);
-    static final double ENCODER_DEGREE_SCALE = (2000.0 / 114);
+    static final double ENCODER_DEGREE_SCALE = (2000.0 / 132.0);
 
     /// Default drivetrain control for teleop
     static final double JOYSTICK_DEAD_ZONE = 0.1;

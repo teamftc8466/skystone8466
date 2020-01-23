@@ -186,7 +186,7 @@ public class DriveTrain {
                         switch (drive_mode) {
                             case TURN_LEFT:
                             case TURN_RIGHT:
-                                if (Math.abs(imu_.getHeadingDifference(imu_.targetHeading())) < 3) {
+                                if (Math.abs(imu_.getHeadingDifference(imu_.targetHeading())) < 2) {
                                     return true;
                                 }
                                 break;

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -32,6 +33,7 @@ public class Grabber {
         private RotationPosition(int val) { val_ = val; }
         public int getValue() { return val_; }
     };
+
     public enum ClampPosition {
         CLAMP_OPEN(30),
         CLAMP_CLOSE(140);
@@ -60,7 +62,8 @@ public class Grabber {
     private ClampPosition lastClampPosition_ = ClampPosition.CLAMP_OPEN;
 
     /// Encoder time out variables
-    static final double AUTO_ENC_STUCK_TIME_OUT = 2.0;
+    static final double AUTO_ENC_STUCK_TIME_OUT = 1.0;
+    static final int MIN_ENC_NON_STUCK_RANGE = 15;
     private int prevReadEncCnt_ = 0;
     private double prevEncCntChangeStartTime_ = 0;
 
@@ -168,6 +171,50 @@ public class Grabber {
         moveCraneToTargetPosition(power_val);
     }
 
+    // Return true if the crane is fully drawn back.
+    // Otherwise, return false.
+    public boolean enforceCraneDrawBackToEnd(
+            double power_val,
+            ElapsedTime timer,
+            double max_applied_time) {
+        craneWithMoveToPositionAppliedFlag_ = false;
+
+        if (max_applied_time < 0.1) max_applied_time = 0.1;
+
+        power_val = Math.abs(power_val);
+        if (power_val < 0.1) power_val = 0.1;
+
+        final double beg_time = timer.time();
+        prevReadEncCnt_ = craneMotor_.getCurrentPosition();
+        prevEncCntChangeStartTime_ = beg_time;
+
+        boolean succ_flag = false;
+        double curr_time = timer.time();
+        do {
+            // Positive power makes crane draw back
+            setCranePower(power_val);
+
+            int curr_enc_pos = craneMotor_.getCurrentPosition();
+
+            if (isEncoderStuck(curr_time) == true) {
+                succ_flag = true; break;
+            };
+
+            curr_time = timer.time();
+        } while ((curr_time - beg_time) <= max_applied_time);
+
+        resetEncoder(curr_time);
+
+        // Wait for 0.1 sec for resetting encoder
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        return succ_flag;
+    }
+
     private void moveCraneToTargetPosition(double power_val) {
         power_val = Math.abs(power_val);
         power_val = Range.clip(power_val, 0, 1);
@@ -222,7 +269,7 @@ public class Grabber {
     boolean isEncoderStuck(double time) {
         int curr_enc_pos = craneMotor_.getCurrentPosition();
 
-        if (curr_enc_pos != prevReadEncCnt_) {
+        if (Math.abs(curr_enc_pos - prevReadEncCnt_) >= MIN_ENC_NON_STUCK_RANGE) {
             prevReadEncCnt_ = curr_enc_pos;
             prevEncCntChangeStartTime_ = time;
 

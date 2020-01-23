@@ -47,6 +47,11 @@ public class TeleOpCommon extends RobotHardware {
         gamepadButtons_ = new GamepadButtons(gamepad1, gamepad2);
 
         initializeTeleOp();
+
+        timer_.reset();
+        if (grabber_ != null) {
+            grabber_.enforceCraneDrawBackToEnd(0.4, timer_, 2.5);
+        }
     }
 
     void initializeWhenStart() {

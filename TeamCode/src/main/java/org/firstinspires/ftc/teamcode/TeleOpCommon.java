@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 // @Disabled
 public class TeleOpCommon extends RobotHardware {
     final double JOY_STICK_DEAD_ZONE = 0.1;
-    final double WAITING_TIME_FOR_CLOSE_CLAMP = 0.3;   // Time spent by closing clamp for auto operation
+    final boolean SHOW_GAMEPAD_CTL_INFO = true;              // For debug purpose. Turn this off afterward.
 
     GamepadButtons gamepadButtons_ = null;
 
@@ -18,10 +18,21 @@ public class TeleOpCommon extends RobotHardware {
 
     boolean holdLiftAtCurrentPosition_ = false;
     boolean holdGrabberCraneAtCurrentPosition = false;
+
     boolean allowAutoMoveToCatchStoneReadyPosition_ = false;
     boolean allowAutoCatchStone_ = true;
+
+    final double WAITING_TIME_FOR_CLOSE_CLAMP = 0.3;      // Time spent by closing clamp for auto operation
     boolean autoCloseClampForCatchStoneApplied_ = false;
     double startTimeToAutoCloseClampForCatchStone_ = 0;
+
+    final double ENFORCE_TO_DRAW_BACK_CRANE_TO_END_POWER = 0.6;
+    final double MAX_TIME_FOR_ENFORCE_TO_DRAW_BACK_CRANE_TO_END = 4;
+    final double ENC_STUCK_TIME_OUT_FOR_ENFORCE_TO_DRAW_BACK_CRANE_TO_END = 1.5;
+    boolean enforceToDrawbackCraneToEnd_ = false;
+    int encCntForChkEnforceToDrawbackCraneToEnd_ = 0;
+    double timeForChkEnforceToDrawbackCraneToEnd_ = 0;
+    double startTimeToEnforceToDrawbackCraneToEnd_ = 0;
 
     @Override
     public void runOpMode() {
@@ -75,9 +86,12 @@ public class TeleOpCommon extends RobotHardware {
     //   - left bumper:
     //       + Pressed (no hold needed): Move lift to deliver stone position
     //       + Released: do nothing
-    //   - right bumper
-    //      + Pressed and hold: hook down
-    //      - Released: hook up
+    //   - right bumper: Repeat following modes
+    //      + Pressed once: hook down
+    //      - Released twice: hook up
+    //    - Button A: Repeat following modes
+    //      + Pressed once: Enforce to draw back grabber crane to the end and reset encoder
+    //      + Pressed again: Stop to enforce to draw back grabber crane to the end and reset encoder
     //  Gamepad 2:
     //    - left_joystick :
     //       + Y: control lift up and down
@@ -107,8 +121,6 @@ public class TeleOpCommon extends RobotHardware {
         // right_joystick_y is used to control grabber crane in and out
         checkControlOfGrabberCraneByJoystick();
 
-        boolean move_hook_to_pull_position = false;
-
         GamepadButtons.Button pressed_button_in_gamepad_1 = gamepadButtons_.pressedButton(GamepadButtons.GamepadId.PAD_1, currTime_);
         switch (pressed_button_in_gamepad_1) {
             case LEFT_BUMPER:
@@ -121,10 +133,30 @@ public class TeleOpCommon extends RobotHardware {
                 }
                 break;
             case RIGHT_BUMPER:
-                move_hook_to_pull_position = true;
+                if (hooks_ != null) {
+                    int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.RIGHT_BUMPER);
+                    if ((cnt % 2) != 0) hooks_.moveHooksToPosition(Hooks.Position.PULL);
+                    else hooks_.moveHooksToPosition(Hooks.Position.RELEASE);
+                }
+                break;
+            case B:
+                if (grabber_ != null) {
+                    int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.B);
+                    if ((cnt % 2) != 0) {
+                        if (enforceToDrawbackCraneToEnd_ == false) {
+                            beginEnforceToDrawbackCraneToEnd();
+                        }
+                    } else if (enforceToDrawbackCraneToEnd_ == true) {
+                        stopEnforceToDrawbackCraneToEnd();
+                    }
+                }
                 break;
             default:
                 break;
+        }
+
+        if (enforceToDrawbackCraneToEnd_ == true) {
+            applyEnforceToDrawbackCraneToEnd();
         }
 
         GamepadButtons.Button pressed_button_in_gamepad_2 = gamepadButtons_.pressedButton(GamepadButtons.GamepadId.PAD_2, currTime_);
@@ -146,6 +178,8 @@ public class TeleOpCommon extends RobotHardware {
                 }
                 break;
             case RIGHT_BUMPER:
+                if (enforceToDrawbackCraneToEnd_ == true) break;
+
                 if (activatedCtlGrabberCraneByJoystick_ == false) {
                     if (grabber_ != null) grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
                 }
@@ -160,6 +194,8 @@ public class TeleOpCommon extends RobotHardware {
                 autoCloseClampForCatchStoneApplied_ = false;
                 break;
             case A:
+                if (enforceToDrawbackCraneToEnd_ == true) break;
+
                 if (grabber_ != null){
                     int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.B);
                     if ((cnt % 2) != 0) grabber_.rotationOut();
@@ -170,6 +206,8 @@ public class TeleOpCommon extends RobotHardware {
                 }
                 break;
             case B:
+                if (enforceToDrawbackCraneToEnd_ == true) break;
+
                 if (activatedCtlGrabberCraneByJoystick_ == true ||
                         activatedCtlLiftByJoystick_ == true) {
                     allowAutoCatchStone_ = false;
@@ -189,11 +227,6 @@ public class TeleOpCommon extends RobotHardware {
                 break;
             default:
                 break;
-        }
-
-        if (hooks_ != null) {
-            if (move_hook_to_pull_position == true) hooks_.moveHooksToPosition(Hooks.Position.PULL);
-            else hooks_.moveHooksToPosition(Hooks.Position.RELEASE);
         }
 
         if (grabber_ != null) {
@@ -232,6 +265,8 @@ public class TeleOpCommon extends RobotHardware {
         if (lift_ != null) {
             if (holdLiftAtCurrentPosition_ == true) lift_.holdAtTargetPosition(currTime_);
         }
+
+        if (SHOW_GAMEPAD_CTL_INFO) showGamepadControlInfo(true);
     }
 
     void checkControlOfLiftByJoystick() {
@@ -265,6 +300,12 @@ public class TeleOpCommon extends RobotHardware {
     }
 
     void checkControlOfGrabberCraneByJoystick() {
+        if (enforceToDrawbackCraneToEnd_ == true) {
+            activatedCtlLiftByJoystick_ = false;
+            holdGrabberCraneAtCurrentPosition = false;
+            return;
+        }
+
         holdGrabberCraneAtCurrentPosition = true;
 
         final double rsy_in_gamepad_2 = gamepad2.right_stick_y;
@@ -291,5 +332,95 @@ public class TeleOpCommon extends RobotHardware {
 
             if (grabber_ != null) grabber_.setCurrentCranePositionAsTargetPosition();
         }
+    }
+
+    void beginEnforceToDrawbackCraneToEnd() {
+        enforceToDrawbackCraneToEnd_ = true;
+
+        encCntForChkEnforceToDrawbackCraneToEnd_ = grabber_.getCraneEncoderCount();
+        timeForChkEnforceToDrawbackCraneToEnd_ = timer_.time();
+        startTimeToEnforceToDrawbackCraneToEnd_ = timer_.time();
+
+        grabber_.setCranePower(ENFORCE_TO_DRAW_BACK_CRANE_TO_END_POWER);
+        grabber_.resetCraneWithMoveToPositionApplied();
+    }
+
+    void stopEnforceToDrawbackCraneToEnd() {
+        enforceToDrawbackCraneToEnd_ = false;
+
+        grabber_.setCranePower(0);
+        grabber_.resetCraneWithMoveToPositionApplied();
+        grabber_.resetEncoder(timer_.time());
+        sleep(100);
+    }
+
+    void applyEnforceToDrawbackCraneToEnd() {
+        if (grabber_ == null) {
+            enforceToDrawbackCraneToEnd_ = false;
+            return;
+        }
+
+        double curr_time = timer_.time();
+        if ((curr_time - startTimeToEnforceToDrawbackCraneToEnd_) >= MAX_TIME_FOR_ENFORCE_TO_DRAW_BACK_CRANE_TO_END) {
+            enforceToDrawbackCraneToEnd_ = false;
+        } else {
+            final int curr_crane_enc_cnt = grabber_.getCraneEncoderCount();
+            if (Math.abs(curr_crane_enc_cnt - encCntForChkEnforceToDrawbackCraneToEnd_) >= 15) {
+                encCntForChkEnforceToDrawbackCraneToEnd_ = grabber_.getCraneEncoderCount();
+                timeForChkEnforceToDrawbackCraneToEnd_ = curr_time;
+            }
+
+            if (curr_time >= (timeForChkEnforceToDrawbackCraneToEnd_ + ENC_STUCK_TIME_OUT_FOR_ENFORCE_TO_DRAW_BACK_CRANE_TO_END)) {
+                enforceToDrawbackCraneToEnd_ = false;
+            }
+        }
+
+        if (enforceToDrawbackCraneToEnd_ == false) {
+            stopEnforceToDrawbackCraneToEnd();
+        } else {
+            allowAutoCatchStone_ = false;
+            autoCloseClampForCatchStoneApplied_ = false;
+            allowAutoMoveToCatchStoneReadyPosition_ = false;
+
+            grabber_.resetCraneWithMoveToPositionApplied();
+        }
+    }
+
+    void showGamepadControlInfo(boolean update_flag) {
+        telemetry.addData("Pad1",
+                "LS=("+String.valueOf(gamepad1.left_stick_x)+" ,"+String.valueOf(gamepad1.left_stick_y)+
+                        ") RS=("+String.valueOf(gamepad1.right_stick_x)+" ,"+String.valueOf(gamepad1.right_stick_y)+
+                        ") X="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.X))+
+                        " Y="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.Y))+
+                        " A="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.A))+
+                        " B="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.B))+
+                        " LB="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.LEFT_BUMPER))+
+                        " RB="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.RIGHT_BUMPER))+
+                        " LSB="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.LEFT_STICK_BUTTON))+
+                        " RSB="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.RIGHT_STICK_BUTTON)));
+
+        telemetry.addData("Pad2",
+                "LS=("+String.valueOf(gamepad2.left_stick_x)+" ,"+String.valueOf(gamepad2.left_stick_y)+
+                        ") RS=("+String.valueOf(gamepad2.right_stick_x)+" ,"+String.valueOf(gamepad2.right_stick_y)+
+                        ") X="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.X))+
+                        " Y="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.Y))+
+                        " A="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.A))+
+                        " B="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.B))+
+                        " LB="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.LEFT_BUMPER))+
+                        " RB="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.RIGHT_BUMPER))+
+                        " LSB="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.LEFT_STICK_BUTTON))+
+                        " RSB="+String.valueOf(gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.RIGHT_STICK_BUTTON)));
+
+        telemetry.addData("Auto",
+                "Catch="+String.valueOf(allowAutoCatchStone_)+
+                " ReadyPos="+String.valueOf(allowAutoMoveToCatchStoneReadyPosition_)+
+                " CloseClamp="+String.valueOf(autoCloseClampForCatchStoneApplied_));
+
+        telemetry.addData("EnforceDrawbackCrane",
+                String.valueOf(enforceToDrawbackCraneToEnd_) +
+                " StartTime= " + String.valueOf(startTimeToEnforceToDrawbackCraneToEnd_));
+
+
+        if (update_flag == true) telemetry.update();
     }
 }

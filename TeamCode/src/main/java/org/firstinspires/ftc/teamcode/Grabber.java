@@ -119,6 +119,8 @@ public class Grabber {
         setCranePower(0);
     }
 
+    public int getCraneEncoderCount() { return craneMotor_.getCurrentPosition(); }
+
     public void setCurrentCranePositionAsTargetPosition() {
         int curr_encoder_cnt = Math.abs(craneMotor_.getCurrentPosition());
         if (curr_encoder_cnt > CranePosition.CRANE_MAX_STRETCH_OUT_POSITION.getValue()) {
@@ -133,6 +135,8 @@ public class Grabber {
     public void holdCraneAtTargetPosition() {
         moveCraneToTargetPosition(MAX_CRANE_MOTOR_POWER);
     }
+
+    void resetCraneWithMoveToPositionApplied() { craneWithMoveToPositionAppliedFlag_ = false; }
 
     boolean isCraneWithMoveToPositionApplied(CranePosition position) {
         return (craneWithMoveToPositionAppliedFlag_ == true &&

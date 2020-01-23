@@ -114,6 +114,7 @@ public class MecanumDriveTrain {
         resetEncoder(0);
     }
 
+    boolean useImu() { return useImu_; }
     void disableToUseImu() { useImu_=false; }
     void enableToUseImu() { useImu_=(imu_ != null); }
 
@@ -219,6 +220,7 @@ public class MecanumDriveTrain {
     }
 
     void driveByMode(DriveTrainMode drive_mode,
+                     boolean allow_chk_heading,
                      boolean show_set_motor_info) {
         double power_lf = getMotorLFPowerByMode(drive_mode);
         double power_rf = getMotorRFPowerByMode(drive_mode);
@@ -240,11 +242,21 @@ public class MecanumDriveTrain {
         if(show_set_motor_info = true) {
             telemetry_.addData("Current drivemode", String.valueOf(drive_mode));
 
+            showHeading(false);
             showSetPower(power_lf, power_lb, power_rf, power_rb, false);
             showEncoderValue(false);
 
             telemetry_.update(); // Keep so that if telemetry is true for both functions, all telemetry will be shown
         }
+    }
+
+    void showHeading(boolean update_flag) {
+        if (imu_ == null) return;
+
+        double heading = imu_.getHeading();
+        double heading_diff = imu_.getHeadingDifference(imu_.targetHeading());
+        telemetry_.addData("Imu", "heading="+ String.valueOf(heading) + " heading_diff=" + String.valueOf(heading_diff));
+        if (update_flag == true) telemetry_.update();
     }
 
     void showSetPower(double power_lf,

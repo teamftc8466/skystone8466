@@ -126,6 +126,8 @@ public class AutonomousCommon extends RobotHardware {
 
         // Move grabber and lift to grab stone ready position
         moveLiftAndGrabberToCatchStoneReadyPosition();
+
+        driveTrain_.enableShowDriveTrainInfo();  // Disable it after finish debugging
     }
 
     void cleanUpAtEndOfRun() {
@@ -514,7 +516,6 @@ public class AutonomousCommon extends RobotHardware {
 
         return true;
     }
-
 
     // TODO: Write this subsystem when the grabber hardware is finished
     boolean grabFirstSkystone(double max_allowed_time) {

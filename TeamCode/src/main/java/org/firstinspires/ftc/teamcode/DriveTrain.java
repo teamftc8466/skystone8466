@@ -57,12 +57,17 @@ public class DriveTrain {
 
     private BallDriveTrain ballDriveTrain_ = null;
 
+    private boolean showDriveTrainInfo_ = false;
+
     /// Constructor
     public DriveTrain(RevImu imu,
                       Telemetry telemetry) {
         imu_ = imu;
         telemetry_ = telemetry;
     }
+
+    void enableShowDriveTrainInfo() { showDriveTrainInfo_ = true; }
+    void disShowDriveTrainInfo() { showDriveTrainInfo_ = false; }
 
     void disableToUseImu() {
         if (mecanumDriveTrain_ != null) mecanumDriveTrain_.disableToUseImu();
@@ -174,12 +179,11 @@ public class DriveTrain {
 
         if (finish_flag == false){
             if (mecanumDriveTrain_.reachToTargetEncoderCount(target_enc_cnt) == false) {
-                boolean debug_show_set_motor_info = true; // Change it to false during competition
-                if (debug_show_set_motor_info == true) {
-                    telemetry_.addData("Taget encoder count", String.valueOf(target_enc_cnt));
+                if (showDriveTrainInfo_ == true) {
+                    telemetry_.addData("Target encoder count", String.valueOf(target_enc_cnt));
                 }
 
-                mecanumDriveTrain_.driveByMode(drive_mode, debug_show_set_motor_info);
+                mecanumDriveTrain_.driveByMode(drive_mode, showDriveTrainInfo_);
 
                 if (mecanumDriveTrain_.isEncoderStuck(time) == false) {
                     if (mecanumDriveTrain_.useImu() == true) {

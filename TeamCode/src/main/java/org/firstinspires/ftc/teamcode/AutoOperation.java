@@ -16,6 +16,8 @@ public class AutoOperation {
         OP_DRIVE_TO_FIRST_SKYSTONE,                    // No operand needed
         OP_GRAB_FIRST_SKYSTONE,                        // One operand: maximal allowed time spent by this operation
         OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION,    // No operand needed
+        OP_GRABBER_CRANE_FULL_DRAW_BACK,               // No operand needed
+        OP_LIFT_MOVE_TO_BOTTOM_POSITION,               // No operant needed
         OP_DROP_SKYSTONE_TO_FOUNDATION                 // One operand: time spent to drop skystone
     };
 

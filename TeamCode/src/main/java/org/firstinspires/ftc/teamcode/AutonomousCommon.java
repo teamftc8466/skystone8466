@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 @Autonomous(name="AutonomousCommon", group="FS")
 @Disabled
 public class AutonomousCommon extends RobotHardware {
+    final double MAX_WAIT_TIME_FOR_CLOSE_GRABBER_CLAMP = 0.5;
+
     boolean useImu_ = false;            // If true, use IMU to correct heading when executing the operation OP_DRIVE_TRAIN_CORRECT_HEADING
     boolean autoCorrectHeadingDuringDriving_ = false;
 
@@ -53,6 +55,7 @@ public class AutonomousCommon extends RobotHardware {
             runCurrentOperation();
 
             if (lift_ != null) lift_.holdAtTargetPosition(currTime_);
+            if (grabber_ != null) grabber_.holdCraneAtTargetPosition();
         }
 
         cleanUpAtEndOfRun();
@@ -123,7 +126,6 @@ public class AutonomousCommon extends RobotHardware {
 
         // Move grabber and lift to grab stone ready position
         moveLiftAndGrabberToCatchStoneReadyPosition();
-
     }
 
     void cleanUpAtEndOfRun() {
@@ -221,6 +223,14 @@ public class AutonomousCommon extends RobotHardware {
                 break;
             case OP_DROP_SKYSTONE_TO_FOUNDATION:
                 finish_flag = dropSkystoneToFoundation(operand);
+                break;
+            case OP_GRABBER_CRANE_FULL_DRAW_BACK:
+                grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DRAW_BACK_POSITION);
+                finish_flag = true;
+                break;
+            case OP_LIFT_MOVE_TO_BOTTOM_POSITION:
+                lift_.moveToPosition(Lift.Position.LIFT_BOTTOM_POSITION, timer_.time());
+                finish_flag = true;
                 break;
             default:
                 finish_flag = true;
@@ -397,6 +407,7 @@ public class AutonomousCommon extends RobotHardware {
         while (driveTrain_.driveByMode(drive_mode, drive_parameter, timer_.time()) == false) {
             currTime_ = timer_.time();
             if (lift_ != null) lift_.holdAtTargetPosition(currTime_);
+            if (grabber_ != null) grabber_.holdCraneAtTargetPosition();
         }
 
         // Must allow 0.1 seconds for the encoders to reset to ensure that the encoders actually finish resetting before moving onto the next opMode
@@ -420,11 +431,8 @@ public class AutonomousCommon extends RobotHardware {
                                 double max_tolerated_error_in_degree,
                                 double min_reduced_power_factor) {
         return;
-    }
 
-    private void correctHeading_bad(double target_heading,
-                                double max_tolerated_error_in_degree,
-                                double min_reduced_power_factor) {
+     /*
         double tolerated_error = max_tolerated_error_in_degree;
         if (tolerated_error <= 1) tolerated_error = 1;
         else if (tolerated_error > 10) tolerated_error = 10;
@@ -477,6 +485,7 @@ public class AutonomousCommon extends RobotHardware {
         if (saved_power_factor != driveTrain_.powerFactor()) {
             driveTrain_.setPowerFactor(saved_power_factor);
         }
+    */
     }
 
     boolean runDriveTrain(DriveTrainMode drive_mode,
@@ -534,11 +543,21 @@ public class AutonomousCommon extends RobotHardware {
 
         lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_CATCH, timer_.time());
         while (lift_.reachToTargetEncoderCount() == false) {
+            grabber_.holdCraneAtTargetPosition();
             if ((timer_.time() - currOpStartTime_) >= max_allowed_time) break;
         }
 
         grabber_.clampClose();
-        sleep(200);
+
+        // Wait for clamp fully close
+        double beg_clamp_close_time = timer_.time();
+        while (true) {
+            double curr_time = timer_.time();
+            if ((curr_time - beg_clamp_close_time) >= MAX_WAIT_TIME_FOR_CLOSE_GRABBER_CLAMP) break;
+
+            lift_.holdAtTargetPosition(curr_time);
+            grabber_.holdCraneAtTargetPosition();
+        }
 
         lift_.moveToPosition(Lift.Position.LIFT_DELIVER_STONE, timer_.time());
         grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DROP_STONE);
@@ -553,7 +572,10 @@ public class AutonomousCommon extends RobotHardware {
         if (max_allowed_time < 0.5) max_allowed_time = 0.5;
 
         grabber_.clampOpen();
-        lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, timer_.time());
+
+        if (lift_.isMoveToPositionApplied(Lift.Position.LIFT_GRAB_STONE_READY) == false) {
+            lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, timer_.time());
+        }
 
         final double used_time = timer_.time() - currOpStartTime_;
         return (used_time >= max_allowed_time);

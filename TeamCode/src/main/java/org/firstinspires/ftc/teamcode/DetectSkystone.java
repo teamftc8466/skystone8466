@@ -153,7 +153,7 @@ public class DetectSkystone {
      */
     private void initTfod() {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId_);
-        tfodParameters.minimumConfidence = 0.4;
+        tfodParameters.minimumConfidence = 0.2;
         tfod_ = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia_);
         tfod_.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
@@ -203,12 +203,12 @@ public class DetectSkystone {
 //              telemetry.addData("bottom", skystoneBlockBottom);
 
 
-                    if (skystoneBlock.getRight() >450) {
-                        if(skystoneBlock.getLeft() > 130) {
+                    if (skystoneBlock.getLeft()>120) {
+                        if(skystoneBlock.getLeft()>300) {
                             if (is_red_team) {
-                                skystonePosition = 0;
-                            } else {
                                 skystonePosition = 2;
+                            } else {
+                                skystonePosition = 0;
                             }
                         }else {
                             skystonePosition = 1;
@@ -216,9 +216,9 @@ public class DetectSkystone {
                     }
                     else {
                         if (is_red_team) {
-                            skystonePosition = 2;
+                            skystonePosition = 0;
                         }else {
-                        skystonePosition = 0;
+                        skystonePosition = 2;
                     }
                     }
             } else {

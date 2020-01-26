@@ -9,22 +9,22 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
 public class MecanumDrive {
-    private DcMotor frontLeft = null;
-    private DcMotor frontRight = null;
-    private DcMotor backLeft = null;
-    private DcMotor backRight = null;
+    private DcMotor frontLeft;
+    private DcMotor frontRight;
+    private DcMotor backLeft;
+    private DcMotor backRight;
 
-    public Servo servo1;
-    public Servo servo2;
+    public Servo servoL;
+    public Servo servoR;
 
     public MecanumDrive(HardwareMap hwm, Telemetry t) {
-        frontLeft = hwm.get(DcMotor.class, "frontLeft");
-        frontRight = hwm.get(DcMotor.class, "frontRight");
-        backLeft = hwm.get(DcMotor.class, "backLeft");
-        backRight = hwm.get(DcMotor.class, "backRight");
+        frontLeft = hwm.get(DcMotor.class, "motorLF");
+        frontRight = hwm.get(DcMotor.class, "motorRF");
+        backLeft = hwm.get(DcMotor.class, "motorLB");
+        backRight = hwm.get(DcMotor.class, "motorRB");
 
-        servo1 = hwm.servo.get("servo1");
-        servo2 = hwm.servo.get("servo2");
+        servoL = hwm.servo.get("leftHookServo");
+        servoR = hwm.servo.get("rightHookServo");
     }
     /*
     FrontLeft = Ch3 + Ch1 + Ch4

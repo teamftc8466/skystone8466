@@ -19,5 +19,7 @@ public class MecanumWheelSlippageTest extends OpMode {
     @Override
     public void loop() {
         mecanum.omniMecanumDrive(gamepad1);
+        telemetry.addData("yeet", mecanum.targetflp);
+        telemetry.update();
     }
 }

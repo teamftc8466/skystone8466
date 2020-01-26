@@ -3,19 +3,22 @@ package org.firstinspires.ftc.teamcode.ExperimentProgram;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.sql.Time;
 import java.util.concurrent.TimeUnit;
 
 
 public class LucasMecanum {
-    private DcMotor frontLeft = null;
-    private DcMotor frontRight = null;
-    private DcMotor backLeft = null;
-    private DcMotor backRight = null;
+    private DcMotor frontLeft;
+    private DcMotor frontRight;
+    private DcMotor backLeft;
+    private DcMotor backRight;
+
+    public Servo servoL;
+    public Servo servoR;
+
+    public int open = 0;//0 = up
 
     public boolean wheelslippage = false;
 
@@ -27,10 +30,13 @@ public class LucasMecanum {
     ElapsedTime elaptime;
 
     public LucasMecanum(HardwareMap hwm, Telemetry t) {
-        frontLeft = hwm.get(DcMotor.class, "frontLeft");
-        frontRight = hwm.get(DcMotor.class, "frontRight");
-        backLeft = hwm.get(DcMotor.class, "backLeft");
-        backRight = hwm.get(DcMotor.class, "backRight");
+        frontLeft = hwm.get(DcMotor.class, "motorLF");
+        frontRight = hwm.get(DcMotor.class, "motorRF");
+        backLeft = hwm.get(DcMotor.class, "motorLB");
+        backRight = hwm.get(DcMotor.class, "motorRB");
+
+        servoL = hwm.servo.get("leftHookServo");
+        servoR = hwm.servo.get("rightHookServo");
     }
 
     public void StartEncoders() {
@@ -48,6 +54,26 @@ public class LucasMecanum {
     }
 
 
+    public void Hook(boolean input) {
+        if (input) {
+            switch (open) {
+                case 0:
+                    servoL.setPosition(90);
+                    servoR.setPosition(90);
+                    open = 1;
+                    break;
+
+                case 1:
+                    servoL.setPosition(0);
+                    servoR.setPosition(0);
+                    open = 0;
+                    break;
+
+                default:
+                    open = 0;
+            }
+        }
+    }
     /*
     FrontLeft = Ch3 + Ch1 + Ch4
             RearLeft = Ch3 + Ch1 - Ch4

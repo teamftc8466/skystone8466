@@ -375,7 +375,16 @@ public class AutonomousCommon extends RobotHardware {
                     0);
         }
 
-        /* Drive to foundation */
+
+        /* Drive to foundation (Numbers TBR) */
+        /*runDriveTrainTillFinish(DriveTrainMode.FORWARD,
+                0.1,
+                true,
+                false,
+                0);*/
+
+        lift_.moveToPosition(Lift.Position.LIFT_ABOVE_FOUNDATION, 0.5);
+
         runDriveTrainTillFinish(DriveTrainMode.FORWARD,
                 0.3,
                 true,
@@ -572,11 +581,12 @@ public class AutonomousCommon extends RobotHardware {
 
         if (max_allowed_time < 0.5) max_allowed_time = 0.5;
 
-        grabber_.clampOpen();
-
         if (lift_.isMoveToPositionApplied(Lift.Position.LIFT_GRAB_STONE_READY) == false) {
             lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, timer_.time());
         }
+
+
+        grabber_.clampOpen();
 
         final double used_time = timer_.time() - currOpStartTime_;
         return (used_time >= max_allowed_time);

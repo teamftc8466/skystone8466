@@ -15,6 +15,7 @@ public class Lift {
         LIFT_GRAB_STONE_CATCH(2),
         LIFT_DELIVER_STONE(70),
         LIFT_GRAB_STONE_READY(500),
+        LIFT_ABOVE_FOUNDATION(610),
         LIFT_TOP_POSITION(2050);
 
         private final int val_;

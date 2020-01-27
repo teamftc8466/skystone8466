@@ -39,9 +39,9 @@ public class AutonomousRedLoading extends AutonomousCommon {
     ///   - First parameter: Distance to shift in order to align with the Skystone
     ///   - Second parameter: Distance forward to Skystone
     ///   - Third parameter: Distance to foundation after collecting Skystone (the turning angle towards the foundation is constant for all three positions of the Skystones, so we do not need a fourth parameter)
-    double [][] redGrabFirstSkystone_ = {{ 0.08, 0.75, 1.7},           // TODO: Determine actual measurements
-                                         {-0.12, 0.75, 1.88},
-                                         {-0.30, 0.75, 2.08}};
+    double [][] redGrabFirstSkystone_ = {{ 0.08, 0.72, 1.7},           // TODO: Determine actual measurements
+                                         {-0.12, 0.72, 1.88},
+                                         {-0.30, 0.72, 2.08}};
 
     @Override
     public void runOpMode() {

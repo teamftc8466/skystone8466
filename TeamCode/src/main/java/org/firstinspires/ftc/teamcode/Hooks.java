@@ -29,8 +29,8 @@ public class Hooks {
     };
 
     private enum RightPosition {
-        INIT_POSITION(50),
-        PULL_POSITION(210),
+        INIT_POSITION(80),
+        PULL_POSITION(230),
         RELEASE_POSITION(50);
 
         private final int degree_;

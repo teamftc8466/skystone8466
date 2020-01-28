@@ -386,7 +386,7 @@ public class AutonomousCommon extends RobotHardware {
         lift_.moveToPosition(Lift.Position.LIFT_ABOVE_FOUNDATION, 0.5);
 
         runDriveTrainTillFinish(DriveTrainMode.FORWARD,
-                0.3,
+                0.4,
                 true,
                 false,
                 0);
@@ -552,6 +552,7 @@ public class AutonomousCommon extends RobotHardware {
         }
 
         lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_CATCH, timer_.time());
+        sleep(200);
         while (lift_.reachToTargetEncoderCount() == false) {
             grabber_.holdCraneAtTargetPosition();
             if ((timer_.time() - currOpStartTime_) >= max_allowed_time) break;

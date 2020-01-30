@@ -39,14 +39,14 @@ public class AutonomousRedLoading extends AutonomousCommon {
     ///   - First parameter: Distance to shift in order to align with the Skystone
     ///   - Second parameter: Distance forward to Skystone
     ///   - Third parameter: Distance to foundation after collecting Skystone (the turning angle towards the foundation is constant for all three positions of the Skystones, so we do not need a fourth parameter)
-    double [][] redGrabFirstSkystone_ = {{ 0.08, 0.71, 1.7},           // TODO: Determine actual measurements
-                                         {-0.12, 0.71, 1.88},
-                                         {-0.30, 0.71, 2.08}};
+    double [][] redGrabFirstSkystone_ = {{ 0.08, 0.71, 1.8},           // TODO: Determine actual measurements
+                                         {-0.12, 0.71, 1.98},
+                                         {-0.30, 0.71, 2.18}};
 
     @Override
     public void runOpMode() {
         useImu_ = true;
-        // autoCorrectHeadingDuringDriving_ = true;
+        autoCorrectHeadingDuringDriving_ = true;
         opList_ = opRedLoading_;
         isRedTeam_ = true;
         grabFirstSkystone_ = redGrabFirstSkystone_;

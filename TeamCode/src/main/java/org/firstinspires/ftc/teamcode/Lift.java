@@ -272,7 +272,8 @@ public class Lift {
     public void showEncoderValue(boolean update_flag){
         telemetry_.addData("Power", String.valueOf(lastSetPower_));
         telemetry_.addData("Current lift encoder value",
-                "Target="+String.valueOf(encoderCntForTargetPosition_)+
+                "ApplyToTarget="+String.valueOf(moveToPositionAppliedFlag_)+
+                " Target="+String.valueOf(encoderCntForTargetPosition_)+
                       ", Left="+String.valueOf(motorLeft_.getCurrentPosition())+
                       ", Right="+String.valueOf(motorRight_.getCurrentPosition()));
 

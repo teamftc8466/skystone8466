@@ -10,6 +10,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 public class AutonomousCommon extends RobotHardware {
     final double MAX_WAIT_TIME_FOR_CLOSE_GRABBER_CLAMP = 0.5;
 
+    final boolean enableShowDriveTrainInfo_ = false;
+    final boolean enableShowLiftInfo_ = true;
+
     boolean useImu_ = false;            // If true, use IMU to correct heading when executing the operation OP_DRIVE_TRAIN_CORRECT_HEADING
     boolean autoCorrectHeadingDuringDriving_ = false;
 
@@ -54,7 +57,14 @@ public class AutonomousCommon extends RobotHardware {
 
             runCurrentOperation();
 
-            if (lift_ != null) lift_.holdAtTargetPosition(currTime_);
+            if (lift_ != null) {
+                if (enableShowLiftInfo_ == true) {
+                    lift_.showEncoderValue(true);
+                }
+
+                lift_.holdAtTargetPosition(currTime_);
+            }
+
             if (grabber_ != null) grabber_.holdCraneAtTargetPosition();
         }
 
@@ -127,7 +137,7 @@ public class AutonomousCommon extends RobotHardware {
         // Move grabber and lift to grab stone ready position
         moveLiftAndGrabberToCatchStoneReadyPosition();
 
-        driveTrain_.enableShowDriveTrainInfo();  // Disable it after finish debugging
+        if (enableShowDriveTrainInfo_ == true) driveTrain_.enableShowDriveTrainInfo();  // Disable it after finish debugging
     }
 
     void cleanUpAtEndOfRun() {
@@ -552,9 +562,11 @@ public class AutonomousCommon extends RobotHardware {
         }
 
         lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_CATCH, timer_.time());
-        sleep(200);
+
         while (lift_.reachToTargetEncoderCount() == false) {
+            double curr_time = timer_.time();
             grabber_.holdCraneAtTargetPosition();
+            lift_.holdAtTargetPosition(curr_time);
             if ((timer_.time() - currOpStartTime_) >= max_allowed_time) break;
         }
 

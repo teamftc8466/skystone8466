@@ -191,6 +191,7 @@ public class DriveTrain {
                             case TURN_LEFT:
                             case TURN_RIGHT:
                                 if (Math.abs(imu_.getHeadingDifference(imu_.targetHeading())) < 2) {
+                                    mecanumDriveTrain_.setPower(0,0,0,0);
                                     return true;
                                 }
                                 break;

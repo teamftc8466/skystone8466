@@ -12,7 +12,7 @@ public class Grabber {
     // Lift position specified by encoder count
     public enum CranePosition {
         CRANE_DRAW_BACK_POSITION(1),
-        CRANE_GRAB_STONE(1180),
+        CRANE_GRAB_STONE(1080),
         CRANE_DROP_STONE(1400),
         CRANE_PROTECT_ROTATION_POSITION(1700),
         CRANE_MAX_STRETCH_OUT_POSITION(1750);
@@ -47,6 +47,8 @@ public class Grabber {
     static final int CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION = 25;
     static final double MAX_CRANE_MOTOR_POWER = 0.8;
     static final boolean PROTECT_CLAMP_WHEN_ROTATING_OUT = false;
+
+    private boolean showGrabberInfo_ = false;
 
     // Motors and servos
     private DcMotor craneMotor_ = null;
@@ -99,6 +101,9 @@ public class Grabber {
 
         resetEncoder(0);
     }
+
+    void enableShowGrabberInfo() { showGrabberInfo_ = true; }
+    void disableShowGrabberInfo() { showGrabberInfo_ = false; }
 
     void useEncoder(){
         craneMotor_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -249,6 +254,8 @@ public class Grabber {
         // Negative power stretches the crane.
         if (encoderCntForTargetPosition_ >= curr_enc_pos) setCranePower(-set_power);
         else setCranePower(set_power);
+
+        if (showGrabberInfo_ == true) showValues(true);
     }
 
     void setEncoderCountForTargetPosition(int enc_cnt_at_target_pos) {
@@ -266,7 +273,12 @@ public class Grabber {
 
     boolean craneReachToTargetEncoderCount() {
         final int curr_enc_pos = Math.abs(craneMotor_.getCurrentPosition());
-        return (curr_enc_pos >= encoderCntForTargetPosition_ &&
+        if (encoderCntForTargetPosition_ > CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION) {
+            return (curr_enc_pos >= (encoderCntForTargetPosition_ - CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION) &&
+                    curr_enc_pos < (encoderCntForTargetPosition_ + CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION));
+        }
+
+        return (curr_enc_pos >= 0 &&
                 curr_enc_pos < (encoderCntForTargetPosition_ + CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION));
     }
 
@@ -347,6 +359,8 @@ public class Grabber {
 
     public void showValues(boolean update_flag){
         telemetry_.addData("Crane",  "Power"+String.valueOf(lastSetPower_)+
+                " ApplyToTarget="+String.valueOf(craneWithMoveToPositionAppliedFlag_)+
+                " Reached="+String.valueOf(craneReachToTargetEncoderCount())+
                         " Target="+String.valueOf(encoderCntForTargetPosition_)+
                         " Encoder="+String.valueOf(craneMotor_.getCurrentPosition()));
         clampServo_.showPosition(false);

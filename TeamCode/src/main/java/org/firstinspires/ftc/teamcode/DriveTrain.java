@@ -67,7 +67,7 @@ public class DriveTrain {
     }
 
     void enableShowDriveTrainInfo() { showDriveTrainInfo_ = true; }
-    void disShowDriveTrainInfo() { showDriveTrainInfo_ = false; }
+    void disableShowDriveTrainInfo() { showDriveTrainInfo_ = false; }
 
     void disableToUseImu() {
         if (mecanumDriveTrain_ != null) mecanumDriveTrain_.disableToUseImu();

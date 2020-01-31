@@ -7,7 +7,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 // @Disabled
 public class TeleOpCommon extends RobotHardware {
     final double JOY_STICK_DEAD_ZONE = 0.1;
-    final boolean SHOW_GAMEPAD_CTL_INFO = true;              // For debug purpose. Turn this off afterward.
+
+    boolean enableShowGamepadInfo_ = false;              // For debug purpose. Turn this off afterward.
+    boolean enableShowDriveTrainInfo_ = false;
+    boolean enableShowLiftInfo_ = false;
+    boolean enableShowGrabberInfo_ = false;
 
     GamepadButtons gamepadButtons_ = null;
 
@@ -72,6 +76,22 @@ public class TeleOpCommon extends RobotHardware {
         driveTrain_.resetEncoder(0);
     }
 
+    void setDisplayDebuggingInfo() {
+        driveTrain_.disableShowDriveTrainInfo();
+        if (grabber_ != null) grabber_.disableShowGrabberInfo();
+        if (lift_ != null) lift_.disableShowLiftInfo();
+
+        if (enableShowGamepadInfo_ == false) {
+            if (enableShowDriveTrainInfo_ == true) {
+                driveTrain_.enableShowDriveTrainInfo();
+            } else if (enableShowGrabberInfo_ == true) {
+                if (grabber_ != null) grabber_.enableShowGrabberInfo();
+            } else if (enableShowLiftInfo_ == true) {
+                if (lift_ != null) lift_.enableShowLiftInfo();
+            }
+        }
+    }
+
     void cleanUpAtEndOfRun() {
         // TBD
     }
@@ -89,7 +109,7 @@ public class TeleOpCommon extends RobotHardware {
     //   - right bumper: Repeat following modes
     //      + Pressed once: hook down
     //      - Released twice: hook up
-    //    - Button A: Repeat following modes
+    //    - Button B: Repeat following modes
     //      + Pressed once: Enforce to draw back grabber crane to the end and reset encoder
     //      + Pressed again: Stop to enforce to draw back grabber crane to the end and reset encoder
     //  Gamepad 2:
@@ -139,6 +159,25 @@ public class TeleOpCommon extends RobotHardware {
                     else hooks_.moveHooksToPosition(Hooks.Position.RELEASE);
                 }
                 break;
+            case A:
+            {
+                int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.A);
+
+                enableShowGamepadInfo_ = false;
+                enableShowDriveTrainInfo_ = false;
+                enableShowLiftInfo_ = false;
+                enableShowGrabberInfo_ = false;
+                switch (cnt%5) {
+                   case 1: enableShowGamepadInfo_=true; break;
+                   case 2: enableShowDriveTrainInfo_=true; break;
+                   case 3: enableShowLiftInfo_=true; break;
+                   case 4: enableShowGrabberInfo_=true; break;
+                   default: break;
+                }
+
+                setDisplayDebuggingInfo();
+
+            }
             case B:
                 if (grabber_ != null) {
                     int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.B);
@@ -181,7 +220,10 @@ public class TeleOpCommon extends RobotHardware {
                 if (enforceToDrawbackCraneToEnd_ == true) break;
 
                 if (activatedCtlGrabberCraneByJoystick_ == false) {
-                    if (grabber_ != null) grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
+                    if (grabber_ != null) {
+                        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
+                        grabber_.clampOpen();
+                    }
                 }
 
                 if (activatedCtlLiftByJoystick_ == false) {
@@ -214,15 +256,15 @@ public class TeleOpCommon extends RobotHardware {
                     autoCloseClampForCatchStoneApplied_ = false;
                 } else if (grabber_ != null &&
                            lift_ != null) {
-                    if (grabber_.clampPosition() == Grabber.ClampPosition.CLAMP_OPEN &&
-                            grabber_.isCraneWithMoveToPositionApplied(Grabber.CranePosition.CRANE_GRAB_STONE) ==  true &&
-                            grabber_.craneReachToTargetEncoderCount() == true) {
-                        lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, currTime_);
+                    // if (grabber_.clampPosition() == Grabber.ClampPosition.CLAMP_OPEN &&
+                    //        grabber_.isCraneWithMoveToPositionApplied(Grabber.CranePosition.CRANE_GRAB_STONE) ==  true &&
+                    //        grabber_.craneReachToTargetEncoderCount() == true) {
+                        lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_CATCH, currTime_);
 
                         allowAutoMoveToCatchStoneReadyPosition_ = false;
                         allowAutoCatchStone_ = true;
                         autoCloseClampForCatchStoneApplied_ = false;
-                    }
+                    // }
                 }
                 break;
             default:
@@ -236,12 +278,12 @@ public class TeleOpCommon extends RobotHardware {
                 if (allowAutoMoveToCatchStoneReadyPosition_ == true) {
                     if (grabber_.isCraneWithMoveToPositionApplied(Grabber.CranePosition.CRANE_GRAB_STONE) == true &&
                             grabber_.craneReachToTargetEncoderCount() == true) {
-                        grabber_.clampOpen();
                         allowAutoMoveToCatchStoneReadyPosition_ = false; // Auto disable it after finish
                     }
                 } else if (allowAutoCatchStone_ == true) {
                     if (lift_ != null &&
-                            lift_.isMoveToPositionApplied(Lift.Position.LIFT_GRAB_STONE_CATCH) == true) {
+                            lift_.isMoveToPositionApplied(Lift.Position.LIFT_GRAB_STONE_CATCH) == true &&
+                            lift_.reachToTargetEncoderCount()==true) {
                         if (autoCloseClampForCatchStoneApplied_ == false) {
                             grabber_.clampClose();
                             autoCloseClampForCatchStoneApplied_ = true;
@@ -266,7 +308,7 @@ public class TeleOpCommon extends RobotHardware {
             if (holdLiftAtCurrentPosition_ == true) lift_.holdAtTargetPosition(currTime_);
         }
 
-        if (SHOW_GAMEPAD_CTL_INFO) showGamepadControlInfo(true);
+        if (enableShowGamepadInfo_ == true) showGamepadControlInfo(true);
     }
 
     void checkControlOfLiftByJoystick() {

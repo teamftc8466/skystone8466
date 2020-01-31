@@ -12,6 +12,7 @@ public class AutonomousCommon extends RobotHardware {
 
     final boolean enableShowDriveTrainInfo_ = false;
     final boolean enableShowLiftInfo_ = true;
+    final boolean enableShowGrabberInfo_ = false;
 
     boolean useImu_ = false;            // If true, use IMU to correct heading when executing the operation OP_DRIVE_TRAIN_CORRECT_HEADING
     boolean autoCorrectHeadingDuringDriving_ = false;
@@ -58,10 +59,6 @@ public class AutonomousCommon extends RobotHardware {
             runCurrentOperation();
 
             if (lift_ != null) {
-                if (enableShowLiftInfo_ == true) {
-                    lift_.showEncoderValue(true);
-                }
-
                 lift_.holdAtTargetPosition(currTime_);
             }
 
@@ -134,10 +131,18 @@ public class AutonomousCommon extends RobotHardware {
             firstSkystonePos_ = 0;
         }
 
+        // firstSkystonePos_ = 0;  // For test purpose
+
         // Move grabber and lift to grab stone ready position
         moveLiftAndGrabberToCatchStoneReadyPosition();
 
-        if (enableShowDriveTrainInfo_ == true) driveTrain_.enableShowDriveTrainInfo();  // Disable it after finish debugging
+        if (enableShowDriveTrainInfo_ == true) {
+            driveTrain_.enableShowDriveTrainInfo();  // Disable it after finish debugging
+        } else if (enableShowGrabberInfo_ == true) {
+            if (grabber_ != null) grabber_.enableShowGrabberInfo();
+        } else if (enableShowLiftInfo_ == true) {
+            if (lift_ != null) lift_.enableShowLiftInfo();
+        }
     }
 
     void cleanUpAtEndOfRun() {
@@ -371,6 +376,8 @@ public class AutonomousCommon extends RobotHardware {
 
         /* Turn towards the foundation to prep for lowering the hooks */
 
+        lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, 0.5);
+
         if (isRedTeam_ == true) {
             runDriveTrainTillFinish(DriveTrainMode.TURN_LEFT,
                     90,
@@ -392,8 +399,6 @@ public class AutonomousCommon extends RobotHardware {
                 true,
                 false,
                 0);*/
-
-        lift_.moveToPosition(Lift.Position.LIFT_ABOVE_FOUNDATION, 0.5);
 
         runDriveTrainTillFinish(DriveTrainMode.FORWARD,
                 0.4,

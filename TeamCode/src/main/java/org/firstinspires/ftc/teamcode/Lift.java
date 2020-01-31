@@ -24,6 +24,8 @@ public class Lift {
         public int getValue() { return val_; }
     };
 
+    private boolean showLiftInfo_ = false;
+
     //Motors
     private DcMotor motorLeft_ = null;
     private DcMotor motorRight_ = null;
@@ -63,6 +65,9 @@ public class Lift {
 
         resetEncoder(0);
     }
+
+    void enableShowLiftInfo() { showLiftInfo_ = true; }
+    void disableShowLiftInfo() { showLiftInfo_ = false; }
 
     void useEncoder(){
         motorLeft_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -179,8 +184,7 @@ public class Lift {
 
             int enc_diff = curr_enc_pos_motor_right - encoderCntForTargetPosition_;
             if (enc_diff < 10) {
-                if (encoderCntForTargetPosition_ > Position.LIFT_DELIVER_STONE.getValue()) set_power = 0;
-                else if (enc_diff >= 5) set_power = 0.1;
+                if (encoderCntForTargetPosition_ > Position.LIFT_DELIVER_STONE.getValue()) set_power = 0.1;
                 else set_power = 0;
             } else if (enc_diff < 20) {
                 set_power = 0.125;
@@ -196,6 +200,8 @@ public class Lift {
         }
 
         setPower(set_power);
+
+        if (showLiftInfo_ == true) showEncoderValue(true);
     }
 
     private double scaleLiftUpPowerByTime(double power_val,
@@ -240,6 +246,7 @@ public class Lift {
     boolean reachToTargetEncoderCount() {
         final int curr_enc_pos_motor_left = motorRight_.getCurrentPosition();
         int threshold = ENCODER_THRESHOLD_FOR_TARGET_POSITION;
+        /*
         if (encoderCntForTargetPosition_<= Position.LIFT_DELIVER_STONE.getValue() ||
             encoderCntForTargetPosition_ < 10) {
             if (encoderCntForTargetPosition_ < 10) {
@@ -247,9 +254,14 @@ public class Lift {
             } else {
                 if (threshold > 7) threshold = 7;
             }
+        } */
+
+        if (encoderCntForTargetPosition_ > threshold) {
+            return (curr_enc_pos_motor_left >= (encoderCntForTargetPosition_ - threshold) &&
+                    curr_enc_pos_motor_left < (encoderCntForTargetPosition_ + threshold));
         }
 
-        return (curr_enc_pos_motor_left >= encoderCntForTargetPosition_ &&
+        return (curr_enc_pos_motor_left >= 0 &&
                 curr_enc_pos_motor_left < (encoderCntForTargetPosition_ + threshold));
     }
 

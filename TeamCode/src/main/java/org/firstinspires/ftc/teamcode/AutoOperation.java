@@ -8,10 +8,11 @@ public class AutoOperation {
         OP_DRIVE_TRAIN_SHIFT_GEAR,                     // One operand: multiple factor for driving train power (>0)
         OP_DRIVE_TRAIN_FORWARD,                        // One operand: driving distance in meter (>=0)
         OP_DRIVE_TRAIN_BACKWARD,                       // One operand: driving distance in meter (>=0)
-        OP_DRIVE_TRAIN_TURN_LEFT,                      // One or two operands: 1: turning degree (>=0); 2: optional minimum reduced power factor used for correcting heading (>=0).
-        OP_DRIVE_TRAIN_TURN_RIGHT,                     // Oe or two operands: 1. turning degree (>=0); 2: optional minimum reduced power factor used for correcting heading (>=0).
+        OP_DRIVE_TRAIN_TURN_LEFT,                      // One operand: turning degree (>=0)
+        OP_DRIVE_TRAIN_TURN_RIGHT,                     // One operand: turning degree (>=0);
         OP_DRIVE_TRAIN_SHIFT_LEFT,                     // One operand: shifting distance in meter (>=0)
         OP_DRIVE_TRAIN_SHIFT_RIGHT,                    // One operand: shifting distance in meter (>=0)
+        OP_DRIVE_TRAIN_CORRECT_HEADING,                // Two operands: 1. Max. tolerated error in degree; 2. Min. reduce power factor.
         OP_MOVE_HOOK,                                  // One operand: Hook position.
         OP_DRIVE_TO_FIRST_SKYSTONE,                    // No operand needed
         OP_GRAB_FIRST_SKYSTONE,                        // One operand: maximal allowed time spent by this operation

@@ -57,6 +57,8 @@ public class DriveTrain {
 
     private BallDriveTrain ballDriveTrain_ = null;
 
+    private final double MAX_TOLERATE_HEADING_DIFFERENCE_ERROR_IN_DEGREE = 2;
+    private boolean controlTurnDegreeByEncoderCnt_ = true;
     private boolean showDriveTrainInfo_ = false;
 
     /// Constructor
@@ -72,10 +74,12 @@ public class DriveTrain {
     void disableToUseImu() {
         if (mecanumDriveTrain_ != null) mecanumDriveTrain_.disableToUseImu();
     }
-
     void enableToUseImu() {
         if (mecanumDriveTrain_ != null) mecanumDriveTrain_.enableToUseImu();
     }
+
+    void disableControlTurnDegreeByEncoderCount() { controlTurnDegreeByEncoderCnt_ = false; }
+    void enableControlTurnDegreeByEncoderCount() { controlTurnDegreeByEncoderCnt_ = true; }
 
     void createMecanumDriveTrain(HardwareMap hardware_map) {
         mecanumDriveTrain_ = new MecanumDriveTrain(hardware_map,
@@ -142,23 +146,33 @@ public class DriveTrain {
     }
 
     boolean driveByMode(DriveTrainMode drive_mode,
-                     double drive_parameter,
-                     double time) {
+                        double drive_parameter,
+                        double time) {
         if (mecanumDriveTrain_ != null) return mecanumDriveByMode(drive_mode, drive_parameter, time);
         //if (ballDriveTrain_ != null) return ballDriveByMode(drive_mode, drive_parameter, time);
 
         return true;
     }
 
+    boolean applyImuToControlTurningToTargetHeading(double max_tolerate_error_in_degree,
+                                                    double min_reduced_power_factor,
+                                                    double time) {
+        if (mecanumDriveTrain_ != null) return mecanumDriveApplyImuToControlTurningToTargetHeading(max_tolerate_error_in_degree,
+                                                                                                   min_reduced_power_factor,
+                                                                                                   time);
+        return true;
+    }
+
     boolean mecanumDriveByMode(DriveTrainMode drive_mode,
-                                    double drive_parameter,
-                                    double time) {
+                               double drive_parameter,
+                               double time) {
         if (drive_parameter <= 0){
             mecanumDriveTrain_.setPower(0,0,0,0);
             return true;
         }
 
         int target_enc_cnt = 0;
+        boolean is_turn_operation_flag = false;
         boolean finish_flag = false;
         switch (drive_mode){
             case FORWARD:
@@ -167,6 +181,7 @@ public class DriveTrain {
                 break;
             case TURN_LEFT:
             case TURN_RIGHT:
+                is_turn_operation_flag = true;
                 target_enc_cnt = mecanumDriveTrain_.convertTurnDegreeToEncoderCount(drive_parameter);
                 break;
             case SHIFT_LEFT:
@@ -178,6 +193,12 @@ public class DriveTrain {
         }
 
         if (finish_flag == false){
+            if (is_turn_operation_flag == true &&
+                    controlTurnDegreeByEncoderCnt_ == false &&
+                    mecanumDriveTrain_.useImu() == true) {
+                return mecanumDriveApplyImuToControlTurningToTargetHeading(MAX_TOLERATE_HEADING_DIFFERENCE_ERROR_IN_DEGREE, 0.3, time);
+            }
+
             if (mecanumDriveTrain_.reachToTargetEncoderCount(target_enc_cnt) == false) {
                 if (showDriveTrainInfo_ == true) {
                     telemetry_.addData("Target encoder count", String.valueOf(target_enc_cnt));
@@ -190,7 +211,7 @@ public class DriveTrain {
                         switch (drive_mode) {
                             case TURN_LEFT:
                             case TURN_RIGHT:
-                                if (Math.abs(imu_.getHeadingDifference(imu_.targetHeading())) < 2) {
+                                if (Math.abs(imu_.getHeadingDifference(imu_.targetHeading())) <= MAX_TOLERATE_HEADING_DIFFERENCE_ERROR_IN_DEGREE) {
                                     mecanumDriveTrain_.setPower(0,0,0,0);
                                     return true;
                                 }
@@ -212,5 +233,54 @@ public class DriveTrain {
         // The task is finished
         mecanumDriveTrain_.setPower(0,0,0,0);
         return true;
+    }
+
+    private boolean mecanumDriveApplyImuToControlTurningToTargetHeading(double max_tolerate_error_in_degree,
+                                                                        double min_reduced_power_factor,
+                                                                        double time) {
+        if (max_tolerate_error_in_degree < 1) max_tolerate_error_in_degree = 1;
+        else if (max_tolerate_error_in_degree > 10) max_tolerate_error_in_degree = 10;
+
+        final double heading_diff = imu_.getHeadingDifference(imu_.targetHeading());
+        final double abs_heading_diff = Math.abs(heading_diff);
+        if (abs_heading_diff <= max_tolerate_error_in_degree) {
+            mecanumDriveTrain_.setPower(0, 0, 0, 0);
+            return true;
+        }
+
+        final double saved_power_factor = mecanumDriveTrain_.powerFactor();
+
+        if (abs_heading_diff < 10) {
+            // When closing to the target degree, need to reduce the power for precise control
+            double reduced_power_factor = 0.7;
+            if (abs_heading_diff <= 5) reduced_power_factor = 0.35;
+
+            if (reduced_power_factor < min_reduced_power_factor) reduced_power_factor = min_reduced_power_factor;
+
+            if (mecanumDriveTrain_.powerFactor() > reduced_power_factor) mecanumDriveTrain_.setPowerFactor(reduced_power_factor);
+        }
+
+        if (showDriveTrainInfo_ == true) {
+            telemetry_.addData("Target heading", String.valueOf(imu_.targetHeading()));
+        }
+
+        if (heading_diff > 0) {
+            mecanumDriveTrain_.driveByMode(DriveTrainMode.TURN_LEFT, showDriveTrainInfo_);
+        } else {
+            mecanumDriveTrain_.driveByMode(DriveTrainMode.TURN_RIGHT, showDriveTrainInfo_);
+        }
+
+        // Restore original power factor
+        if (saved_power_factor != mecanumDriveTrain_.powerFactor()) {
+            mecanumDriveTrain_.setPowerFactor(saved_power_factor);
+        }
+
+        if (mecanumDriveTrain_.isEncoderStuck(time) == true) {
+            // Encoder is stuck. Force current drive mode to end.
+            mecanumDriveTrain_.setPower(0,0,0,0);
+            return true;
+        }
+
+        return false;
     }
 }

@@ -269,13 +269,13 @@ public class MecanumDriveTrain {
                         // Decrease LB and RB power if heading is biased to right
                         if (heading_diff < 0) { // biased to left
                             power_lf *= (1 - heading_correct_factor);
-                            power_rf *= (1 - heading_correct_factor);
-                            power_lb *= (1 + heading_correct_factor);
-                            power_rb *= (1 + heading_correct_factor);
+                            // power_rf *= (1 - heading_correct_factor);
+                            power_lb *= (1 + 0.8 * heading_correct_factor);
+                            // power_rb *= (1 + heading_correct_factor);
                         } else if (heading_diff > 0) { // biased to right
-                            power_lf *= (1 + heading_correct_factor);
-                            power_rf *= (1 + heading_correct_factor);
-                            power_lb *= (1 - heading_correct_factor);
+                            // power_lf *= (1 + heading_correct_factor);
+                            power_rf *= (1 + 0.8 * heading_correct_factor);
+                            // power_lb *= (1 - heading_correct_factor);
                             power_rb *= (1 - heading_correct_factor);
                         }
                     }

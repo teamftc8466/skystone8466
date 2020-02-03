@@ -28,6 +28,12 @@ public class TestEncoderAutonomous extends AutonomousCommon {
     @Override
     public void runOpMode() {
         useImu_ = false;
+        controlTurnDegreeByEncoderCnt_ = true;
+        autoCorrectHeadingDuringDriving_ = false;
+        initLiftGrabberToCatchPosition_ = false;
+
+        isRedTeam_ = true;
+
         opList_ = opEncoderTest_;
         super.runOpMode();
     }

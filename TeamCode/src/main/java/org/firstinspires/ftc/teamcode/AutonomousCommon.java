@@ -10,12 +10,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 public class AutonomousCommon extends RobotHardware {
     final double MAX_WAIT_TIME_FOR_CLOSE_GRABBER_CLAMP = 0.5;
 
-    final boolean enableShowDriveTrainInfo_ = false;
-    final boolean enableShowLiftInfo_ = false;
-    final boolean enableShowGrabberInfo_ = false;
+    boolean enableShowDriveTrainInfo_ = false;
+    boolean enableShowLiftInfo_ = false;
+    boolean enableShowGrabberInfo_ = false;
 
     boolean useImu_ = false;            // If true, use IMU to correct heading when executing the operation OP_DRIVE_TRAIN_CORRECT_HEADING
-    boolean autoCorrectHeadingDuringDriving_ = false;
+    boolean controlTurnDegreeByEncoderCnt_ = true;
+    boolean autoCorrectHeadingDuringDriving_ = true;
     boolean useShiftToDeliverStoneToFoundation_ = false;
     boolean initLiftGrabberToCatchPosition_ = true;
 
@@ -86,6 +87,16 @@ public class AutonomousCommon extends RobotHardware {
             getDriveTrain().disableToUseImu();
         } else {
             getDriveTrain().enableToUseImu();
+        }
+
+        if (useImu_ == false || controlTurnDegreeByEncoderCnt_ == true) {
+            getDriveTrain().enableControlTurnDegreeByEncoderCount();
+        } else {
+            getDriveTrain().disableControlTurnDegreeByEncoderCount();
+        }
+
+        if (grabber_ != null) {
+            grabber_.enforceCraneDrawBackToEnd(0.4, timer_, 2.5);
         }
     }
 
@@ -204,27 +215,22 @@ public class AutonomousCommon extends RobotHardware {
                 break;
             case OP_DRIVE_TRAIN_TURN_LEFT:
                 finish_flag = runDriveTrain(DriveTrainMode.TURN_LEFT, operand);
-
-                if (finish_flag == true &&
-                        useImu_ == true &&
-                        autoCorrectHeadingDuringDriving_ == false) {
-                    correctHeading(getImu().targetHeading(), 3, getCurrentOperand(1));
-                }
                 break;
             case OP_DRIVE_TRAIN_TURN_RIGHT:
                 finish_flag = runDriveTrain(DriveTrainMode.TURN_RIGHT, operand);
-
-                if (finish_flag == true &&
-                        useImu_ == true &&
-                        autoCorrectHeadingDuringDriving_ == false) {
-                    correctHeading(getImu().targetHeading(), 3, getCurrentOperand(1));
-                }
                 break;
             case OP_DRIVE_TRAIN_SHIFT_LEFT:
                 finish_flag = runDriveTrain(DriveTrainMode.SHIFT_LEFT, operand);
                 break;
             case OP_DRIVE_TRAIN_SHIFT_RIGHT:
                 finish_flag = runDriveTrain(DriveTrainMode.SHIFT_RIGHT, operand);
+                break;
+            case OP_DRIVE_TRAIN_CORRECT_HEADING:
+                if (imu_ != null && useImu_ == true) {
+                    finish_flag = driveTrain_.applyImuToControlTurningToTargetHeading(operand, getCurrentOperand(1), timer_.time());
+                } else {
+                    finish_flag = true;
+                }
                 break;
             case OP_DRIVE_TRAIN_SHIFT_GEAR:
                 driveTrain_.setPowerFactor(operand);
@@ -318,15 +324,11 @@ public class AutonomousCommon extends RobotHardware {
             // Negate the negative value because shifting distance cannot be negative
             runDriveTrainTillFinish(DriveTrainMode.SHIFT_LEFT,
                     -shift_distance_to_align_with_skystone,
-                    true,
-                    (autoCorrectHeadingDuringDriving_==false),
-                    0);
+                    true);
         } else if (shift_distance_to_align_with_skystone > 0) {
             runDriveTrainTillFinish(DriveTrainMode.SHIFT_RIGHT,
                     shift_distance_to_align_with_skystone,
-                    true,
-                    (autoCorrectHeadingDuringDriving_==false),
-                    0);
+                    true);
         }
 
         // Retrieve the value in the grabFirstSkystone_ two dimensional array in row firstSkystonePos_
@@ -335,22 +337,20 @@ public class AutonomousCommon extends RobotHardware {
 
         runDriveTrainTillFinish(DriveTrainMode.FORWARD,
                 drive_forward_to_skystone,
-                true,
-                false,
-                0);
+                true);
 
         return true;
     }
 
-    boolean driveFromFirstSkystoneToFoundation(){
+    boolean driveFromFirstSkystoneToFoundation() {
+        final double saved_power_factor = driveTrain_.powerFactor();
+
         /// Need to move back before making a turn to avoid colliding with stones
         double move_back_from_stone_distance=0.1;
         if (useShiftToDeliverStoneToFoundation_ == true) move_back_from_stone_distance=0.15;
         runDriveTrainTillFinish(DriveTrainMode.BACKWARD,
                 move_back_from_stone_distance,
-                true,
-                (autoCorrectHeadingDuringDriving_ == false),
-                0);
+                true);
 
         // Retrieve the value in the grabFirstSkystone_ two dimensional array in row firstSkystonePos_
         // (which can be 0, 1, or 2) and column 2 (aka the third column). This value will be the distance the robot drives forwards.
@@ -360,15 +360,11 @@ public class AutonomousCommon extends RobotHardware {
             if (isRedTeam_ == true) {
                 runDriveTrainTillFinish(DriveTrainMode.SHIFT_RIGHT,
                         distance_from_skystone_to_foundation,
-                        true,
-                        (autoCorrectHeadingDuringDriving_ == false),
-                        0);
+                        true);
             } else {
                 runDriveTrainTillFinish(DriveTrainMode.SHIFT_LEFT,
                         distance_from_skystone_to_foundation,
-                        true,
-                        (autoCorrectHeadingDuringDriving_ == false),
-                        0);
+                        true);
             }
 
             // Wait lift move to drop position
@@ -390,24 +386,21 @@ public class AutonomousCommon extends RobotHardware {
             if (isRedTeam_ == true) {
                 runDriveTrainTillFinish(DriveTrainMode.TURN_RIGHT,
                         90,
-                        true,
-                        (autoCorrectHeadingDuringDriving_ == false),
-                        0);
+                        true);
             } else {
                 runDriveTrainTillFinish(DriveTrainMode.TURN_LEFT,
                         90,
-                        true,
-                        (autoCorrectHeadingDuringDriving_ == false),
-                        0);
+                        true);
             }
 
             /* Drive from Skystone area to foundation area */
-
+            driveTrain_.setPowerFactor(1.35);    // Make long forward driving faster
             runDriveTrainTillFinish(DriveTrainMode.FORWARD,
                     distance_from_skystone_to_foundation,
-                    true,
-                    false,
-                    0);
+                    true);
+            if (saved_power_factor != driveTrain_.powerFactor()) {
+                driveTrain_.setPowerFactor(saved_power_factor);
+            }
 
             /* Turn towards the foundation to prep for lowering the hooks */
 
@@ -416,37 +409,29 @@ public class AutonomousCommon extends RobotHardware {
             if (isRedTeam_ == true) {
                 runDriveTrainTillFinish(DriveTrainMode.TURN_LEFT,
                         90,
-                        true,
-                        (autoCorrectHeadingDuringDriving_ == false),
-                        0);
+                        true);
             } else {
                 runDriveTrainTillFinish(DriveTrainMode.TURN_RIGHT,
                         90,
-                        true,
-                        (autoCorrectHeadingDuringDriving_ == false),
-                        0);
+                        true);
             }
         }
 
         grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DROP_STONE);
 
         /* Drive to foundation (Numbers TBR) */
-        final double move_forward_to_foundation_distance = 0.3;
-        if (useShiftToDeliverStoneToFoundation_ == true) move_back_from_stone_distance=0.35;
+        final double move_forward_to_foundation_distance = 0.2;
+        if (useShiftToDeliverStoneToFoundation_ == true) move_back_from_stone_distance=0.25;
         runDriveTrainTillFinish(DriveTrainMode.FORWARD,
-                move_back_from_stone_distance,
-                true,
-                false,
-                0);
+                move_forward_to_foundation_distance,
+                true);
 
         return true;
     }
 
     private void runDriveTrainTillFinish(DriveTrainMode drive_mode,
                                          double drive_parameter,
-                                         boolean update_imu_target_heading_flag,
-                                         boolean correct_heading_flag,
-                                         double min_reduced_power_factor) {
+                                         boolean update_imu_target_heading_flag) {
         if (useImu_ == true &&
                 update_imu_target_heading_flag == true) {
             switch (drive_mode) {
@@ -471,80 +456,6 @@ public class AutonomousCommon extends RobotHardware {
 
         // Must allow 0.1 seconds for the encoders to reset to ensure that the encoders actually finish resetting before moving onto the next opMode
         runDriveTrainResetEncoder(0.1);
-
-        if (useImu_ == true &&
-                correct_heading_flag == true) {
-            switch (drive_mode) {
-                case TURN_LEFT:
-                case TURN_RIGHT:
-                    correctHeading(getImu().targetHeading(), 3, min_reduced_power_factor);
-                    runDriveTrainResetEncoder(0.1);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    private void correctHeading(double target_heading,
-                                double max_tolerated_error_in_degree,
-                                double min_reduced_power_factor) {
-        return;
-
-     /*
-        double tolerated_error = max_tolerated_error_in_degree;
-        if (tolerated_error <= 1) tolerated_error = 1;
-        else if (tolerated_error > 10) tolerated_error = 10;
-
-        final double saved_power_factor = driveTrain_.powerFactor();
-        final int max_num_correction_times = 3;
-
-        double heading_diff = getImu().getHeadingDifference(target_heading);
-        int correction_cnt = 0;
-        while (Math.abs(heading_diff) > tolerated_error) {
-            double abs_heading_diff = Math.abs(heading_diff);
-            if (abs_heading_diff <= 10) {
-                // When closing to the target degree, need to reduce the power for precise control
-                double reduced_power_factor = 0.6;
-                if (abs_heading_diff <= 3) reduced_power_factor = 0.2;
-                else if (abs_heading_diff <= 6) reduced_power_factor = 0.4;
-
-                if (reduced_power_factor < min_reduced_power_factor) reduced_power_factor = min_reduced_power_factor;
-
-                if (driveTrain_.powerFactor() > reduced_power_factor) driveTrain_.setPowerFactor(reduced_power_factor);
-            }
-
-            if (heading_diff > 0) {
-                runDriveTrainTillFinish(DriveTrainMode.TURN_LEFT,
-                        heading_diff,
-                        false,
-                        false,
-                        min_reduced_power_factor);
-            } else {
-                runDriveTrainTillFinish(DriveTrainMode.TURN_RIGHT,
-                        heading_diff,
-                        false,
-                        false,
-                        min_reduced_power_factor);
-            }
-
-            heading_diff = getImu().getHeadingDifference(target_heading);
-
-            correction_cnt++;
-            if (correction_cnt >= max_num_correction_times) {
-                telemetry.addData("Fail to correct heading",
-                                  "target=" + String.valueOf(target_heading) +
-                                        " diff=" + String.valueOf(heading_diff));
-                telemetry.update();
-                break;
-            }
-        }
-
-        // Restore original power factor
-        if (saved_power_factor != driveTrain_.powerFactor()) {
-            driveTrain_.setPowerFactor(saved_power_factor);
-        }
-    */
     }
 
     boolean runDriveTrain(DriveTrainMode drive_mode,

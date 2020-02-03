@@ -13,15 +13,17 @@ public class AutonomousRedLoading extends AutonomousCommon {
             new AutoOperation(AutoOperation.OpCode.OP_DROP_SKYSTONE_TO_FOUNDATION, 1),
             new AutoOperation(AutoOperation.OpCode.OP_MOVE_HOOK, (double)(Hooks.Position.PULL.getValue()), 1),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_LEFT, 0.3),
-            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_BACKWARD, 0.6),
-            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_GEAR, 3.0),
-            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_TURN_RIGHT, 90, 0.5),  // With load of foundation, should not reduce the driving power too much during correcting heading
-            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_GEAR, 1.0),
-            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_FORWARD, 0.65),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_BACKWARD, 0.4),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_GEAR, 2.0),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_TURN_RIGHT, 90),
+            // new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_CORRECT_HEADING, 3, 0.6),
             new AutoOperation(AutoOperation.OpCode.OP_MOVE_HOOK, (double)(Hooks.Position.RELEASE.getValue()), 0.5),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_GEAR, 1.0),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_FORWARD, 0.45),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_BACKWARD, 0.45),
             new AutoOperation(AutoOperation.OpCode.OP_LIFT_MOVE_TO_BOTTOM_POSITION, 0),
             new AutoOperation(AutoOperation.OpCode.OP_GRABBER_CRANE_FULL_DRAW_BACK, 0),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_LEFT, 0.15),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_BACKWARD, 0.6),
             // new AutoOperation(AutoOperation.OpCode.OP_GRABBER_CRANE_FULL_DRAW_BACK, 0),
             // new AutoOperation(AutoOperation.OpCode.OP_WAIT, 3),
@@ -41,13 +43,14 @@ public class AutonomousRedLoading extends AutonomousCommon {
     ///   - First parameter: Distance to shift in order to align with the Skystone
     ///   - Second parameter: Distance forward to Skystone
     ///   - Third parameter: Distance to foundation after collecting Skystone (the turning angle towards the foundation is constant for all three positions of the Skystones, so we do not need a fourth parameter)
-    double [][] redGrabFirstSkystone_ = {{ 0.05, 0.72, 1.95},           // TODO: Determine actual measurements
-                                         {-0.15, 0.72, 2.15},
-                                         {-0.35, 0.72, 2.35}};
+    double [][] redGrabFirstSkystone_ = {{ 0.05, 0.73, 1.95},           // TODO: Determine actual measurements
+                                         {-0.1, 0.73, 2.1},
+                                         {-0.3, 0.735, 2.35}};
 
     @Override
     public void runOpMode() {
         useImu_ = true;
+        controlTurnDegreeByEncoderCnt_ = false;
         autoCorrectHeadingDuringDriving_ = true;
         // useShiftToDeliverStoneToFoundation_ = true;
         initLiftGrabberToCatchPosition_ = true;

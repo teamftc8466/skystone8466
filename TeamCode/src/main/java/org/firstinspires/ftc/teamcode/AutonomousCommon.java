@@ -11,11 +11,13 @@ public class AutonomousCommon extends RobotHardware {
     final double MAX_WAIT_TIME_FOR_CLOSE_GRABBER_CLAMP = 0.5;
 
     final boolean enableShowDriveTrainInfo_ = false;
-    final boolean enableShowLiftInfo_ = true;
+    final boolean enableShowLiftInfo_ = false;
     final boolean enableShowGrabberInfo_ = false;
 
     boolean useImu_ = false;            // If true, use IMU to correct heading when executing the operation OP_DRIVE_TRAIN_CORRECT_HEADING
     boolean autoCorrectHeadingDuringDriving_ = false;
+    boolean useShiftToDeliverStoneToFoundation_ = false;
+    boolean initLiftGrabberToCatchPosition_ = true;
 
     AutoOperation [] opList_ = null;    // Lists all operations to be done in an autonomous
     int numOpsInList_ = 0;              // Array size of opList_, will change based on invdividual autonomous programs' array sizes
@@ -134,7 +136,9 @@ public class AutonomousCommon extends RobotHardware {
         // firstSkystonePos_ = 0;  // For test purpose
 
         // Move grabber and lift to grab stone ready position
-        moveLiftAndGrabberToCatchStoneReadyPosition();
+        if (initLiftGrabberToCatchPosition_ == true) {
+            moveLiftAndGrabberToCatchStoneReadyPosition();
+        }
 
         if (enableShowDriveTrainInfo_ == true) {
             driveTrain_.enableShowDriveTrainInfo();  // Disable it after finish debugging
@@ -340,63 +344,95 @@ public class AutonomousCommon extends RobotHardware {
 
     boolean driveFromFirstSkystoneToFoundation(){
         /// Need to move back before making a turn to avoid colliding with stones
-        final double move_back_from_stone_distance=0.1;
+        double move_back_from_stone_distance=0.1;
+        if (useShiftToDeliverStoneToFoundation_ == true) move_back_from_stone_distance=0.15;
         runDriveTrainTillFinish(DriveTrainMode.BACKWARD,
                 move_back_from_stone_distance,
                 true,
                 (autoCorrectHeadingDuringDriving_ == false),
                 0);
 
-        /* Turn away from skystone towards foundation */
-
-        if (isRedTeam_ == true) {
-            runDriveTrainTillFinish(DriveTrainMode.TURN_RIGHT,
-                    90,
-                    true,
-                    (autoCorrectHeadingDuringDriving_ == false),
-                    0);
-        } else {
-            runDriveTrainTillFinish(DriveTrainMode.TURN_LEFT,
-                    90,
-                    true,
-                    (autoCorrectHeadingDuringDriving_ == false),
-                    0);
-        }
-
-        /* Drive from Skystone area to foundation area */
-
         // Retrieve the value in the grabFirstSkystone_ two dimensional array in row firstSkystonePos_
         // (which can be 0, 1, or 2) and column 2 (aka the third column). This value will be the distance the robot drives forwards.
-        double distance_from_skystone_to_foundation = grabFirstSkystone_[firstSkystonePos_][2];
+        final double distance_from_skystone_to_foundation = grabFirstSkystone_[firstSkystonePos_][2];
 
-        runDriveTrainTillFinish(DriveTrainMode.FORWARD,
-                distance_from_skystone_to_foundation,
-                true,
-                false,
-                0);
+        if (useShiftToDeliverStoneToFoundation_ == true) {
+            if (isRedTeam_ == true) {
+                runDriveTrainTillFinish(DriveTrainMode.SHIFT_RIGHT,
+                        distance_from_skystone_to_foundation,
+                        true,
+                        (autoCorrectHeadingDuringDriving_ == false),
+                        0);
+            } else {
+                runDriveTrainTillFinish(DriveTrainMode.SHIFT_LEFT,
+                        distance_from_skystone_to_foundation,
+                        true,
+                        (autoCorrectHeadingDuringDriving_ == false),
+                        0);
+            }
 
-        /* Turn towards the foundation to prep for lowering the hooks */
+            // Wait lift move to drop position
+            if (lift_ != null) {
+                final double max_wait_time=0.3;
+                lift_.moveToPosition(Lift.Position.LIFT_DROP_TO_FOUNDATION, timer_.time());
+                currOpStartTime_ = timer_.time();
+                do {
+                    currTime_ = timer_.time();
+                    if (currTime_  >= (currOpStartTime_ + max_wait_time)) break;
 
-        lift_.moveToPosition(Lift.Position.LIFT_DROP_TO_FOUNDATION, timer_.time());
-
-        if (isRedTeam_ == true) {
-            runDriveTrainTillFinish(DriveTrainMode.TURN_LEFT,
-                    90,
-                    true,
-                    (autoCorrectHeadingDuringDriving_ == false),
-                    0);
+                    if (lift_ != null) lift_.holdAtTargetPosition(currTime_);
+                    if (grabber_ != null) grabber_.holdCraneAtTargetPosition();
+                } while (lift_.reachToTargetEncoderCount() == false);
+            }
         } else {
-            runDriveTrainTillFinish(DriveTrainMode.TURN_RIGHT,
-                    90,
+            /* Turn away from skystone towards foundation */
+
+            if (isRedTeam_ == true) {
+                runDriveTrainTillFinish(DriveTrainMode.TURN_RIGHT,
+                        90,
+                        true,
+                        (autoCorrectHeadingDuringDriving_ == false),
+                        0);
+            } else {
+                runDriveTrainTillFinish(DriveTrainMode.TURN_LEFT,
+                        90,
+                        true,
+                        (autoCorrectHeadingDuringDriving_ == false),
+                        0);
+            }
+
+            /* Drive from Skystone area to foundation area */
+
+            runDriveTrainTillFinish(DriveTrainMode.FORWARD,
+                    distance_from_skystone_to_foundation,
                     true,
-                    (autoCorrectHeadingDuringDriving_ == false),
+                    false,
                     0);
+
+            /* Turn towards the foundation to prep for lowering the hooks */
+
+            lift_.moveToPosition(Lift.Position.LIFT_DROP_TO_FOUNDATION, timer_.time());
+
+            if (isRedTeam_ == true) {
+                runDriveTrainTillFinish(DriveTrainMode.TURN_LEFT,
+                        90,
+                        true,
+                        (autoCorrectHeadingDuringDriving_ == false),
+                        0);
+            } else {
+                runDriveTrainTillFinish(DriveTrainMode.TURN_RIGHT,
+                        90,
+                        true,
+                        (autoCorrectHeadingDuringDriving_ == false),
+                        0);
+            }
         }
 
         grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DROP_STONE);
 
         /* Drive to foundation (Numbers TBR) */
         final double move_forward_to_foundation_distance = 0.3;
+        if (useShiftToDeliverStoneToFoundation_ == true) move_back_from_stone_distance=0.35;
         runDriveTrainTillFinish(DriveTrainMode.FORWARD,
                 move_back_from_stone_distance,
                 true,
@@ -566,21 +602,22 @@ public class AutonomousCommon extends RobotHardware {
         lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_CATCH, timer_.time());
 
         while (lift_.reachToTargetEncoderCount() == false) {
-            double curr_time = timer_.time();
+            currTime_ = timer_.time();
             grabber_.holdCraneAtTargetPosition();
-            lift_.holdAtTargetPosition(curr_time);
-            if ((timer_.time() - currOpStartTime_) >= max_allowed_time) break;
+            lift_.holdAtTargetPosition(currTime_);
+            if ((currTime_ - currOpStartTime_) >= max_allowed_time) break;
         }
 
         grabber_.clampClose();
+        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DELIVER_STONE);
 
         // Wait for clamp fully close
-        double beg_clamp_close_time = timer_.time();
+        final double beg_clamp_close_time = timer_.time();
         while (true) {
-            double curr_time = timer_.time();
-            if ((curr_time - beg_clamp_close_time) >= MAX_WAIT_TIME_FOR_CLOSE_GRABBER_CLAMP) break;
+            currTime_ = timer_.time();
+            if ((currTime_ - beg_clamp_close_time) >= MAX_WAIT_TIME_FOR_CLOSE_GRABBER_CLAMP) break;
 
-            lift_.holdAtTargetPosition(curr_time);
+            lift_.holdAtTargetPosition(currTime_);
             grabber_.holdCraneAtTargetPosition();
         }
 

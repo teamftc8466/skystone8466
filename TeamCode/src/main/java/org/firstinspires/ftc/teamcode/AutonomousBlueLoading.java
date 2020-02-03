@@ -47,6 +47,9 @@ public class AutonomousBlueLoading extends AutonomousCommon {
     public void runOpMode() {
         useImu_ = true;
         autoCorrectHeadingDuringDriving_ = true;
+        // useShiftToDeliverStoneToFoundation_ = true;
+        initLiftGrabberToCatchPosition_ = true;
+
         opList_ = opBlueLoading;
         isRedTeam_ = false;         // Remember to set this variable to false for all blue side programs!
         grabFirstSkystone_ = blueGrabFirstSkystone_;

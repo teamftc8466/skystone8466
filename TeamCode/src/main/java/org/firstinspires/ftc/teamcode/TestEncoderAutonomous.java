@@ -27,7 +27,7 @@ public class TestEncoderAutonomous extends AutonomousCommon {
 
     @Override
     public void runOpMode() {
-        // useImu_ = true;
+        useImu_ = false;
         opList_ = opEncoderTest_;
         super.runOpMode();
     }

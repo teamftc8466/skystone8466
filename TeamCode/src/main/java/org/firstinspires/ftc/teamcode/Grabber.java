@@ -12,6 +12,7 @@ public class Grabber {
     // Lift position specified by encoder count
     public enum CranePosition {
         CRANE_DRAW_BACK_POSITION(1),
+        CRANE_DELIVER_STONE(950),
         CRANE_GRAB_STONE(1080),
         CRANE_DROP_STONE(1400),
         CRANE_PROTECT_ROTATION_POSITION(1700),

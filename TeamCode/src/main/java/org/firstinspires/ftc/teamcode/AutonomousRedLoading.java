@@ -49,6 +49,9 @@ public class AutonomousRedLoading extends AutonomousCommon {
     public void runOpMode() {
         useImu_ = true;
         autoCorrectHeadingDuringDriving_ = true;
+        // useShiftToDeliverStoneToFoundation_ = true;
+        initLiftGrabberToCatchPosition_ = true;
+
         opList_ = opRedLoading_;
         isRedTeam_ = true;
         grabFirstSkystone_ = redGrabFirstSkystone_;

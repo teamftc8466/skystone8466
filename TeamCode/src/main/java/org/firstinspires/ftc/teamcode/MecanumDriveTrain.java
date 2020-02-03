@@ -53,6 +53,7 @@ public class MecanumDriveTrain {
     /// IMU used for detecting heading during autonomous
     private RevImu imu_ = null;
     private boolean useImu_ = false;
+    private boolean useImuToCorrectShift_ = false;
     private final double AUTO_CORRECT_MAX_HEADING_ERROR = 40;  // Max degree to allow heading correction
     private final double AUTO_CORRECT_HEADING_POWER_PER_DEGREE = 0.0125;
 
@@ -256,6 +257,29 @@ public class MecanumDriveTrain {
             case SHIFT_RIGHT:
                 power_lb = -power_lf;
                 power_rb = -power_lf;
+
+                if (useImu_ == true &&
+                        useImuToCorrectShift_ == true) {
+                    double heading_diff = imu_.getHeadingDifference(imu_.targetHeading());
+                    if (Math.abs(heading_diff) <= AUTO_CORRECT_MAX_HEADING_ERROR) {
+                        double heading_correct_factor = heading_diff * AUTO_CORRECT_HEADING_POWER_PER_DEGREE;
+                        heading_correct_factor = Range.clip(heading_correct_factor, -0.95, 0.95);
+
+                        // Decrease LF and RF power if heading is biased to left
+                        // Decrease LB and RB power if heading is biased to right
+                        if (heading_diff < 0) { // biased to left
+                            power_lf *= (1 - heading_correct_factor);
+                            power_rf *= (1 - heading_correct_factor);
+                            power_lb *= (1 + heading_correct_factor);
+                            power_rb *= (1 + heading_correct_factor);
+                        } else if (heading_diff > 0) { // biased to right
+                            power_lf *= (1 + heading_correct_factor);
+                            power_rf *= (1 + heading_correct_factor);
+                            power_lb *= (1 - heading_correct_factor);
+                            power_rb *= (1 - heading_correct_factor);
+                        }
+                    }
+                }
                 break;
             default:
                 break;

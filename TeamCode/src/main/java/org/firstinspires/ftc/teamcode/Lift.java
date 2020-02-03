@@ -15,7 +15,7 @@ public class Lift {
         LIFT_GRAB_STONE_CATCH(2),
         LIFT_DELIVER_STONE(70),
         LIFT_GRAB_STONE_READY(500),
-        LIFT_ABOVE_FOUNDATION(610),
+        LIFT_DROP_TO_FOUNDATION(575),
         LIFT_TOP_POSITION(2050);
 
         private final int val_;
@@ -168,13 +168,13 @@ public class Lift {
 
             int enc_diff = encoderCntForTargetPosition_ - curr_enc_pos_motor_right;
             if (enc_diff < 10) {
-                if (set_power > 0.1) set_power = 0.1;
+                if (set_power > 0.05) set_power = 0.05;
             } else if (enc_diff < 50) {
                 if (set_power > 0.2) set_power = 0.2;
             } else if (enc_diff < 150) {
-                if (set_power > 0.4) set_power = 0.4;
+                if (set_power > 0.45) set_power = 0.45;
             } else if (enc_diff < 250) {
-                if (set_power > 0.5) set_power = 0.5;
+                if (set_power > 0.7) set_power = 0.7;
             }
         } else if (curr_enc_pos_motor_right > encoderCntForTargetPosition_) {
             double used_time = time - startTimeToTargetPosition_;
@@ -184,16 +184,17 @@ public class Lift {
 
             int enc_diff = curr_enc_pos_motor_right - encoderCntForTargetPosition_;
             if (enc_diff < 10) {
-                if (encoderCntForTargetPosition_ > Position.LIFT_DELIVER_STONE.getValue()) set_power = 0.1;
-                else set_power = 0;
+                // if (encoderCntForTargetPosition_ > Position.LIFT_DELIVER_STONE.getValue()) set_power = 0.1;
+                // else set_power = 0;
+                set_power = 0;
             } else if (enc_diff < 20) {
-                set_power = 0.125;
+                set_power = 0.175;
             } else if (enc_diff < 50) {
-                if (set_power > 0.175) set_power = 0.175;
-            } else if (enc_diff < 150) {
                 if (set_power > 0.25) set_power = 0.25;
+            } else if (enc_diff < 150) {
+                if (set_power > 0.45) set_power = 0.45;
             } else if (enc_diff < 250) {
-                if (set_power > 0.4) set_power = 0.4;
+                if (set_power > 0.7) set_power = 0.7;
             }
 
             set_power = -set_power;

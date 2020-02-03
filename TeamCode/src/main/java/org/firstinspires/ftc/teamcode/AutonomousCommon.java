@@ -340,8 +340,9 @@ public class AutonomousCommon extends RobotHardware {
 
     boolean driveFromFirstSkystoneToFoundation(){
         /// Need to move back before making a turn to avoid colliding with stones
+        final double move_back_from_stone_distance=0.1;
         runDriveTrainTillFinish(DriveTrainMode.BACKWARD,
-                0.2,
+                move_back_from_stone_distance,
                 true,
                 (autoCorrectHeadingDuringDriving_ == false),
                 0);
@@ -376,7 +377,7 @@ public class AutonomousCommon extends RobotHardware {
 
         /* Turn towards the foundation to prep for lowering the hooks */
 
-        lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, 0.5);
+        lift_.moveToPosition(Lift.Position.LIFT_DROP_TO_FOUNDATION, timer_.time());
 
         if (isRedTeam_ == true) {
             runDriveTrainTillFinish(DriveTrainMode.TURN_LEFT,
@@ -392,16 +393,12 @@ public class AutonomousCommon extends RobotHardware {
                     0);
         }
 
+        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DROP_STONE);
 
         /* Drive to foundation (Numbers TBR) */
-        /*runDriveTrainTillFinish(DriveTrainMode.FORWARD,
-                0.1,
-                true,
-                false,
-                0);*/
-
+        final double move_forward_to_foundation_distance = 0.3;
         runDriveTrainTillFinish(DriveTrainMode.FORWARD,
-                0.4,
+                move_back_from_stone_distance,
                 true,
                 false,
                 0);
@@ -588,7 +585,6 @@ public class AutonomousCommon extends RobotHardware {
         }
 
         lift_.moveToPosition(Lift.Position.LIFT_DELIVER_STONE, timer_.time());
-        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DROP_STONE);
 
         return true;
     }
@@ -599,8 +595,8 @@ public class AutonomousCommon extends RobotHardware {
 
         if (max_allowed_time < 0.5) max_allowed_time = 0.5;
 
-        if (lift_.isMoveToPositionApplied(Lift.Position.LIFT_GRAB_STONE_READY) == false) {
-            lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, timer_.time());
+        if (lift_.isMoveToPositionApplied(Lift.Position.LIFT_DROP_TO_FOUNDATION) == false) {
+            lift_.moveToPosition(Lift.Position.LIFT_DROP_TO_FOUNDATION, timer_.time());
         }
 
 

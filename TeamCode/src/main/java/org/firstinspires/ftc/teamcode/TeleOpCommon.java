@@ -109,6 +109,12 @@ public class TeleOpCommon extends RobotHardware {
     //   - right bumper: Repeat following modes
     //      + Pressed once: hook down
     //      - Released twice: hook up
+    //    - Button A: used to enable display robot status
+    //      - Pressed once: show gamepad info
+    //      - Pressed twice: show drive train info
+    //      - Pressed third time: show lift info
+    //      - Pressed fourth time: show grabber info
+    //      - Pressed fifth time: stop showing robot status
     //    - Button B: Repeat following modes
     //      + Pressed once: Enforce to draw back grabber crane to the end and reset encoder
     //      + Pressed again: Stop to enforce to draw back grabber crane to the end and reset encoder
@@ -176,7 +182,6 @@ public class TeleOpCommon extends RobotHardware {
                 }
 
                 setDisplayDebuggingInfo();
-
             }
             case B:
                 if (grabber_ != null) {
@@ -238,6 +243,7 @@ public class TeleOpCommon extends RobotHardware {
             case A:
                 if (enforceToDrawbackCraneToEnd_ == true) break;
 
+                /* // Disable use rotation servo
                 if (grabber_ != null){
                     int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.B);
                     if ((cnt % 2) != 0) grabber_.rotationOut();
@@ -246,6 +252,7 @@ public class TeleOpCommon extends RobotHardware {
                     allowAutoCatchStone_ = false;
                     autoCloseClampForCatchStoneApplied_ = false;
                 }
+                */
                 break;
             case B:
                 if (enforceToDrawbackCraneToEnd_ == true) break;
@@ -401,6 +408,8 @@ public class TeleOpCommon extends RobotHardware {
             enforceToDrawbackCraneToEnd_ = false;
             return;
         }
+
+        grabber_.setCranePower(ENFORCE_TO_DRAW_BACK_CRANE_TO_END_POWER);
 
         double curr_time = timer_.time();
         if ((curr_time - startTimeToEnforceToDrawbackCraneToEnd_) >= MAX_TIME_FOR_ENFORCE_TO_DRAW_BACK_CRANE_TO_END) {

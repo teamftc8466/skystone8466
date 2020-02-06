@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp(name = "TestTensorFlow", group = "FS")
 // @Disabled
 public class TestTensorFlow extends RobotHardware {
-    public boolean isRedteam = true;
+    public boolean isRedteam = false;
     @Override
     public void runOpMode() {
         initialize();

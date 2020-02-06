@@ -153,7 +153,7 @@ public class DetectSkystone {
      */
     private void initTfod() {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId_);
-        tfodParameters.minimumConfidence = 0.2;
+        tfodParameters.minimumConfidence = 0.4;
         tfod_ = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia_);
         tfod_.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
@@ -162,6 +162,7 @@ public class DetectSkystone {
     //juj
     public int detectSkystone(boolean is_red_team) {
         int skystonePosition = -1;
+        int skystoneleftorright = 0;
         if (tfod_ == null) return -1;
         Recognition skystoneBlock = null;
         // getUpdatedRecognitions() will return null if no new information is available since
@@ -203,24 +204,25 @@ public class DetectSkystone {
 //              telemetry.addData("bottom", skystoneBlockBottom);
 
 
-                    if (skystoneBlock.getLeft()>120) {
-                        if(skystoneBlock.getLeft()>300) {
-                            if (is_red_team) {
-                                skystonePosition = 0;
-                            } else {
-                                skystonePosition = 2;
-                            }
-                        }else {
-                            skystonePosition = 1;
-                        }
-                    }
-                    else {
+                if (skystoneBlock.getLeft()<40) {
+                    if (skystoneBlock.getRight() < 480) {
+                        skystonePosition = 0;
                         if (is_red_team) {
                             skystonePosition = 2;
-                        }else {
+                        }
+                        skystoneleftorright = 1;
+                    }
+                }
+                if (skystoneBlock.getLeft() > 250 && skystoneBlock.getRight() > 500) {
+                    skystonePosition = 2;
+                    if (is_red_team){
                         skystonePosition = 0;
                     }
-                    }
+                    skystoneleftorright = 1;
+                }
+                if (skystoneleftorright != 1) {
+                    skystonePosition = 1; //add more accurate things later
+                }
             } else {
                telemetry_.addData("Not detected", -1);
             }

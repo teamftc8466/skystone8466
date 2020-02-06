@@ -144,7 +144,7 @@ public class AutonomousCommon extends RobotHardware {
             firstSkystonePos_ = 0;
         }
 
-        // firstSkystonePos_ = 0;  // For test purpose
+        firstSkystonePos_ = 0;  // For test purpose
 
         // Move grabber and lift to grab stone ready position
         if (initLiftGrabberToCatchPosition_ == true) {

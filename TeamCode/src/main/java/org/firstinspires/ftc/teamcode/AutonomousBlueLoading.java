@@ -39,12 +39,12 @@ public class AutonomousBlueLoading extends AutonomousCommon {
     ///   - Row 2 : skystone is the third farthest from the wall.
     ///
     //  Within each row:
-    ///   - First parameter: Distance to shift in order to align with the Skystone
+    ///   - First parameter: Distance to shift in order to align with the Skystone (Neg. = left, pos. = right)
     ///   - Second parameter: Distance forward to Skystone
     ///   - Third parameter: Distance to foundation after collecting Skystone (the turning angle towards the foundation is constant for all three positions of the Skystones, so we do not need a fourth parameter)
-    double [][] blueGrabFirstSkystone_ = {{ -0.34, 0.735, 1.96},           // TODO: Determine actual measurements
-                                          { -0.14, 0.73, 2.16},
-                                          { 0.04, 0.73, 2.34}};
+    double [][] blueGrabFirstSkystone_ = {{ -0.27, 0.75, 1.96},
+                                          { -0.07, 0.745, 2.16},
+                                          { 0.11, 0.745, 2.34}};
 
     @Override
     public void runOpMode() {

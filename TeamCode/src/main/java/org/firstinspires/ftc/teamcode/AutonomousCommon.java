@@ -33,8 +33,8 @@ public class AutonomousCommon extends RobotHardware {
 
     /// A 3X3 array to contain the driving distance to reach the first skystone and deliver it to the foundation.
     /// It contents is dependent on red or blue team and will be defined in extended classes:
-    ///   - AutonomousRedLoading
-    ///   - AutonomousBlueLoading
+    ///   - AutonomousRedLoadingFull
+    ///   - AutonomousBlueLoadingFull
     ///
     /// Each row is associated with skystone position:
     ///   - Row 0 : skystone is the first farthest from the wall.
@@ -161,17 +161,17 @@ public class AutonomousCommon extends RobotHardware {
     }
 
     void cleanUpAtEndOfRun() {
-        // TODO
-
         if (getDetectSkystone() != null) getDetectSkystone().shutdownTfod();
     }
 
-    void moveLiftAndGrabberToCatchStoneReadyPosition() {
-        if (lift_ == null || grabber_ == null) return;
+    boolean moveLiftAndGrabberToCatchStoneReadyPosition() {
+        if (lift_ == null || grabber_ == null) return true;
 
         lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, timer_.time());
         grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
         grabber_.clampOpen();
+
+        return true;
     }
 
     AutoOperation.OpCode getCurrentOpcode() {
@@ -242,14 +242,17 @@ public class AutonomousCommon extends RobotHardware {
             case OP_DRIVE_TO_FIRST_SKYSTONE:
                 finish_flag = driveToFirstSkystone();
                 break;
-            case OP_GRAB_FIRST_SKYSTONE:
-                finish_flag = grabFirstSkystone(operand);
+            case OP_GRAB_STONE:
+                finish_flag = grabStone(operand);
                 break;
             case OP_DRIVE_FROM_FIRST_SKYSTONE_TO_FOUNDATION:
                 finish_flag = driveFromFirstSkystoneToFoundation();
                 break;
             case OP_DROP_SKYSTONE_TO_FOUNDATION:
                 finish_flag = dropSkystoneToFoundation(operand);
+                break;
+            case OP_DROP_STONE_TO_GROUND:
+                finish_flag = dropSkystoneToGround(operand);
                 break;
             case OP_GRABBER_CRANE_FULL_DRAW_BACK:
                 grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DRAW_BACK_POSITION);
@@ -258,6 +261,9 @@ public class AutonomousCommon extends RobotHardware {
             case OP_LIFT_MOVE_TO_BOTTOM_POSITION:
                 lift_.moveToPosition(Lift.Position.LIFT_BOTTOM_POSITION, timer_.time());
                 finish_flag = true;
+                break;
+            case OP_GRAB_STONE_READY_POSITION:
+                finish_flag = moveLiftAndGrabberToCatchStoneReadyPosition();
                 break;
             default:
                 finish_flag = true;
@@ -485,8 +491,7 @@ public class AutonomousCommon extends RobotHardware {
         return true;
     }
 
-    // TODO: Write this subsystem when the grabber hardware is finished
-    boolean grabFirstSkystone(double max_allowed_time) {
+    boolean grabStone(double max_allowed_time) {
         if (lift_ == null || grabber_ == null) return true;
 
         if (lift_.isMoveToPositionApplied(Lift.Position.LIFT_GRAB_STONE_READY) == false) {
@@ -537,7 +542,6 @@ public class AutonomousCommon extends RobotHardware {
         return true;
     }
 
-    // TODO: Write this subsystem when the grabber hardware is finished
     boolean dropSkystoneToFoundation(double max_allowed_time) {
         if (lift_ == null || grabber_ == null) return true;
 
@@ -549,6 +553,21 @@ public class AutonomousCommon extends RobotHardware {
 
 
         grabber_.clampOpen();
+
+        final double used_time = timer_.time() - currOpStartTime_;
+        return (used_time >= max_allowed_time);
+    }
+
+    boolean dropSkystoneToGround(double max_allowed_time){
+        if (lift_ == null || grabber_ == null) return true;
+
+        if (max_allowed_time < 0.5) max_allowed_time = 0.5;
+
+        grabber_.clampOpen();
+
+        if (lift_.isMoveToPositionApplied(Lift.Position.LIFT_GRAB_STONE_READY) == false) {
+            lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, timer_.time());
+        }
 
         final double used_time = timer_.time() - currOpStartTime_;
         return (used_time >= max_allowed_time);

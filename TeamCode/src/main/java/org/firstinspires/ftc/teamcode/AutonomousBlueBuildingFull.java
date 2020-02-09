@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "AutonomousBlueBuildingMoveFoundationParking", group = "FS")
+// TODO: This copy has not been edited.
+
+@Autonomous(name = "AutonomousBlueBuildingFull", group = "FS")
 // @Disabled
-public class AutonomousBlueBuildingMoveFoundationParking extends AutonomousCommon {
+public class AutonomousBlueBuildingFull extends AutonomousCommon {
     AutoOperation [] opBlueLoading= {
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_LEFT, 0.2),
@@ -18,9 +20,9 @@ public class AutonomousBlueBuildingMoveFoundationParking extends AutonomousCommo
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_GEAR, 1.0),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_FORWARD, 0.45),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_BACKWARD, 0.45),
-            // new AutoOperation(AutoOperation.OpCode.OP_LIFT_MOVE_TO_BOTTOM_POSITION, 0),
-            // new AutoOperation(AutoOperation.OpCode.OP_GRABBER_CRANE_FULL_DRAW_BACK, 0),
-            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_LEFT, 0.45),      //TODO: Test and adjust this parameter
+            new AutoOperation(AutoOperation.OpCode.OP_LIFT_MOVE_TO_BOTTOM_POSITION, 0),
+            new AutoOperation(AutoOperation.OpCode.OP_GRABBER_CRANE_FULL_DRAW_BACK, 0),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_LEFT, 0.45),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_RIGHT, 0.03),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_BACKWARD, 0.6),
             // new AutoOperation(AutoOperation.OpCode.OP_GRABBER_CRANE_FULL_DRAW_BACK, 0),
@@ -34,7 +36,7 @@ public class AutonomousBlueBuildingMoveFoundationParking extends AutonomousCommo
         controlTurnDegreeByEncoderCnt_ = true;
         autoCorrectHeadingDuringDriving_ = true;
         // useShiftToDeliverStoneToFoundation_ = true;
-        initLiftGrabberToCatchPosition_ = false;
+        initLiftGrabberToCatchPosition_ = true;
 
         opList_ = opBlueLoading;
         isRedTeam_ = false;         // Remember to set this variable to false for all blue side programs!

@@ -13,7 +13,7 @@ public class Lift {
     public enum Position {
         LIFT_BOTTOM_POSITION(2),
         LIFT_GRAB_STONE_CATCH(2),
-        LIFT_DELIVER_STONE(70),
+        LIFT_DELIVER_STONE(70),          // Lifts stone slightly above ground to allow robot to move the stone
         LIFT_GRAB_STONE_READY(500),
         LIFT_DROP_TO_FOUNDATION(575),
         LIFT_TOP_POSITION(2050);

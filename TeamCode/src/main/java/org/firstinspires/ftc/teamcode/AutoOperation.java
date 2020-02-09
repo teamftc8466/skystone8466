@@ -6,13 +6,15 @@ public class AutoOperation {
         OP_WAIT,                                       // One operand: Waiting time (>=0)
         OP_DRIVE_TRAIN_RESET_ENCODER,                  // One operand: time spent to reset encoder (>=0)
         OP_DRIVE_TRAIN_SHIFT_GEAR,                     // One operand: multiple factor for driving train power (>0)
-        OP_DRIVE_TRAIN_FORWARD,                        // One operand: driving distance in meter (>=0)
-        OP_DRIVE_TRAIN_BACKWARD,                       // One operand: driving distance in meter (>=0)
-        OP_DRIVE_TRAIN_TURN_LEFT,                      // One operand: turning degree (>=0)
-        OP_DRIVE_TRAIN_TURN_RIGHT,                     // One operand: turning degree (>=0);
-        OP_DRIVE_TRAIN_SHIFT_LEFT,                     // One operand: shifting distance in meter (>=0)
-        OP_DRIVE_TRAIN_SHIFT_RIGHT,                    // One operand: shifting distance in meter (>=0)
-        OP_DRIVE_TRAIN_CORRECT_HEADING,                // Two operands: 1. Max. tolerated error in degree; 2. Min. reduce power factor.
+        OP_DRIVE_TRAIN_FORWARD,                        // Two operands: 1. driving distance in meter (>=0); 2. Optional power factor.
+        OP_DRIVE_TRAIN_BACKWARD,                       // Two operands: 1. driving distance in meter (>=0); 2. Optional power factor.
+        OP_DRIVE_TRAIN_TURN_LEFT,                      // Two operands: 1. turning degree (>=0); 2. Optional power factor.
+        OP_DRIVE_TRAIN_TURN_RIGHT,                     // Two operands: 1. turning degree (>=0); 2. Optional power factor.
+        OP_DRIVE_TRAIN_SHIFT_LEFT,                     // Two operands: 1. shifting distance in meter (>=0); 2. Optional power factor.
+        OP_DRIVE_TRAIN_SHIFT_RIGHT,                    // Two operands: 1. shifting distance in meter (>=0); 2. Optional power factor.
+        OP_DRIVE_TRAIN_CORRECT_HEADING,                // Three operands: 1. Max. tolerated error in degree;
+                                                       //                 2. Min. reduce power factor;
+                                                       //                 3. Optional power factor.
         OP_MOVE_HOOK,                                  // One operand: Hook position.
         OP_DRIVE_TO_FIRST_SKYSTONE,                    // No operand needed
         OP_GRAB_STONE,                                 // One operand: maximum allowed time spent by this operation

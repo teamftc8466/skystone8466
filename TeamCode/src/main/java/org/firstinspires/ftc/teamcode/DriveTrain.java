@@ -147,25 +147,41 @@ public class DriveTrain {
 
     boolean driveByMode(DriveTrainMode drive_mode,
                         double drive_parameter,
+                        double power_factor,
                         double time) {
-        if (mecanumDriveTrain_ != null) return mecanumDriveByMode(drive_mode, drive_parameter, time);
-        //if (ballDriveTrain_ != null) return ballDriveByMode(drive_mode, drive_parameter, time);
+        if (mecanumDriveTrain_ != null) {
+            final double saved_power_factor = mecanumDriveTrain_.powerFactor();
+            if (power_factor > 0) mecanumDriveTrain_.setPowerFactor(power_factor);
+
+            boolean finish_flag = mecanumDriveByMode(drive_mode, drive_parameter, time);
+
+            // Restore original power factor
+            if (saved_power_factor != mecanumDriveTrain_.powerFactor()) {
+                mecanumDriveTrain_.setPowerFactor(saved_power_factor);
+            }
+
+            return finish_flag;
+        }
+
+        //if (ballDriveTrain_ != null) return ballDriveByMode(drive_mode, drive_parameter, power_factor, time);
 
         return true;
     }
 
     boolean applyImuToControlTurningToTargetHeading(double max_tolerate_error_in_degree,
+                                                    double power_factor,
                                                     double min_reduced_power_factor,
                                                     double time) {
         if (mecanumDriveTrain_ != null) return mecanumDriveApplyImuToControlTurningToTargetHeading(max_tolerate_error_in_degree,
+                                                                                                   power_factor,
                                                                                                    min_reduced_power_factor,
                                                                                                    time);
         return true;
     }
 
-    boolean mecanumDriveByMode(DriveTrainMode drive_mode,
-                               double drive_parameter,
-                               double time) {
+    private boolean mecanumDriveByMode(DriveTrainMode drive_mode,
+                                       double drive_parameter,
+                                       double time) {
         if (drive_parameter <= 0){
             mecanumDriveTrain_.setPower(0,0,0,0);
             return true;
@@ -196,7 +212,10 @@ public class DriveTrain {
             if (is_turn_operation_flag == true &&
                     controlTurnDegreeByEncoderCnt_ == false &&
                     mecanumDriveTrain_.useImu() == true) {
-                return mecanumDriveApplyImuToControlTurningToTargetHeading(MAX_TOLERATE_HEADING_DIFFERENCE_ERROR_IN_DEGREE, 0.3, time);
+                return mecanumDriveApplyImuToControlTurningToTargetHeading(MAX_TOLERATE_HEADING_DIFFERENCE_ERROR_IN_DEGREE,
+                                                                           mecanumDriveTrain_.powerFactor(),
+                                                                           0.3,
+                                                                           time);
             }
 
             if (mecanumDriveTrain_.reachToTargetEncoderCount(target_enc_cnt) == false) {
@@ -236,6 +255,7 @@ public class DriveTrain {
     }
 
     private boolean mecanumDriveApplyImuToControlTurningToTargetHeading(double max_tolerate_error_in_degree,
+                                                                        double power_factor,
                                                                         double min_reduced_power_factor,
                                                                         double time) {
         if (max_tolerate_error_in_degree < 1) max_tolerate_error_in_degree = 1;
@@ -249,6 +269,7 @@ public class DriveTrain {
         }
 
         final double saved_power_factor = mecanumDriveTrain_.powerFactor();
+        if (mecanumDriveTrain_.powerFactor() != power_factor) mecanumDriveTrain_.setPowerFactor(power_factor);
 
         if (abs_heading_diff < 10) {
             // When closing to the target degree, need to reduce the power for precise control

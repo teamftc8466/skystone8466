@@ -208,26 +208,26 @@ public class AutonomousCommon extends RobotHardware {
                 finish_flag = runDriveTrainWait(operand);
                 break;
             case OP_DRIVE_TRAIN_FORWARD:
-                finish_flag = runDriveTrain(DriveTrainMode.FORWARD, operand);
+                finish_flag = runDriveTrain(DriveTrainMode.FORWARD, operand, getCurrentOperand(1));
                 break;
             case OP_DRIVE_TRAIN_BACKWARD:
-                finish_flag = runDriveTrain(DriveTrainMode.BACKWARD, operand);
+                finish_flag = runDriveTrain(DriveTrainMode.BACKWARD, operand, getCurrentOperand(1));
                 break;
             case OP_DRIVE_TRAIN_TURN_LEFT:
-                finish_flag = runDriveTrain(DriveTrainMode.TURN_LEFT, operand);
+                finish_flag = runDriveTrain(DriveTrainMode.TURN_LEFT, operand, getCurrentOperand(1));
                 break;
             case OP_DRIVE_TRAIN_TURN_RIGHT:
-                finish_flag = runDriveTrain(DriveTrainMode.TURN_RIGHT, operand);
+                finish_flag = runDriveTrain(DriveTrainMode.TURN_RIGHT, operand, getCurrentOperand(1));
                 break;
             case OP_DRIVE_TRAIN_SHIFT_LEFT:
-                finish_flag = runDriveTrain(DriveTrainMode.SHIFT_LEFT, operand);
+                finish_flag = runDriveTrain(DriveTrainMode.SHIFT_LEFT, operand, getCurrentOperand(1));
                 break;
             case OP_DRIVE_TRAIN_SHIFT_RIGHT:
-                finish_flag = runDriveTrain(DriveTrainMode.SHIFT_RIGHT, operand);
+                finish_flag = runDriveTrain(DriveTrainMode.SHIFT_RIGHT, operand, getCurrentOperand(1));
                 break;
             case OP_DRIVE_TRAIN_CORRECT_HEADING:
                 if (imu_ != null && useImu_ == true) {
-                    finish_flag = driveTrain_.applyImuToControlTurningToTargetHeading(operand, getCurrentOperand(1), timer_.time());
+                    finish_flag = driveTrain_.applyImuToControlTurningToTargetHeading(operand, getCurrentOperand(2), getCurrentOperand(1), timer_.time());
                 } else {
                     finish_flag = true;
                 }
@@ -454,7 +454,7 @@ public class AutonomousCommon extends RobotHardware {
 
         // Run till finish
         currOpStartTime_ = timer_.time();
-        while (driveTrain_.driveByMode(drive_mode, drive_parameter, timer_.time()) == false) {
+        while (driveTrain_.driveByMode(drive_mode, drive_parameter, 1.0, timer_.time()) == false) {
             currTime_ = timer_.time();
             if (lift_ != null) lift_.holdAtTargetPosition(currTime_);
             if (grabber_ != null) grabber_.holdCraneAtTargetPosition();
@@ -465,12 +465,13 @@ public class AutonomousCommon extends RobotHardware {
     }
 
     boolean runDriveTrain(DriveTrainMode drive_mode,
-                          double drive_parameter) {
-        return driveTrain_.driveByMode(drive_mode, drive_parameter, currTime_);
+                          double drive_parameter,
+                          double power_factor) {
+        return driveTrain_.driveByMode(drive_mode, drive_parameter, power_factor, currTime_);
     }
 
     boolean runDriveTrainWait(double time_limit){
-        driveTrain_.driveByMode(DriveTrainMode.STOP, 0, timer_.time());
+        driveTrain_.driveByMode(DriveTrainMode.STOP, 0, 0, timer_.time());
 
         if (time_limit > 0) {
             final long sleep_time_in_ms = (long)(time_limit *1000.0);  // long type is required because the parameter for the sleep function is type long

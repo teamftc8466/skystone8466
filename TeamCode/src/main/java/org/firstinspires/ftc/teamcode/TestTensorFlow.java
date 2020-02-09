@@ -18,16 +18,12 @@ public class TestTensorFlow extends RobotHardware {
 
         initializeWhenStart();
 
-        int max_call_times=10;
-        int num_calls=0;
         int [] cnt={0, 0, 0};
         while (opModeIsActive() ) {
-            int pos=getDetectSkystone().detectSkystone(isRedteam);
+            int pos=getDetectSkystone().detectSkystone(isRedteam, true);
             if (pos >= 0) cnt[pos]+=1;
-            num_calls++;
-            if (num_calls >= max_call_times) break;
 
-            sleep(3000);
+            sleep(200);
             telemetry.addData("=", toString().valueOf(cnt[0]) + " " + toString().valueOf(cnt[1]) + " " + toString().valueOf(cnt[2]));
             telemetry.update();
         }

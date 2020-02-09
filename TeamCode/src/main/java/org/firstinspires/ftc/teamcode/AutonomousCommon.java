@@ -106,7 +106,7 @@ public class AutonomousCommon extends RobotHardware {
                 try {
                     if (getDetectSkystone() !=null) {
                         if (getDetectSkystone().existTfod() == true) {
-                            int det_pos = getDetectSkystone().detectSkystone(isRedTeam_);
+                            int det_pos = getDetectSkystone().detectSkystone(isRedTeam_, true);
                             if (det_pos >= 0) {
                                 firstSkystonePos_ = det_pos;
                             }

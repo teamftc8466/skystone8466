@@ -157,28 +157,26 @@ public class DetectSkystone {
         tfod_ = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia_);
         tfod_.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
     }
-// 380 630
-    // 1 450
-    //juj
-    public int detectSkystone(boolean is_red_team) {
+
+    public int detectSkystone(boolean is_red_team,
+                              boolean show_stone_info) {
+        if (tfod_ == null) return -1;
+
         int skystonePosition = -1;
         int skystoneleftorright = 0;
-        if (tfod_ == null) return -1;
         Recognition skystoneBlock = null;
+
         // getUpdatedRecognitions() will return null if no new information is available since
         // the last time that call was made.
         List<Recognition> updatedRecognitions = tfod_.getUpdatedRecognitions();
         if (updatedRecognitions != null) {
-            telemetry_.addData("# Object Detected", updatedRecognitions.size());
+            if (show_stone_info == true) {
+                telemetry_.addData("# Object Detected", updatedRecognitions.size());
+            }
 
             // step through the list of recognitions and display boundary info.
             int i = 0;
             for (Recognition recognition : updatedRecognitions) {
-                // telemetry_.addData(String.format("label (%d)", i), recognition.getLabel());
-                // telemetry_.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                //        recognition.getLeft(), recognition.getTop());
-                // telemetry_.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                //        recognition.getRight(), recognition.getBottom());
                 if (recognition.getLabel().equals(LABEL_SECOND_ELEMENT)) {
                     skystoneBlock = recognition;
                     break;
@@ -186,25 +184,7 @@ public class DetectSkystone {
             }
 
             if (skystoneBlock != null) {
-                telemetry_.addData(String.format("label (%d)", i), skystoneBlock.getLabel());
-                telemetry_.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                                   skystoneBlock.getLeft(), skystoneBlock.getTop());
-                telemetry_.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                                   skystoneBlock.getRight(), skystoneBlock.getBottom());
-//                int skystoneBlockLeftX = (int) skystoneBlock.getLeft();
-//                int skystoneBlockRightX = (int) skystoneBlock.getRight();
-//                int skystoneBlockTop = (int) skystoneBlock.getTop();
-//                int skystoneBlockBottom = (int) skystoneBlock.getBottom();
-//                int detectionWidth = (int) skystoneBlock.getHeight();
-//                telemetry_.addData()
-//              telemetry.addData("detectionWidth or height", detectionWidth);
-//              telemetry.addData("LeftX",  skystoneBlockLeftX);
-//              telemetry.addData("RightX", skystoneBlockRightX);
-//              telemetry.addData("top", skystoneBlockTop);
-//              telemetry.addData("bottom", skystoneBlockBottom);
-
-
-                if (skystoneBlock.getLeft()<40) {
+                if (skystoneBlock.getLeft() < 40) {
                     if (skystoneBlock.getRight() < 480) {
                         skystonePosition = 0;
                         if (is_red_team) {
@@ -213,25 +193,44 @@ public class DetectSkystone {
                         skystoneleftorright = 1;
                     }
                 }
+
                 if (skystoneBlock.getLeft() > 250 && skystoneBlock.getRight() > 500) {
                     skystonePosition = 2;
-                    if (is_red_team){
+                    if (is_red_team) {
                         skystonePosition = 0;
                     }
                     skystoneleftorright = 1;
                 }
+
                 if (skystoneleftorright != 1) {
                     skystonePosition = 1; //add more accurate things later
                 }
+            }
+        }
+
+        if (show_stone_info == true) {
+            if (skystoneBlock != null) {
+                showStoneInfo(skystoneBlock, false);
+                telemetry_.addData(">", skystonePosition);
             } else {
-               telemetry_.addData("Not detected", -1);
+                telemetry_.addData("Not detected", -1);
             }
 
-            telemetry_.addData(">", skystonePosition);
             telemetry_.update();
         }
         
         return skystonePosition;
 
+    }
+
+    void showStoneInfo(Recognition stone_block,
+                       boolean update_flag) {
+        telemetry_.addData(String.format("Label"), stone_block.getLabel());
+        telemetry_.addData(String.format("  <Left, Right>"), "%.03f , %.03f",
+                stone_block.getLeft(), stone_block.getRight());
+        telemetry_.addData(String.format("  <Top, Bottom>"), "%.03f , %.03f",
+                stone_block.getTop(), stone_block.getBottom());
+
+        if (update_flag == true) telemetry_.update();
     }
 }

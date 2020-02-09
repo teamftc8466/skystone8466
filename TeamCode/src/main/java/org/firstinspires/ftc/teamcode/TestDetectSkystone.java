@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name = "TestTensorFlow", group = "FS")
+@TeleOp(name = "TestDectSkystone", group = "FS")
 // @Disabled
-public class TestTensorFlow extends RobotHardware {
+public class TestDetectSkystone extends RobotHardware {
     public boolean isRedteam = false;
     @Override
     public void runOpMode() {

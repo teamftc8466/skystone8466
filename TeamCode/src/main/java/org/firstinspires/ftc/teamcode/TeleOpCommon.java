@@ -169,19 +169,23 @@ public class TeleOpCommon extends RobotHardware {
             {
                 int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_1, GamepadButtons.Button.A);
 
-                enableShowGamepadInfo_ = false;
-                enableShowDriveTrainInfo_ = false;
-                enableShowLiftInfo_ = false;
-                enableShowGrabberInfo_ = false;
-                switch (cnt%5) {
-                   case 1: enableShowGamepadInfo_=true; break;
-                   case 2: enableShowDriveTrainInfo_=true; break;
-                   case 3: enableShowLiftInfo_=true; break;
-                   case 4: enableShowGrabberInfo_=true; break;
-                   default: break;
+                if (cnt > 5) {
+                    enableShowGamepadInfo_ = false;
+                    enableShowDriveTrainInfo_ = false;
+                    enableShowLiftInfo_ = false;
+                    enableShowGrabberInfo_ = false;
+                    switch (cnt % 5) {
+                        case 1 : enableShowGamepadInfo_ = true; break;
+                        case 2 : enableShowDriveTrainInfo_ = true; break;
+                        case 3 : enableShowLiftInfo_ = true; break;
+                        case 4 : enableShowGrabberInfo_ = true; break;
+                        default: break;
+                    }
+
+                    setDisplayDebuggingInfo();
                 }
 
-                setDisplayDebuggingInfo();
+                break;
             }
             case B:
                 if (grabber_ != null) {

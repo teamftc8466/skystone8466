@@ -2,6 +2,17 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+/*
+Notes
+
+As of 2/5/2020, this autonomous program:
+1. Begins in the building zone
+2. Moves the foundation
+3. Parks underneath the bridge
+
+This program has finished testing and debugging.
+*/
+
 @Autonomous(name = "BlueBuildingMoveFoundationParking", group = "FS")
 // @Disabled
 public class AutonomousBlueBuildingMoveFoundationParking extends AutonomousCommon {

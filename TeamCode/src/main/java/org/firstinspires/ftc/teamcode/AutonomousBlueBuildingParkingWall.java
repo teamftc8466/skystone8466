@@ -1,15 +1,24 @@
 package org.firstinspires.ftc.teamcode;
 
-// TODO: This program has not been tested nor debugged.
-
-/* Note to the software team: Units are either in degrees or in METERS!
-Please remember this so that the robot doesn't try to move 50 meters during testing :) */
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+/*
+Notes
+
+As of 2/5/2020, this autonomous program:
+1. Begins in the building zone
+2. Parks underneath the bridge
+
+SOFTWARE TEAM, PLEASE READ!
+Units are either in degrees or in METERS!
+Please remember this so that the robot doesn't try to move 50 meters during testing :)
+*/
+
+// TODO: This program has not been tested nor debugged.
+
 @Autonomous(name = "BlueBuildingParkingWall", group = "FS")
-// @Disabled
+@Disabled
 public class AutonomousBlueBuildingParkingWall extends AutonomousCommon {
     AutoOperation [] opBlueBuilding= {
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),

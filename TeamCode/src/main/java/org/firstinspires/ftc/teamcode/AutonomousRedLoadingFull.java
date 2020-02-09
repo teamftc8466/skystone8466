@@ -1,6 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
+/*
+Notes
+
+As of 2/8/2020, this autonomous program:
+1. Begins in the loading zone
+2. Detects and grabs the Skystone furthest from the wall
+3. Drives into the building zone
+4. Drops the Skystone on the foundation
+5. Pushes the foundation
+6. Parks underneath the bridge
+
+This program has finished testing and debugging.
+*/
 
 @Autonomous(name = "RedLoadingFull", group = "FS")
 // @Disabled

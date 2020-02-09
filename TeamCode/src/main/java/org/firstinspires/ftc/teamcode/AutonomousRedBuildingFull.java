@@ -1,13 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /*
-Notes:
+Notes
+
 As of 2/8/2020, this autonomous program:
-- Begins in the building zone
--
+1. Begins in the building zone
+2. Moves the foundation
+3. Drives into the loading zone
+4. Grabs the stone second closest to the wall
+5. Drops the stone in the building zone
+6. Parks underneath the bridge
 */
+
+// TODO: This program has not been tested.
 
 @Autonomous(name = "RedBuildingFull", group = "FS")
 // @Disabled
@@ -31,7 +39,6 @@ public class AutonomousRedBuildingFull extends AutonomousCommon {
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_BACKWARD, 1.45),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_GEAR, 1),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_BACKWARD, 0.1),
-            // new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_GEAR, 1.0),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_FORWARD, 0.1),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_LEFT, 0.2),
             new AutoOperation(AutoOperation.OpCode.OP_GRAB_STONE_READY_POSITION, 0),

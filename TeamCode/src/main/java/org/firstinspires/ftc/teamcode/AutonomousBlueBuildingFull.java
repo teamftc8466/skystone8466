@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 // TODO: This copy has not been edited.
 
-@Autonomous(name = "AutonomousBlueBuildingFull", group = "FS")
+@Autonomous(name = "BlueBuildingFull", group = "FS")
 // @Disabled
 public class AutonomousBlueBuildingFull extends AutonomousCommon {
     AutoOperation [] opBlueLoading= {

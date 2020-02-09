@@ -9,7 +9,7 @@ As of 2/8/2020, this autonomous program:
 -
 */
 
-@Autonomous(name = "AutonomousRedBuildingFull", group = "FS")
+@Autonomous(name = "RedBuildingFull", group = "FS")
 // @Disabled
 public class AutonomousRedBuildingFull extends AutonomousCommon {
     AutoOperation [] opBlueLoading= {

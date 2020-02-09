@@ -5,12 +5,17 @@ package org.firstinspires.ftc.teamcode;
 /* Note to the software team: Units are either in degrees or in METERS!
 Please remember this so that the robot doesn't try to move 50 meters during testing :) */
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
+@Autonomous(name = "BlueBuildingParkingWall", group = "FS")
+// @Disabled
 public class AutonomousBlueBuildingParkingWall extends AutonomousCommon {
     AutoOperation [] opBlueBuilding= {
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),
             new AutoOperation(AutoOperation.OpCode.OP_WAIT, 25),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_FORWARD, 0.05),
-            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_LEFT, 0.5),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_LEFT, 0.3),
             new AutoOperation(AutoOperation.OpCode.OP_STOP, 0)
     };
 

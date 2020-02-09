@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name = "AutonomousBlueBuildingMoveFoundationParking", group = "FS")
+@Autonomous(name = "BlueBuildingMoveFoundationParking", group = "FS")
 // @Disabled
 public class AutonomousBlueBuildingMoveFoundationParking extends AutonomousCommon {
     AutoOperation [] opBlueLoading= {

@@ -15,7 +15,7 @@ public class Lift {
         LIFT_GRAB_STONE_CATCH(2),
         LIFT_DELIVER_STONE(70),          // Lifts stone slightly above ground to allow robot to move the stone
         LIFT_GRAB_STONE_READY(500),
-        LIFT_DROP_TO_FOUNDATION(575),
+        LIFT_DROP_TO_FOUNDATION(525),
         LIFT_TOP_POSITION(2050);
 
         private final int val_;

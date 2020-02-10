@@ -141,10 +141,10 @@ public class AutonomousCommon extends RobotHardware {
 
         // If the returned skystone position is not a valid number (0, 1, or 2), then assume that the Skystone is at the zero position
         if (firstSkystonePos_ < 0 || firstSkystonePos_ > 2) {
-            firstSkystonePos_ = 0;
+            firstSkystonePos_ = 1;
         }
 
-        firstSkystonePos_ = 0;  // For test purpose
+        // firstSkystonePos_ = 0;  // For test purpose
 
         // Move grabber and lift to grab stone ready position
         if (initLiftGrabberToCatchPosition_ == true) {

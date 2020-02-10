@@ -185,7 +185,7 @@ public class DetectSkystone {
 
             if (skystoneBlock != null) {
                 if (skystoneBlock.getLeft() < 40) {
-                    if (skystoneBlock.getRight() < 480) {
+                    if (skystoneBlock.getRight() < 430) {
                         skystonePosition = 0;
                         if (is_red_team) {
                             skystonePosition = 2;
@@ -194,7 +194,7 @@ public class DetectSkystone {
                     }
                 }
 
-                if (skystoneBlock.getLeft() > 250 && skystoneBlock.getRight() > 500) {
+                if (skystoneBlock.getLeft() > 150 && skystoneBlock.getRight() > 500) {
                     skystonePosition = 2;
                     if (is_red_team) {
                         skystonePosition = 0;

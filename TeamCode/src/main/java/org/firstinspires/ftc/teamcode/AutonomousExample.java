@@ -3,6 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+/*
+DO NOT DELETE THIS PROGRAM! We may need this in the future for debugging purposes.
+- Melinda
+*/
+
 @Autonomous(name = "AutonomousExample", group = "FS")
 // @Disabled
 public class AutonomousExample extends AutonomousCommon {

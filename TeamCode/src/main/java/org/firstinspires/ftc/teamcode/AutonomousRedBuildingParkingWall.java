@@ -18,7 +18,7 @@ Please remember this so that the robot doesn't try to move 50 meters during test
 // TODO: This program has not been tested nor debugged.
 
 @Autonomous(name = "RedBuildingParkingWall", group = "FS")
-@Disabled
+// @Disabled
 public class AutonomousRedBuildingParkingWall extends AutonomousCommon {
     AutoOperation [] opRedBuilding= {
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),

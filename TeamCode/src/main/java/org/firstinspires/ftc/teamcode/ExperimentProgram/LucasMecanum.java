@@ -59,13 +59,13 @@ public class LucasMecanum {
             switch (open) {
                 case 0:
                     servoL.setPosition(.7);
-                    servoR.setPosition(.3);
+                    servoR.setPosition(.4);
                     open = 1;
                     break;
 
                 case 1:
-                    servoL.setPosition(.4);
-                    servoR.setPosition(.1);
+                    servoL.setPosition(.3);
+                    servoR.setPosition(.8);
                     open = 0;
                     break;
 
@@ -155,10 +155,10 @@ public class LucasMecanum {
     }
 
     public void omnimecanumdrivepowers(double power, double angle, double turn) {
-        frontLeftPower = (power * Math.sin(angle - (Math.PI / 4)) - Math.cos(angle) * turn);
-        backLeftPower = (power * Math.cos(angle - (Math.PI / 4)) - Math.sin(angle) * turn); //back
-        frontRightPower = -(power * Math.cos(angle - (Math.PI / 4)) + Math.sin(angle) * turn);
-        backRightPower = -(power * Math.sin(angle - (Math.PI / 4)) + Math.cos(angle) * turn); //back
+        frontLeftPower = (power * Math.cos(angle - (Math.PI / 4)) - Math.sin(angle) * turn);
+        backLeftPower = (power * Math.sin(angle - (Math.PI / 4)) - Math.cos(angle) * turn); //back
+        frontRightPower = -(power * Math.sin(angle - (Math.PI / 4)) + Math.cos(angle) * turn);
+        backRightPower = -(power * Math.cos(angle - (Math.PI / 4)) + Math.sin(angle) * turn); //back
 
         if (wheelslippage == true) {
             Target();

@@ -15,8 +15,10 @@ public class Arm {
     public Servo grabbingservo;
 
     public int open = 0;//0 = open for the state of the servo
-    public double input = 0;//the rotation servo postion
 
+    public boolean Lispressed = false;
+    public boolean Rispressed = false;
+    public int angle = 0;
 
     //still need to set min and max, but problem with math class
 
@@ -27,8 +29,9 @@ public class Arm {
         rotationservo = hwm.get(Servo.class, "rotationServo");
         grabbingservo = hwm.get(Servo.class, "clampServo");
 
-        extendermotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        pulleymotorL.setDirection(DcMotorSimple.Direction.REVERSE);
+        extendermotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        pulleymotorL.setDirection(DcMotorSimple.Direction.FORWARD);
+        pulleymotorR.setDirection(DcMotorSimple.Direction.REVERSE);
 
         pulleymotorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         pulleymotorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -43,12 +46,12 @@ public class Arm {
         if (input) {
             switch (open) {
                 case 0:
-                    grabbingservo.setPosition(0);
+                    grabbingservo.setPosition(.8);
                     open = 1;
                     break;
 
                 case 1:
-                    grabbingservo.setPosition(90);
+                    grabbingservo.setPosition(.45);
                     open = 0;
                     break;
 
@@ -59,10 +62,67 @@ public class Arm {
     }
 
 
-    public void Rotate(Gamepad gamepad) {
-        input += gamepad.right_trigger - gamepad.left_trigger;
+    public void RotateLeft(Gamepad gamepad){
+        if (gamepad.right_trigger >= .5) {
+            Lispressed = true;
+        }
 
-        rotationservo.setPosition(input);
+        if (Lispressed == true && gamepad.right_trigger <= .5) {
+            Lispressed = false;
+
+            switch (angle) {
+                case 0:
+                    rotationservo.setPosition(0);
+                    angle = 1;
+                    break;
+
+                case 1:
+                    rotationservo.setPosition(90);
+                    angle = 2;
+                    break;
+
+                case 2:
+                    rotationservo.setPosition(180);
+
+                default:
+                    angle = 1;
+            }
+        }
+    }
+
+
+    public void RotateRight(Gamepad gamepad) {
+        if (gamepad.right_trigger >= .5) {
+        Rispressed = true;
+        }
+
+        if (Rispressed == true && gamepad.right_trigger <= .5) {
+            Rispressed = false;
+
+            switch (angle) {
+                case 0:
+                    rotationservo.setPosition(0);
+                    angle = 1;
+                    break;
+
+                case 1:
+                    rotationservo.setPosition(90);
+                    angle = 2;
+                    break;
+
+                case 2:
+                    rotationservo.setPosition(180);
+
+                default:
+                    angle = 1;
+            }
+        }
+    }
+
+
+    public void Rotate(Gamepad gamepad) {
+        RotateLeft(gamepad);
+        RotateRight(gamepad);
     }
 
 

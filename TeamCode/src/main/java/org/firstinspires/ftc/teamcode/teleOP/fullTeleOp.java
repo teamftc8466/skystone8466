@@ -24,5 +24,10 @@ public class fullTeleOp extends OpMode {
         drivetrain.omniMecanumDrive(gamepad1);
         arm.FullFunction(gamepad2);
         drivetrain.Hook(gamepad1.left_bumper);
+        telemetry.addData("grabeer:",arm.grabbingservo.getPosition());
+        telemetry.addData("Lhook:",drivetrain.servoL.getPosition());
+        telemetry.addData("Rhook:",drivetrain.servoR.getPosition());
+        telemetry.addData("WEEWOO Rotation time:",arm.rotationservo.getPosition());
+        telemetry.update();
     }
 }

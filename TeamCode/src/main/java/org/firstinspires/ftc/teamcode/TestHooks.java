@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name="TestHooks", group="FS")
-// @Disabled
+ @Disabled
 public class TestHooks extends RobotHardware {
 
     @Override

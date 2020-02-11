@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 ///This program is for testing the encoder to meter ratio.
 
 @Autonomous(name = "TestAutonomousGuideByImu", group = "FS")
-// @Disabled
+ @Disabled
 public class TestAutonomousGuideByImu extends AutonomousCommon {
 
     AutoOperation [] opEncoderTest_ = {

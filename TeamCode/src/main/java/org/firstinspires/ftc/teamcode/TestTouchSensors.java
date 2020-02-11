@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp (name = "TouchSensorTestKyle", group = "Lift")
+@Disabled
 public class TestTouchSensors extends RobotHardware {
 private DcMotor motor1;
 private DcMotor motor2;

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="TestGamepadButtons", group="FS")
-// @Disabled
+ @Disabled
 public class TestGamepadButtons extends RobotHardware {
     final double JOY_STICK_DEAD_ZONE = 0.1;
 

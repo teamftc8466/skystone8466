@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.ExperimentProgram;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,6 +17,7 @@ import java.util.List;
 
 
 @Autonomous(name = "michaelTensorflowtesttfkuufuf", group = "Concept")
+@Disabled
 public class newmichaeltensorflowtest extends LinearOpMode {
 
     private static final String TFOD_MODEL_ASSET = "Skystone.tflite";

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.ExperimentProgram;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 @TeleOp(name="MecanumKyleTest", group="MecanumTest")
+@Disabled
 public class MecanumDriveOpMode extends OpMode {
     MecanumDrive robot = null;
     @Override

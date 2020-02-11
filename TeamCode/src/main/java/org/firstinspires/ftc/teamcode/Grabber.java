@@ -103,8 +103,8 @@ public class Grabber {
         resetEncoder(0);
     }
 
-    public void enableShowGrabberInfo() { showGrabberInfo_ = true; }
-    public void disableShowGrabberInfo() { showGrabberInfo_ = false; }
+    void enableShowGrabberInfo() { showGrabberInfo_ = true; }
+    void disableShowGrabberInfo() { showGrabberInfo_ = false; }
 
     void useEncoder(){
         craneMotor_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -144,7 +144,7 @@ public class Grabber {
 
     void resetCraneWithMoveToPositionApplied() { craneWithMoveToPositionAppliedFlag_ = false; }
 
-    public boolean isCraneWithMoveToPositionApplied(CranePosition position) {
+    boolean isCraneWithMoveToPositionApplied(CranePosition position) {
         return (craneWithMoveToPositionAppliedFlag_ == true &&
                 craneTargetMoveToPosition_ == position);
     }
@@ -272,7 +272,7 @@ public class Grabber {
         lastSetPower_ = power;
     }
 
-    public boolean craneReachToTargetEncoderCount() {
+    boolean craneReachToTargetEncoderCount() {
         final int curr_enc_pos = Math.abs(craneMotor_.getCurrentPosition());
         if (encoderCntForTargetPosition_ > CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION) {
             return (curr_enc_pos >= (encoderCntForTargetPosition_ - CRANE_ENCODER_THRESHOLD_FOR_TARGET_POSITION) &&
@@ -297,16 +297,16 @@ public class Grabber {
     }
 
     // Methods for clamp servo
-    public ClampPosition clampPosition() {
+    ClampPosition clampPosition() {
         return lastClampPosition_;
     }
 
-    public void clampOpen() {
+    void clampOpen() {
         clampServo_.setServoModePositionInDegree(ClampPosition.CLAMP_OPEN.getValue(), false);
         lastClampPosition_ = ClampPosition.CLAMP_OPEN;
     }
 
-    public void clampClose() {
+    void clampClose() {
         clampServo_.setServoModePositionInDegree(ClampPosition.CLAMP_CLOSE.getValue(), false);
         lastClampPosition_ = ClampPosition.CLAMP_CLOSE;
     }

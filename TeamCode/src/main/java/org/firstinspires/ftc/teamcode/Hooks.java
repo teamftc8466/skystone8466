@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Hooks {
-    public enum Position {
+    enum Position {
         INIT(0),
         PULL(1),
         RELEASE(2);
@@ -44,7 +44,7 @@ public class Hooks {
 
     private Telemetry telemetry_;
 
-    public Hooks(Servo left_servo,
+    Hooks(Servo left_servo,
           String left_servo_name,
           Servo right_servo,
           String right_servo_name,
@@ -82,7 +82,7 @@ public class Hooks {
         telemetry_ = telemetry;
     }
 
-    public Position convertToPosition(int position) {
+    Position convertToPosition(int position) {
         if (position == Position.INIT.getValue()) return Position.INIT;
         else if (position == Position.PULL.getValue()) return Position.PULL;
         else if (position == Position.RELEASE.getValue()) return Position.RELEASE;
@@ -90,7 +90,7 @@ public class Hooks {
         return Position.RELEASE;
     }
 
-    public void moveHooksToPosition(Position position) {
+    void moveHooksToPosition(Position position) {
         switch (position) {
             case INIT:
                 leftHookServo_.setServoModePositionInDegree(LeftPosition.INIT_POSITION.getValue(), false);

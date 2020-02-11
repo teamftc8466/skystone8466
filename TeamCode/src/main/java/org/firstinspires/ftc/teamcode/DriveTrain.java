@@ -68,20 +68,20 @@ public class DriveTrain {
         telemetry_ = telemetry;
     }
 
-    public void enableShowDriveTrainInfo() { showDriveTrainInfo_ = true; }
-    public void disableShowDriveTrainInfo() { showDriveTrainInfo_ = false; }
+    void enableShowDriveTrainInfo() { showDriveTrainInfo_ = true; }
+    void disableShowDriveTrainInfo() { showDriveTrainInfo_ = false; }
 
-    public void disableToUseImu() {
+    void disableToUseImu() {
         if (mecanumDriveTrain_ != null) mecanumDriveTrain_.disableToUseImu();
     }
-    public void enableToUseImu() {
+    void enableToUseImu() {
         if (mecanumDriveTrain_ != null) mecanumDriveTrain_.enableToUseImu();
     }
 
-    public void disableControlTurnDegreeByEncoderCount() { controlTurnDegreeByEncoderCnt_ = false; }
-    public void enableControlTurnDegreeByEncoderCount() { controlTurnDegreeByEncoderCnt_ = true; }
+    void disableControlTurnDegreeByEncoderCount() { controlTurnDegreeByEncoderCnt_ = false; }
+    void enableControlTurnDegreeByEncoderCount() { controlTurnDegreeByEncoderCnt_ = true; }
 
-    public void createMecanumDriveTrain(HardwareMap hardware_map) {
+    void createMecanumDriveTrain(HardwareMap hardware_map) {
         mecanumDriveTrain_ = new MecanumDriveTrain(hardware_map,
                                                    imu_,
                                                    telemetry_);
@@ -116,24 +116,24 @@ public class DriveTrain {
         // if (ballDriveTrain_ != null) ballDriveTrain_.useEncoder(time);
     }
 
-    public void resetEncoder(double time) {
+    void resetEncoder(double time) {
         if (mecanumDriveTrain_ != null) mecanumDriveTrain_.resetEncoder(time);
         // if (ballDriveTrain_ != null) ballDriveTrain_.resetEncoder(time);
     }
 
-    public boolean allEncodersAreReset() {
+    boolean allEncodersAreReset() {
         if (mecanumDriveTrain_ != null) mecanumDriveTrain_.allEncodersAreReset();
         // if (ballDriveTrain_ != null) ballDriveTrain_.allEncodersAreReset(time);
 
         return true;
     }
 
-    public void setPowerFactor(double input_power_factor) {
+    void setPowerFactor(double input_power_factor) {
         if (mecanumDriveTrain_ != null) mecanumDriveTrain_.setPowerFactor(input_power_factor);
         // if (ballDriveTrain_ != null) ballDriveTrain_.setPowerFactor(input_power_factor);         // Sample line for when the ball drive will be implemented
     }
 
-    public double powerFactor() {
+    double powerFactor() {
         if (mecanumDriveTrain_ != null) return mecanumDriveTrain_.powerFactor();
         // else if (ballDriveTrain_ != null) return ballDriveTrain_.powerFactor();
 
@@ -145,7 +145,7 @@ public class DriveTrain {
         else if (ballDriveTrain_ != null) ballDriveTrain_.driveByGamePad(gamepad);
     }
 
-    public boolean driveByMode(DriveTrainMode drive_mode,
+    boolean driveByMode(DriveTrainMode drive_mode,
                         double drive_parameter,
                         double power_factor,
                         double time) {
@@ -168,7 +168,7 @@ public class DriveTrain {
         return true;
     }
 
-    public boolean applyImuToControlTurningToTargetHeading(double max_tolerate_error_in_degree,
+    boolean applyImuToControlTurningToTargetHeading(double max_tolerate_error_in_degree,
                                                     double power_factor,
                                                     double min_reduced_power_factor,
                                                     double time) {

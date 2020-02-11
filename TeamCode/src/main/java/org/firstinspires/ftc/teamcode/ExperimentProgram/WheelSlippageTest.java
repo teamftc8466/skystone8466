@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.ExperimentProgram;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -15,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 @TeleOp(name="WheelSlippageTest", group="BallDrive")
+@Disabled
 public class WheelSlippageTest extends OpMode {
     BNO055IMU imu;
     DcMotor leftMotor;

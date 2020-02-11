@@ -67,7 +67,7 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
  */
 
 @Autonomous(name="lucasisbad: teleop By Encoder", group="lucasisbad")
-
+@Disabled
 public class KiwiDriveTrainOpMode extends OpMode {
 
     /* Declare OpMode members. */

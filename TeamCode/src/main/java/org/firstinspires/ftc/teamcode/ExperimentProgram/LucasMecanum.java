@@ -30,10 +30,10 @@ public class LucasMecanum {
     ElapsedTime elaptime;
 
     public LucasMecanum(HardwareMap hwm, Telemetry t) {
-        frontLeft = hwm.get(DcMotor.class, "motorLF");
-        frontRight = hwm.get(DcMotor.class, "motorRF");
-        backLeft = hwm.get(DcMotor.class, "motorLB");
-        backRight = hwm.get(DcMotor.class, "motorRB");
+        frontLeft = hwm.get(DcMotor.class, "motorLB");
+        frontRight = hwm.get(DcMotor.class, "motorRB");
+        backLeft = hwm.get(DcMotor.class, "motorLF");
+        backRight = hwm.get(DcMotor.class, "motorRF");
 
         servoL = hwm.servo.get("leftHookServo");
         servoR = hwm.servo.get("rightHookServo");
@@ -155,10 +155,10 @@ public class LucasMecanum {
     }
 
     public void omnimecanumdrivepowers(double power, double angle, double turn) {
-        frontLeftPower = -(power * Math.sin(angle - (Math.PI / 4)) - Math.cos(angle) * turn);
-        backLeftPower = -(power * Math.cos(angle - (Math.PI / 4)) - Math.cos(angle) * turn); //back
-        frontRightPower = (power * Math.cos(angle - (Math.PI / 4)) + Math.cos(angle) * turn);
-        backRightPower = (power * Math.sin(angle - (Math.PI / 4)) + Math.cos(angle) * turn); //back
+        frontLeftPower = (power * Math.cos(angle - (Math.PI / 4)) + Math.sin(angle) * turn);
+        backLeftPower = (power * Math.sin(angle - (Math.PI / 4)) + Math.cos(angle) * turn); //back
+        frontRightPower = -(power * Math.sin(angle - (Math.PI / 4)) - Math.cos(angle) * turn);
+        backRightPower = -(power * Math.cos(angle - (Math.PI / 4)) - Math.sin(angle) * turn); //back
 
         if (wheelslippage == true) {
             Target();

@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.teleOP;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.BallDrive;
 
 @TeleOp(name="BallDrive TeleOp", group="BallDrive")
+@Disabled
 public class BallDriveOpMode extends OpMode{
 
     /*Declare OpMode members.*/

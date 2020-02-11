@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -25,9 +26,16 @@ public class Arm {
         extendermotor = hwm.get(DcMotor.class, "craneMotor");
         rotationservo = hwm.get(Servo.class, "rotationServo");
         grabbingservo = hwm.get(Servo.class, "clampServo");
+
+        extendermotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        pulleymotorL.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        pulleymotorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        pulleymotorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void Horizontal(double input) {
+
         extendermotor.setPower(input);
     }
 
@@ -58,10 +66,17 @@ public class Arm {
     }
 
 
+    public void Lift(float input) {
+        pulleymotorL.setPower(input);
+        pulleymotorR.setPower(input);
+    }
+
+
     public void FullFunction(Gamepad gamepad) {
         Horizontal(gamepad.left_stick_y);
         Grab(gamepad.right_bumper);
         Rotate(gamepad);
+        Lift(gamepad.right_stick_y);
     }
 
 

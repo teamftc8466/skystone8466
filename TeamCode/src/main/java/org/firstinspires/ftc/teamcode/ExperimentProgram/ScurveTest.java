@@ -11,11 +11,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 //@Disabled
 @TeleOp(name = "S-curve Test")
+@Disabled
 public class ScurveTest extends OpMode {
     //motor declare
     public DcMotor pulleymotor1;
 
-    ElapsedTime elaptime;
+    ElapsedTime elaptime = new ElapsedTime();
     //public double functime = getRuntime();
     public double deltafunctime = 0;
     public double startfunctime = 0;
@@ -29,7 +30,9 @@ public class ScurveTest extends OpMode {
 
     public double timer(double time) {
         deltafunctime = time - startfunctime;
+        telemetry.addData("poop", deltafunctime);
         return deltafunctime;
+
     }
 
     public void loop() {
@@ -38,17 +41,17 @@ public class ScurveTest extends OpMode {
 
 
         //I maka da deadzone
-        if (Math.abs(gamepad1.right_stick_y) > .1) {
+        if (Math.abs(gamepad1.right_stick_y) < .1) {
             pulleymotor1.setPower(0);
+            startfunctime = elaptime.seconds();
         }
         else {
-            startfunctime = elaptime.time(TimeUnit.SECONDS);
-            while (deltafunctime <= 10) {
-                motorpower1 = Math.pow((1 / 10) * timer(elaptime.time(TimeUnit.SECONDS)) * (1 / gamepad1.right_stick_y), 3);
+            while (timer(elaptime.seconds()) <= 10) {
+                motorpower1 = Math.pow((1 / 10) * timer(elaptime.seconds()) * (1 / gamepad1.right_stick_y), 3);
                 pulleymotor1.setPower(motorpower1);
             }
 
-            if (deltafunctime > 10) {
+            if (timer(elaptime.seconds()) > 10) {
                 pulleymotor1.setPower(gamepad1.right_stick_y);
             }
         }

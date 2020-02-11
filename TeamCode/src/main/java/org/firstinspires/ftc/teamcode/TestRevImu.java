@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="TestRevImu", group="FS")
- @Disabled
+@Disabled
 public class TestRevImu extends RobotHardware {
 
     @Override

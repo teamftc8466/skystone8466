@@ -3,13 +3,16 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
+import org.firstinspires.ftc.teamcode.Autonomous.AutoOperation;
+import org.firstinspires.ftc.teamcode.Autonomous.AutonomousCommon;
+
 ///This program is for testing the encoder to meter ratio.
 
 @Autonomous(name = "TestAutonomousGuideByImu", group = "FS")
  @Disabled
 public class TestAutonomousGuideByImu extends AutonomousCommon {
 
-    AutoOperation [] opEncoderTest_ = {
+    AutoOperation[] opEncoderTest_ = {
             // new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_TURN_LEFT, 90),
             new AutoOperation(AutoOperation.OpCode.OP_WAIT, 2),

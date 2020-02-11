@@ -66,8 +66,8 @@ public class Lift {
         resetEncoder(0);
     }
 
-    void enableShowLiftInfo() { showLiftInfo_ = true; }
-    void disableShowLiftInfo() { showLiftInfo_ = false; }
+    public void enableShowLiftInfo() { showLiftInfo_ = true; }
+    public void disableShowLiftInfo() { showLiftInfo_ = false; }
 
     void useEncoder(){
         motorLeft_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -104,7 +104,7 @@ public class Lift {
         moveToTargetPosition(0.6, time);
     }
 
-    boolean isMoveToPositionApplied(Position position) {
+    public boolean isMoveToPositionApplied(Position position) {
         return (moveToPositionAppliedFlag_ == true &&
                 targetMoveToPosition_ == position);
     }
@@ -244,7 +244,7 @@ public class Lift {
         lastSetPower_ = power;
     }
 
-    boolean reachToTargetEncoderCount() {
+    public boolean reachToTargetEncoderCount() {
         final int curr_enc_pos_motor_left = motorRight_.getCurrentPosition();
         int threshold = ENCODER_THRESHOLD_FOR_TARGET_POSITION;
         /*

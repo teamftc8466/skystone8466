@@ -45,11 +45,11 @@ public class RevImu {
 	    return imu_;
     }
 
-    void setTargetHeading(double set_heading) {
+    public void setTargetHeading(double set_heading) {
         targetHeading_ = (set_heading % 360.0);
     }
 
-    double targetHeading() { return targetHeading_; }
+    public double targetHeading() { return targetHeading_; }
 
     // Return current robot heading based on gyro/IMU reading:
     //    - The heading starts from 0 when robot is initialized.

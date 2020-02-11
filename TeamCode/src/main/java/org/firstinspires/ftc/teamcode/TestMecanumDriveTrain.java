@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Autonomous.RobotHardware;
+
 @TeleOp(name="TestMecanumDriveTrain", group="FS")
  @Disabled
 public class TestMecanumDriveTrain extends RobotHardware {

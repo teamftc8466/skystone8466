@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="TestColor", group="FS")
+@TeleOp(name = "TestDetectSkystone", group = "FS")
 @Disabled
-public class TestColor extends RobotHardware {
-
+public class TestDetectSkystone extends RobotHardware {
+    public boolean isRedteam = true;
     @Override
     public void runOpMode() {
         initialize();
@@ -19,18 +19,23 @@ public class TestColor extends RobotHardware {
 
         initializeWhenStart();
 
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-                color_.colorDebug();
-                telemetry.update();
-            }
+        int [] cnt={0, 0, 0};
+        while (opModeIsActive() ) {
+            int pos=getDetectSkystone().detectSkystone(isRedteam, true);
+            if (pos >= 0) cnt[pos]+=1;
+
+            sleep(200);
+            telemetry.addData("=", toString().valueOf(cnt[0]) + " " + toString().valueOf(cnt[1]) + " " + toString().valueOf(cnt[2]));
+            telemetry.update();
         }
 
         cleanUpAtEndOfRun();
     }
 
     public void initialize() {
-        createColor();
+        createDetectSkystone();
+
+        getDetectSkystone().setupTfod();
     }
 
     void initializeWhenStart() {

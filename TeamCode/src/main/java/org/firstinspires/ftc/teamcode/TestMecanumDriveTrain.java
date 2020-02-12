@@ -1,38 +1,33 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name = "TestTensorFlow", group = "FS")
-// @Disabled
-public class TestTensorFlow extends RobotHardware {
+@TeleOp(name="TestMecanumDriveTrain", group="FS")
+ @Disabled
+public class TestMecanumDriveTrain extends RobotHardware {
 
     @Override
     public void runOpMode() {
         initialize();
 
         /** Wait for the game to begin */
-        telemetry.addData(">", "Press Play to start test color program");
+        telemetry.addData(">", "Press Play to start drive train test program");
         telemetry.update();
-
-        detectSkystone_.setupTfod();
 
         waitForStart();
 
         initializeWhenStart();
 
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-
-                detectSkystone_.detectSkystone();
-                telemetry.update();
-            }
+        while (opModeIsActive()) {
+            driveTrain_.driveByGamePad(gamepad1);
         }
 
         cleanUpAtEndOfRun();
     }
 
     public void initialize() {
-        createDetectSkystone();
+        createMecanumDriveTrain(false);
     }
 
     void initializeWhenStart() {

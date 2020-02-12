@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="TestDriveTrain", group="FS")
+@TeleOp(name="TestBallDriveTrain", group="FS")
 @Disabled
-public class TestDriveTrain extends RobotHardware {
+public class TestBallDriveTrain extends RobotHardware {
 
     @Override
     public void runOpMode() {
@@ -19,17 +19,15 @@ public class TestDriveTrain extends RobotHardware {
 
         initializeWhenStart();
 
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-                //TBD
-            }
+        while (opModeIsActive()) {
+            driveTrain_.driveByGamePad(gamepad1);
         }
 
         cleanUpAtEndOfRun();
     }
 
     public void initialize() {
-        createMecanumDriveTrain();
+        driveTrain_.createBallDriveTrain(hardwareMap);
     }
 
     void initializeWhenStart() {

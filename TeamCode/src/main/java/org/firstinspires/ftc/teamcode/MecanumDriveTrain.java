@@ -32,8 +32,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
@@ -50,20 +50,30 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class MecanumDriveTrain {
     private Telemetry telemetry_ = null;
 
-    /// Heading variables                                        // TODO: Correct numbers later
-    static final double MAX_HEADING_CORRECTION_ERROR = 40;
-    static final double MAX_HEADING_CORRECTION_GAIN = 0.012;
-    static final double MAX_HEADING_CORRECTION = 0.95;
+    /// IMU used for detecting heading during autonomous
+    private RevImu imu_ = null;
+    private boolean useImu_ = false;
+    private boolean useImuToCorrectShift_ = false;
+    private final double AUTO_CORRECT_MAX_HEADING_ERROR = 40;  // Max degree to allow heading correction
+    private final double AUTO_CORRECT_HEADING_POWER_PER_DEGREE = 0.0125;
 
     /// Default drivetrain power
-    static final double DEFAULT_DRIVE_POWER = 0.40;              // defualt driving power, change later
-    static final double DEFAULT_TURN_POWER = 0.15;               // default turning power, change later
-    static final double DEFAULT_SHIFT_POWER = 0.15;              // default shifting power, change later
+    static final double DEFAULT_DRIVE_POWER = 0.65;              // default driving power, change later
+    static final double DEFAULT_TURN_POWER = 0.4;                // default turning power, change later
+    static final double DEFAULT_SHIFT_POWER = 0.6;               // default shifting power, change later
 
     /// Encoder length conversion scales                         // TODO: Adjust based on experiments
-    static final double ENCODER_DISTANCE_SCALE = (2000.0 / 1.25);
-    static final double ENCODER_SHIFT_DISTANCE_SCALE = (2000.0 / 1.25);
-    static final double ENCODER_DEGREE_SCALE = (2000.0 / 225.0);
+    static final double ENCODER_DISTANCE_SCALE = (2000.0 / 0.88);
+    static final double ENCODER_SHIFT_DISTANCE_SCALE = (2000.0 / 0.785);
+    static final double ENCODER_DEGREE_SCALE = (2000.0 / 132.0);
+
+    /// Default drivetrain control for teleop
+    static final double JOYSTICK_DEAD_ZONE = 0.1;
+    static final double MAX_JOYSTICK_DRIVE_POWER = 1.0;
+    static final double [] SCALE_JOYSTICK_DRIVE_POWER = {0.0,  0.14, 0.16, 0.18, 0.20,
+            0.22, 0.24, 0.27, 0.30, 0.34,
+            0.38, 0.43, 0.50, 0.60, 0.72,
+            0.85, 1.00};
 
     /// Drive train motors
     private DcMotor motorLF_ = null;
@@ -82,15 +92,17 @@ public class MecanumDriveTrain {
 
 
     /// Constructor
-    public MecanumDriveTrain(DcMotor motor_lf,
-                             DcMotor motor_rf,
-                             DcMotor motor_lb,
-                             DcMotor motor_rb,
+    public MecanumDriveTrain(HardwareMap hardware_map,
+                             RevImu imu,
                              Telemetry telemetry) {
-        motorLF_ = motor_lf;
-        motorRF_ = motor_rf;
-        motorLB_ = motor_lb;
-        motorRB_ = motor_rb;
+        motorLF_ = hardware_map.get(DcMotor.class, "motorLF");
+        motorRF_ = hardware_map.get(DcMotor.class,"motorRF");
+        motorLB_ = hardware_map.get(DcMotor.class,"motorLB");
+        motorRB_ = hardware_map.get(DcMotor.class,"motorRB");
+
+        imu_ = imu;
+        useImu_ = (imu_ != null);
+
         telemetry_ = telemetry;
 
         motorLF_.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -100,9 +112,12 @@ public class MecanumDriveTrain {
 
         ///reverseMotorDirection();
 
-        useEncoder();
         resetEncoder(0);
     }
+
+    boolean useImu() { return useImu_; }
+    void disableToUseImu() { useImu_=false; }
+    void enableToUseImu() { useImu_=(imu_ != null); }
 
     void reverseMotorDirection(){
         motorLF_.setDirection(DcMotor.Direction.REVERSE);
@@ -110,6 +125,11 @@ public class MecanumDriveTrain {
         motorRF_.setDirection(DcMotor.Direction.REVERSE);
         motorRB_.setDirection(DcMotor.Direction.REVERSE);
     }
+
+    DcMotor motorLF() { return motorLF_; }
+    DcMotor motorRF() { return motorRF_; }
+    DcMotor motorLB() { return motorLB_; }
+    DcMotor motorRB() { return motorRB_; }
 
     void useEncoder(){
         motorLF_.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -127,23 +147,108 @@ public class MecanumDriveTrain {
         prevReadEncCntMotorLF_ = 0;
         prevReadEncCntMotorRF_ = 0;
         prevEncCntChangeStartTime_ = time;
+
+        useEncoder();
     }
 
     void driveByGamePad(Gamepad gamepad) {
+        tankDriveByGamePad(gamepad);
+    }
+
+    void tankDriveByGamePad(Gamepad gamepad) {
         double power_lf = 0.0;
         double power_lb = 0.0;
         double power_rf = 0.0;
         double power_rb = 0.0;
 
-        // TBD: Depend on game pad to set power value
+        // left_stick_x ranges from -1 to 1, where -1 is full left and 1 is full right
+        double lsx = -gamepad.left_stick_x;
+        // left_stick_y ranges from -1 to 1, where -1 is full forward and 1 is full backward
+        double lsy = gamepad.left_stick_y;
+
+        // right_stick_x ranges from -1 to 1, where -1 is full left and 1 is full right
+        double rsx = -gamepad.right_stick_x;
+        // right_stick_y ranges from -1 to 1, where -1 is full up, and 1 is full down
+        double rsy = gamepad.right_stick_y;
+
+        if (Math.abs(rsx) >= JOYSTICK_DEAD_ZONE  || Math.abs(rsy) >= JOYSTICK_DEAD_ZONE) {
+            // use right stick to do sidewalk
+            power_lf = rsx + rsy;
+            power_lb = -rsx + rsy;
+            power_rf = rsx - rsy;
+            power_rb = -rsx - rsy;
+
+            power_lf = Range.clip(power_lf, -1, 1);
+            power_lb = Range.clip(power_lb, -1, 1);
+            power_rf = Range.clip(power_rf, -1, 1);
+            power_rb = Range.clip(power_rb, -1, 1);
+
+            // scale the joystick value to make it easier to control the robot at slower speeds.
+            power_lf = scaleJoystickDrivePower(power_lf);
+            power_lb = scaleJoystickDrivePower(power_lb);
+            power_rf = scaleJoystickDrivePower(power_rf);
+            power_rb = scaleJoystickDrivePower(power_rb);
+        } else if (Math.abs(lsx) >= JOYSTICK_DEAD_ZONE  || Math.abs(lsy) >= JOYSTICK_DEAD_ZONE) {
+            //  Use left stick to move/turn the robot
+            power_lf = lsx + lsy;
+            power_rf = lsx - lsy;
+
+            power_lf = Range.clip(power_lf, -1, 1);
+            power_rf = Range.clip(power_rf, -1, 1);
+
+            // scale the joystick value to make it easier to control the robot at slower speeds.
+            power_lf = scaleJoystickDrivePower(power_lf);
+            power_rf = scaleJoystickDrivePower(power_rf);
+
+            power_lb = power_lf;
+            power_rb = power_rf;
+        }
 
         setPower(power_lf, power_lb, power_rf, power_rb);
+    }
+
+    double scaleJoystickDrivePower(double power_val) {
+        int index = (int) (power_val * (SCALE_JOYSTICK_DRIVE_POWER.length - 1));
+        if (index < 0) index = -index;
+        if (index >= SCALE_JOYSTICK_DRIVE_POWER.length) {
+            index = SCALE_JOYSTICK_DRIVE_POWER.length - 1;
+        }
+
+        double ret_power_val = SCALE_JOYSTICK_DRIVE_POWER[index];
+        if (power_val < 0) ret_power_val = -ret_power_val;
+
+        return ret_power_val * MAX_JOYSTICK_DRIVE_POWER;
     }
 
     void driveByMode(DriveTrainMode drive_mode,
                      boolean show_set_motor_info) {
         double power_lf = getMotorLFPowerByMode(drive_mode);
         double power_rf = getMotorRFPowerByMode(drive_mode);
+
+        if (useImu_ == true) {
+            switch (drive_mode) {
+                case FORWARD:
+                case BACKWARD:
+                    {
+                        double heading_diff = imu_.getHeadingDifference(imu_.targetHeading());
+                        if (Math.abs(heading_diff) <= AUTO_CORRECT_MAX_HEADING_ERROR) {
+                            // Prevent incorrect heading error causing robot to spin
+                            if (drive_mode == DriveTrainMode.BACKWARD) heading_diff = -heading_diff;
+
+                            double heading_correct_factor = heading_diff * AUTO_CORRECT_HEADING_POWER_PER_DEGREE;
+                            heading_correct_factor = Range.clip(heading_correct_factor, -0.95, 0.95);
+
+                            // Decrease left power and increase right power if heading is biased to right
+                            // Increase left power and decrease right power if heading is biased to left
+                            power_lf *= (1 - heading_correct_factor);
+                            power_rf *= (1 + heading_correct_factor);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
 
         double power_lb = power_lf;
         double power_rb = power_rf;
@@ -152,6 +257,27 @@ public class MecanumDriveTrain {
             case SHIFT_RIGHT:
                 power_lb = -power_lf;
                 power_rb = -power_lf;
+
+                if (useImu_ == true &&
+                        useImuToCorrectShift_ == true) {
+                    double heading_diff = imu_.getHeadingDifference(imu_.targetHeading());
+                    if (Math.abs(heading_diff) <= AUTO_CORRECT_MAX_HEADING_ERROR) {
+                        double heading_correct_factor = heading_diff * AUTO_CORRECT_HEADING_POWER_PER_DEGREE;
+                        heading_correct_factor = Range.clip(heading_correct_factor, -0.95, 0.95);
+
+                        if (drive_mode == DriveTrainMode.SHIFT_LEFT) {
+                            power_lf *= (1 + heading_correct_factor);
+                            power_rf *= (1 - heading_correct_factor);
+                            power_lb *= (1 - heading_correct_factor);
+                            power_rb *= (1 + heading_correct_factor);
+                        } else {
+                            power_lf *= (1 - heading_correct_factor);
+                            power_rf *= (1 + heading_correct_factor);
+                            power_lb *= (1 + heading_correct_factor);
+                            power_rb *= (1 - heading_correct_factor);
+                        }
+                    }
+                }
                 break;
             default:
                 break;
@@ -162,11 +288,23 @@ public class MecanumDriveTrain {
         if(show_set_motor_info = true) {
             telemetry_.addData("Current drivemode", String.valueOf(drive_mode));
 
+            showHeading(false);
             showSetPower(power_lf, power_lb, power_rf, power_rb, false);
             showEncoderValue(false);
 
             telemetry_.update(); // Keep so that if telemetry is true for both functions, all telemetry will be shown
         }
+    }
+
+    void showHeading(boolean update_flag) {
+        if (imu_ == null) return;
+
+        double heading = imu_.getHeading();
+        double heading_diff = imu_.getHeadingDifference(imu_.targetHeading(), heading);
+        telemetry_.addData("Imu", "used="+String.valueOf(useImu_) +
+                " heading="+ String.valueOf(heading) +
+                " heading_diff=" + String.valueOf(heading_diff));
+        if (update_flag == true) telemetry_.update();
     }
 
     void showSetPower(double power_lf,
@@ -197,13 +335,13 @@ public class MecanumDriveTrain {
     double getMotorLFPowerByMode(DriveTrainMode drive_mode) {
         switch (drive_mode) {
             case FORWARD:
-                return DEFAULT_DRIVE_POWER;
-            case BACKWARD:
                 return -DEFAULT_DRIVE_POWER;
+            case BACKWARD:
+                return DEFAULT_DRIVE_POWER;
             case TURN_LEFT:
-                return -DEFAULT_TURN_POWER;
-            case TURN_RIGHT:
                 return DEFAULT_TURN_POWER;
+            case TURN_RIGHT:
+                return -DEFAULT_TURN_POWER;
             case SHIFT_LEFT:
                 return DEFAULT_SHIFT_POWER;    // Fix later
             case SHIFT_RIGHT:
@@ -218,13 +356,13 @@ public class MecanumDriveTrain {
     double getMotorRFPowerByMode(DriveTrainMode drive_mode) {
         switch (drive_mode) {
             case FORWARD:
-                return -DEFAULT_DRIVE_POWER;
-            case BACKWARD:
                 return DEFAULT_DRIVE_POWER;
+            case BACKWARD:
+                return -DEFAULT_DRIVE_POWER;
             case TURN_LEFT:
-                return -DEFAULT_TURN_POWER;
-            case TURN_RIGHT:
                 return DEFAULT_TURN_POWER;
+            case TURN_RIGHT:
+                return -DEFAULT_TURN_POWER;
             case SHIFT_LEFT:
                 return DEFAULT_SHIFT_POWER;    // Fix later
             case SHIFT_RIGHT:
@@ -251,7 +389,7 @@ public class MecanumDriveTrain {
         power_lf = Range.clip(power_lf, -1, 1);
         power_lb = Range.clip(power_lb, -1, 1);
         power_rf = Range.clip(power_rf, -1, 1);
-        power_rb = Range.clip(power_rf, -1, 1);
+        power_rb = Range.clip(power_rb, -1, 1);
 
         motorLF_.setPower(power_lf);
         motorLB_.setPower(power_lb);
@@ -260,14 +398,16 @@ public class MecanumDriveTrain {
     }
 
     void setPowerFactor(double input_power_factor) {         // Setting boundaries of power factors
-        if (input_power_factor <= 0.33) {
-            powerFactor_ = 0.33;
-        } else if (input_power_factor >= 3.0) {
-            powerFactor_ = 3.0;
+        if (input_power_factor <= 0.1) {
+            powerFactor_ = 0.1;
+        } else if (input_power_factor >= 4.0) {
+            powerFactor_ = 4.0;
         } else {
             powerFactor_ = input_power_factor;
         }
     }
+
+    double powerFactor() { return powerFactor_; }
 
     int convertDistanceToEncoderCount(double distance_in_meters) {
         return (int)(distance_in_meters * (double)ENCODER_DISTANCE_SCALE);
@@ -289,10 +429,10 @@ public class MecanumDriveTrain {
     }
 
     boolean reachToTargetEncoderCount(int target_encoder_cnt) {
-        return (motorLF_.getCurrentPosition() >= target_encoder_cnt &&
-                motorRF_.getCurrentPosition() >= target_encoder_cnt &&
-                motorLB_.getCurrentPosition() >= target_encoder_cnt &&
-                motorRB_.getCurrentPosition() >= target_encoder_cnt);
+        return ((Math.abs(motorLF_.getCurrentPosition()) >= target_encoder_cnt ||
+                 Math.abs(motorLB_.getCurrentPosition()) >= target_encoder_cnt) &&
+                (Math.abs(motorRF_.getCurrentPosition()) >= target_encoder_cnt ||
+                 Math.abs(motorRB_.getCurrentPosition()) >= target_encoder_cnt));
     }
 
     boolean isEncoderStuck(double time) {
@@ -300,7 +440,7 @@ public class MecanumDriveTrain {
         int currEncPosMotorRF_ = motorRF_.getCurrentPosition();
 
         if (currEncPosMotorLF_ != prevReadEncCntMotorLF_ &&
-                currEncPosMotorLF_ != prevReadEncCntMotorRF_){
+                currEncPosMotorRF_ != prevReadEncCntMotorRF_){
             prevReadEncCntMotorLF_ = currEncPosMotorLF_;
             prevReadEncCntMotorRF_ = currEncPosMotorRF_;
             prevEncCntChangeStartTime_ = time;

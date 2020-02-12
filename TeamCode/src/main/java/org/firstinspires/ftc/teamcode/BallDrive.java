@@ -3,25 +3,39 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class BallDrive {
-    private DcMotor motor1 = null;
-    private DcMotor motor2 = null;
-    private DcMotor motor3 = null;
+    public DcMotor lmotor;
+    public DcMotor rmotor;
+    public DcMotor xmotor;
+
+    public Servo lservo;
+    public Servo rservo;
 
     public BallDrive(HardwareMap hdm , Telemetry telemetry) {
-        motor1 = hdm.dcMotor.get("Motor1");
-        motor2 = hdm.dcMotor.get("Motor2");
-        motor3 = hdm.dcMotor.get("Motor2");
-        motor1.setDirection(DcMotorSimple.Direction.FORWARD);
-        motor2.setDirection(DcMotorSimple.Direction.FORWARD);
-        motor3.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        lmotor = hdm.dcMotor.get("MotorL");
+        rmotor = hdm.dcMotor.get("MotorR");
+        xmotor = hdm.dcMotor.get("MotorX");
+
+        lservo = hdm.servo.get("servo1");
+        rservo = hdm.servo.get("servo2");
+
+        lmotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rmotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        xmotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        lmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        xmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         telemetry = telemetry;
     }
 
-    public void vertical(float joystick) {
+    /*public void vertical(double joystick) {
         motor1.setPower(joystick);
         motor2.setPower(joystick);
 
@@ -34,5 +48,5 @@ public class BallDrive {
 
     public void horizontal(float joystick) {
         motor3.setPower(joystick);
-    }
+    }*/
 }

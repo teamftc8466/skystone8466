@@ -2,11 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
-@TeleOp(name="TestLift", group="FS")
+@TeleOp(name="TestGrabber", group="FS")
  @Disabled
-public class TestLift extends RobotHardware {
+public class TestGrabber extends RobotHardware {
 
     static final double  MIN_PRESS_BUTTON_INTERVAL = 0.3;   // Recognize pressed button at least every 0.3 sec
     double lastPressButtonTime_ = 0;
@@ -16,10 +15,7 @@ public class TestLift extends RobotHardware {
     int [] xCnt_ = {0, 0};                 // number of times X is pressed for pads 1 and 2
     int [] yCnt_ = {0, 0};                 // number of times Y is pressed for pads 1 and 2
     int [] lbCnt_ = {0, 0};                // number of times left_bumper is pressed for pads 1 and 2
-    int [] rbCnt_ = {0, 0};                // number of times right_bumper is pressed for pads 1 and 2
-    int [] lsbCnt_ = {0, 0};               // number of times left_joystick is pressed for pads 1 and 2
-    int [] rsbCnt_ = {0, 0};               // number of times right_joystick is pressed for pads 1 and 2
-    boolean lsyActive_ = false;
+    boolean rsyActive_ = false;
 
     @Override
     public void runOpMode() {
@@ -35,14 +31,14 @@ public class TestLift extends RobotHardware {
 
         while (opModeIsActive()) {
             currTime_ = timer_.time();
-            driveLiftByGamePad();
+            driveGrabberByGamePad();
         }
 
         cleanUpAtEndOfRun();
     }
 
     public void initialize() {
-        createLift();
+        createGrabber();
     }
 
     void initializeWhenStart() {
@@ -54,31 +50,30 @@ public class TestLift extends RobotHardware {
         // TBD
     }
 
-    void driveLiftByGamePad() {
+    void driveGrabberByGamePad() {
         final double JOY_STICK_DEAD_ZONE = 0.1;
 
         // left_stick_y is used to control lift up and down and it ranges from -1 to 1, where -1 is full left and 1 is full right
-        double lsy = gamepad2.left_stick_y;
-        if (Math.abs(lsy) > JOY_STICK_DEAD_ZONE) {
+        double rsy = gamepad2.right_stick_y;
+        if (Math.abs(rsy) > JOY_STICK_DEAD_ZONE) {
             aCnt_[1] = 0;
             bCnt_[1] = 0;
             xCnt_[1] = 0;
             yCnt_[1] = 0;
             lbCnt_[1] = 0;
 
-            lsyActive_ = true;
+            if (rsy < 0) grabber_.craneStretchOut(-rsy);
+            else grabber_.craneDrawBack(rsy);
 
-            if (lsy < 0) lift_.moveUp(-lsy, currTime_);
-            else lift_.moveDown(lsy, currTime_);
+            rsyActive_ = true;
 
-            telemetry.addData("LSY", String.valueOf(lsy));
-            lift_.showEncoderValue(true);
+            grabber_.showValues(true);
             return;
         }
 
-        if (lsyActive_ == true) {
-            lift_.setCurrentPositionAsTargetPosition(currTime_);
-            lsyActive_ = false;
+        if (rsyActive_ == true) {
+            grabber_.setCurrentCranePositionAsTargetPosition();
+            rsyActive_ = false;
         }
 
         boolean any_pressed_button_flag = false;
@@ -90,7 +85,16 @@ public class TestLift extends RobotHardware {
                 xCnt_[1] += 1;
                 yCnt_[1] = 0;
                 lbCnt_[1] = 0;
-                lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, currTime_);
+                switch (xCnt_[1] % 4) {
+                    case 1:
+                        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_MAX_STRETCH_OUT_POSITION);
+                        break;
+                    case 3:
+                        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DRAW_BACK_POSITION);
+                        break;
+                    default:
+                        grabber_.stopCrane();
+                }
             } else if (gamepad2.y) {
                 any_pressed_button_flag = true;
                 aCnt_[1] = 0;
@@ -98,7 +102,7 @@ public class TestLift extends RobotHardware {
                 xCnt_[1] = 0;
                 yCnt_[1] += 1;
                 lbCnt_[1] = 0;
-                lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_CATCH, currTime_);
+                grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
             } else if (gamepad2.a) {
                 any_pressed_button_flag = true;
                 aCnt_[1] += 1;
@@ -106,7 +110,8 @@ public class TestLift extends RobotHardware {
                 xCnt_[1] = 0;
                 yCnt_[1] = 0;
                 lbCnt_[1] = 0;
-                lift_.moveToPosition(Lift.Position.LIFT_DELIVER_STONE, currTime_);
+                if ((aCnt_[1] % 2) == 1) grabber_.clampOpen();
+                else grabber_.clampClose();
             } else if (gamepad2.b) {
                 any_pressed_button_flag = true;
                 aCnt_[1] = 0;
@@ -114,30 +119,28 @@ public class TestLift extends RobotHardware {
                 xCnt_[1] = 0;
                 yCnt_[1] = 0;
                 lbCnt_[1] = 0;
-                lift_.moveToPosition(Lift.Position.LIFT_TOP_POSITION, currTime_);
-            } else if (gamepad2.left_bumper) {
-                any_pressed_button_flag = true;
-                aCnt_[1] = 0;
-                bCnt_[1] = 0;
-                xCnt_[1] = 0;
-                yCnt_[1] = 0;
-                lbCnt_[1] += 1;
-                lift_.moveToPosition(Lift.Position.LIFT_BOTTOM_POSITION, currTime_);
+                switch (bCnt_[1] % 4) {
+                    case 0: grabber_.rotationIn(); break;
+                    case 1: grabber_.rotationHalfOut(); break;
+                    case 2: grabber_.rotationOut(); break;
+                    case 3: grabber_.rotationHalfOut(); break;
+                    default: grabber_.rotationIn(); bCnt_[1] = 0;
+                }
             }
         }
 
         if (any_pressed_button_flag == false) {
-            lift_.holdAtTargetPosition(currTime_);
+            grabber_.holdCraneAtTargetPosition();
         } else {
             lastPressButtonTime_ = currTime_;
         }
 
         telemetry.addData("Cnt",
-                          " A="+String.valueOf(aCnt_[1])+
-                           " B="+String.valueOf(bCnt_[1])+
-                           " X="+String.valueOf(xCnt_[1])+
-                           " Y="+String.valueOf(yCnt_[1])+
-                           " lb="+String.valueOf(lbCnt_[1]));
-        lift_.showEncoderValue(true);
+                " A="+String.valueOf(aCnt_[1])+
+                        " B="+String.valueOf(bCnt_[1])+
+                        " X="+String.valueOf(xCnt_[1])+
+                        " Y="+String.valueOf(yCnt_[1])+
+                        " lb="+String.valueOf(lbCnt_[1]));
+        grabber_.showValues(true);
     }
 }

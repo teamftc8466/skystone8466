@@ -12,6 +12,10 @@ public class FullTeleOpLinear extends LinearOpMode {
     LucasMecanum drivetrain;
     Arm arm;
 
+    public int Llifterencoder = 0;
+    public int Rlifterencoder = 0;
+
+
     @Override
     public void runOpMode() {
         initialize();
@@ -21,6 +25,9 @@ public class FullTeleOpLinear extends LinearOpMode {
         resetencoders();
 
         while (opModeIsActive()) {
+            Llifterencoder = arm.pulleymotorL.getCurrentPosition();
+            Rlifterencoder = arm.pulleymotorR.getCurrentPosition();
+
             drivetrain.omniMecanumDrive(gamepad1);
             arm.FullFunction(gamepad2);
             drivetrain.Hook(gamepad1.left_bumper);
@@ -29,6 +36,7 @@ public class FullTeleOpLinear extends LinearOpMode {
             telemetry.addData("Rhook: ", drivetrain.servoR.getPosition());
             telemetry.addData("Rotation time: ", arm.rotationservo.getPosition());
             telemetry.update();
+            arm.HoldPostion(Llifterencoder, Rlifterencoder);
         }
     }
 

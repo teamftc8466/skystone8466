@@ -41,12 +41,12 @@ public class Arm {
         extendermotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void Horizontal(double input) {
+    private void Horizontal(double input) {
 
         extendermotor.setPower(input);
     }
 
-    public void Grab(boolean input) {
+    private void Grab(boolean input) {
         if (input) {
             grabberispressed = true;
         }
@@ -72,12 +72,12 @@ public class Arm {
     }
 
 
-    public void RotateLeft(Gamepad gamepad){
+    private void RotateLeft(Gamepad gamepad){
         if (gamepad.left_trigger >= .5) {
             Lhookispressed = true;
         }
 
-        if (Lhookispressed == true && gamepad.left_trigger <= .5) {
+        if (Lhookispressed && gamepad.left_trigger <= .5) {
             Lhookispressed = false;
 
             switch (angle) {
@@ -104,12 +104,12 @@ public class Arm {
     }
 
 
-    public void RotateRight(Gamepad gamepad) {
+    private void RotateRight(Gamepad gamepad) {
         if (gamepad.right_trigger >= .5) {
         RHookispressed = true;
         }
 
-        if (RHookispressed == true && gamepad.right_trigger <= .5) {
+        if (RHookispressed && gamepad.right_trigger <= .5) {
             RHookispressed = false;
 
             switch (angle) {
@@ -137,13 +137,13 @@ public class Arm {
     }
 
 
-    public void Rotate(Gamepad gamepad) {
+    private void Rotate(Gamepad gamepad) {
         RotateLeft(gamepad);
         RotateRight(gamepad);
     }
 
 
-    public void Lift(float input) {
+    private void Lift(float input) {
         pulleymotorL.setPower(input);
         pulleymotorR.setPower(input);
     }
@@ -156,6 +156,13 @@ public class Arm {
         Lift(gamepad.right_stick_y);
     }
 
+    public void HoldPostion(int Lpos, int Rpos) {
+        pulleymotorL.setTargetPosition(Lpos);
+        pulleymotorR.setTargetPosition(Rpos);
+
+        pulleymotorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        pulleymotorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
 
     public void AutoHorizontal(double power, int movecount) {
         int LeftTarget = extendermotor.getCurrentPosition() + movecount;

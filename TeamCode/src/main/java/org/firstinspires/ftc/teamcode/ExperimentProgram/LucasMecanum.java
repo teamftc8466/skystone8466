@@ -53,6 +53,13 @@ public class LucasMecanum {
         wheelslippage = true;
     }
 
+    public void reset() {
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
 
     public void Hook(boolean input) {
         if (input) {
@@ -96,7 +103,7 @@ public class LucasMecanum {
     double targetblp;
     double targetbrp;
 
-    public void Target() {
+    private void Target() {
         targetflp += frontLeftPower;
         targetfrp += frontRightPower;
         targetblp += backLeftPower;
@@ -105,7 +112,7 @@ public class LucasMecanum {
         Error(targetflp, targetfrp, targetblp, targetbrp);
     }
 
-    public void Error(double flp, double frp, double blp, double brp) {
+    private void Error(double flp, double frp, double blp, double brp) {
         double flperror = flp - frontLeft.getCurrentPosition();
         double frperror = frp - frontLeft.getCurrentPosition();
         double blperror = blp - frontLeft.getCurrentPosition();
@@ -154,11 +161,11 @@ public class LucasMecanum {
         omnimecanumdrivepowers(hypotenuse, angle, turn);
     }
 
-    public void omnimecanumdrivepowers(double power, double angle, double turn) {
+    private void omnimecanumdrivepowers(double power, double angle, double turn) {
         frontLeftPower = (power * Math.cos(angle - (Math.PI / 4)) - Math.sin(angle) * turn);
-        backLeftPower = (power * Math.sin(angle - (Math.PI / 4)) - Math.cos(angle) * turn); //back
+        backLeftPower = (power * Math.sin(angle - (Math.PI / 4)) + Math.cos(angle) * turn); //back
         frontRightPower = -(power * Math.sin(angle - (Math.PI / 4)) + Math.cos(angle) * turn);
-        backRightPower = -(power * Math.cos(angle - (Math.PI / 4)) + Math.sin(angle) * turn); //back
+        backRightPower = -(power * Math.cos(angle - (Math.PI / 4)) - Math.sin(angle) * turn); //back
 
         if (wheelslippage == true) {
             Target();
@@ -174,7 +181,7 @@ public class LucasMecanum {
         backRightPower = gamepad.left_stick_y + gamepad.left_stick_x;
         setMecanumDrive(frontLeftPower, backLeftPower, frontRightPower, backRightPower);
     }*/
-    public void setMecanumDrive(double frontL, double backL, double frontR, double backR) {
+    private void setMecanumDrive(double frontL, double backL, double frontR, double backR) {
 
 
         // For Deadzones

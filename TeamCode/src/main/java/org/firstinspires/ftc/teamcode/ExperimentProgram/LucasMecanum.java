@@ -162,10 +162,10 @@ public class LucasMecanum {
     }
 
     private void omnimecanumdrivepowers(double power, double angle, double turn) {
-        frontLeftPower = (power * Math.cos(angle - (Math.PI / 4)) - Math.sin(angle) * turn);
-        backLeftPower = (power * Math.sin(angle - (Math.PI / 4)) + Math.cos(angle) * turn); //back
-        frontRightPower = -(power * Math.sin(angle - (Math.PI / 4)) + Math.cos(angle) * turn);
-        backRightPower = -(power * Math.cos(angle - (Math.PI / 4)) - Math.sin(angle) * turn); //back
+        frontLeftPower = (power * Math.cos(angle - (Math.PI / 4)) - Math.cos(angle) * turn);
+        backLeftPower = (power * Math.sin(angle - (Math.PI / 4)) - Math.sin(angle) * turn); //back
+        frontRightPower = -(power * Math.sin(angle - (Math.PI / 4)) + Math.sin(angle) * turn);
+        backRightPower = -(power * Math.cos(angle - (Math.PI / 4)) + Math.cos(angle) * turn); //back
 
         if (wheelslippage == true) {
             Target();

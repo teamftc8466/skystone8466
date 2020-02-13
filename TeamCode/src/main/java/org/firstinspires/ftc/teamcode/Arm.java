@@ -10,15 +10,18 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Arm {
+
     public DcMotor extendermotor;
     public Servo rotationservo;
     public Servo grabbingservo;
 
     public int open = 0;//0 = open for the state of the servo
 
-    public boolean Lispressed = false;
-    public boolean Rispressed = false;
+    public boolean Lhookispressed = false;
+    public boolean RHookispressed = false;
     public int angle = 0;
+
+    public boolean grabberispressed = false;
 
     //still need to set min and max, but problem with math class
 
@@ -35,16 +38,22 @@ public class Arm {
         extendermotor.setPower(input);
     }
 
-    public void Grab(boolean input) {
+    private void Grab(boolean input) {
         if (input) {
+            grabberispressed = true;
+        }
+
+        if (input == false && grabberispressed) {
+            grabberispressed = false;
+
             switch (open) {
                 case 0:
-                    grabbingservo.setPosition(.8);
+                    grabbingservo.setPosition(.1);
                     open = 1;
                     break;
 
                 case 1:
-                    grabbingservo.setPosition(.45);
+                    grabbingservo.setPosition(.5);
                     open = 0;
                     break;
 
@@ -55,42 +64,40 @@ public class Arm {
     }
 
 
-    public void RotateLeft(Gamepad gamepad){
-        if (gamepad.right_trigger >= .5) {
-            Lispressed = true;
+    private void RotateLeft(Gamepad gamepad){
+        if (gamepad.left_trigger >= .5) {
+            Lhookispressed = true;
         }
 
-        if (Lispressed == true && gamepad.right_trigger <= .5) {
-            Lispressed = false;
+        if (Lhookispressed && gamepad.left_trigger <= .5) {
+            Lhookispressed = false;
 
             switch (angle) {
                 case 0:
                     rotationservo.setPosition(0);
-                    angle = 1;
                     break;
 
                 case 1:
-                    rotationservo.setPosition(90);
-                    angle = 2;
+                    rotationservo.setPosition(.45);
+                    angle = 0;
                     break;
-
-                case 2:
-                    rotationservo.setPosition(180);
 
                 default:
                     angle = 1;
+
+                    break;
             }
         }
     }
 
 
-    public void RotateRight(Gamepad gamepad) {
+    private void RotateRight(Gamepad gamepad) {
         if (gamepad.right_trigger >= .5) {
-        Rispressed = true;
+            RHookispressed = true;
         }
 
-        if (Rispressed == true && gamepad.right_trigger <= .5) {
-            Rispressed = false;
+        if (RHookispressed && gamepad.right_trigger <= .5) {
+            RHookispressed = false;
 
             switch (angle) {
                 case 0:
@@ -99,15 +106,13 @@ public class Arm {
                     break;
 
                 case 1:
-                    rotationservo.setPosition(90);
-                    angle = 2;
+                    rotationservo.setPosition(.45);
                     break;
-
-                case 2:
-                    rotationservo.setPosition(180);
 
                 default:
                     angle = 1;
+
+                    break;
             }
         }
     }

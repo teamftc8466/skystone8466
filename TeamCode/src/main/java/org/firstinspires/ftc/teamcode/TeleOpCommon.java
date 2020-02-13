@@ -108,8 +108,8 @@ public class TeleOpCommon extends RobotHardware {
     //       + Released: do nothing
     //   - right bumper: Repeat following modes
     //      + Pressed once: hook down
-    //      - Released twice: hook up
-    //    - Button A: used to enable display robot status
+    //      - Pressed twice: hook up
+    //    - Button A: used to enable display robot status. After pressing 5 times,
     //      - Pressed once: show gamepad info
     //      - Pressed twice: show drive train info
     //      - Pressed third time: show lift info
@@ -247,7 +247,6 @@ public class TeleOpCommon extends RobotHardware {
             case A:
                 if (enforceToDrawbackCraneToEnd_ == true) break;
 
-                /* // Disable use rotation servo
                 if (grabber_ != null){
                     int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.B);
                     if ((cnt % 2) != 0) grabber_.rotationOut();
@@ -256,7 +255,6 @@ public class TeleOpCommon extends RobotHardware {
                     allowAutoCatchStone_ = false;
                     autoCloseClampForCatchStoneApplied_ = false;
                 }
-                */
                 break;
             case B:
                 if (enforceToDrawbackCraneToEnd_ == true) break;
@@ -404,7 +402,7 @@ public class TeleOpCommon extends RobotHardware {
         grabber_.setCranePower(0);
         grabber_.resetCraneWithMoveToPositionApplied();
         grabber_.resetEncoder(timer_.time());
-        sleep(100);
+        // sleep(100);
     }
 
     void applyEnforceToDrawbackCraneToEnd() {

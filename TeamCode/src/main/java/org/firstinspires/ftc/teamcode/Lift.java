@@ -33,6 +33,7 @@ public class Lift {
     // Since the motor cannot be exactly accurate mostly due to the momentum of the linear slide,
     // this threshold allows for some wiggle room
     static final int ENCODER_THRESHOLD_FOR_TARGET_POSITION = 15;
+    static final int ENCODER_CNT_FOR_USE_FULL_LIFT_POWER = (Position.LIFT_TOP_POSITION.getValue() - 500);
 
     /// Encoder time out variables
     static final double AUTO_ENC_STUCK_TIME_OUT = 2.0;
@@ -162,12 +163,14 @@ public class Lift {
 
         double set_power = 0;
         if (curr_enc_pos_motor_right < encoderCntForTargetPosition_) {
-            double used_time = time - startTimeToTargetPosition_;
+            final double used_time = time - startTimeToTargetPosition_;
             set_power = scaleLiftUpPowerByTime(1.0, used_time);
             if (set_power > power_val) set_power = power_val;
 
-            int enc_diff = encoderCntForTargetPosition_ - curr_enc_pos_motor_right;
-            if (enc_diff < 10) {
+            final int enc_diff = encoderCntForTargetPosition_ - curr_enc_pos_motor_right;
+            if (encoderCntForTargetPosition_ >= ENCODER_CNT_FOR_USE_FULL_LIFT_POWER) {
+                if (used_time > 0.5) set_power = power_val;
+            } else if (enc_diff < 10) {
                 if (set_power > 0.05) set_power = 0.05;
             } else if (enc_diff < 50) {
                 if (set_power > 0.2) set_power = 0.2;
@@ -177,12 +180,12 @@ public class Lift {
                 if (set_power > 0.7) set_power = 0.7;
             }
         } else if (curr_enc_pos_motor_right > encoderCntForTargetPosition_) {
-            double used_time = time - startTimeToTargetPosition_;
+            final double used_time = time - startTimeToTargetPosition_;
             set_power = scaleLiftDownPowerByTime(1.0, used_time);
             if (set_power > power_val) set_power = power_val;
             if (set_power > MAX_MOVE_DOWN_POWER) set_power = MAX_MOVE_DOWN_POWER;
 
-            int enc_diff = curr_enc_pos_motor_right - encoderCntForTargetPosition_;
+            final int enc_diff = curr_enc_pos_motor_right - encoderCntForTargetPosition_;
             if (enc_diff < 10) {
                 // if (encoderCntForTargetPosition_ > Position.LIFT_DELIVER_STONE.getValue()) set_power = 0.1;
                 // else set_power = 0;

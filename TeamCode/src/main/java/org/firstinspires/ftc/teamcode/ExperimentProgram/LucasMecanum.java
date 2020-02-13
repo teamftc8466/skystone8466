@@ -53,6 +53,13 @@ public class LucasMecanum {
         wheelslippage = true;
     }
 
+    public void reset() {
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
 
     public void Hook(boolean input) {
         if (input) {
@@ -156,9 +163,9 @@ public class LucasMecanum {
 
     public void omnimecanumdrivepowers(double power, double angle, double turn) {
         frontLeftPower = (power * Math.cos(angle - (Math.PI / 4)) - Math.sin(angle) * turn);
-        backLeftPower = (power * Math.sin(angle - (Math.PI / 4)) - Math.cos(angle) * turn); //back
+        backLeftPower = (power * Math.sin(angle - (Math.PI / 4)) + Math.cos(angle) * turn); //back
         frontRightPower = -(power * Math.sin(angle - (Math.PI / 4)) + Math.cos(angle) * turn);
-        backRightPower = -(power * Math.cos(angle - (Math.PI / 4)) + Math.sin(angle) * turn); //back
+        backRightPower = -(power * Math.cos(angle - (Math.PI / 4)) - Math.sin(angle) * turn); //back
 
         if (wheelslippage == true) {
             Target();

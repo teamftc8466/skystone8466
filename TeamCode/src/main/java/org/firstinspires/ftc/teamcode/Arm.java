@@ -7,8 +7,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 public class Arm {
     public DcMotor extendermotor, pulleymotorL, pulleymotorR;
     public Servo rotationservo;
@@ -16,11 +14,11 @@ public class Arm {
 
     public int open = 0;//0 = open for the state of the servo
 
-    public boolean Lispressed = false;
-    public boolean Rispressed = false;
+    public boolean Lhookispressed = false;
+    public boolean RHookispressed = false;
     public int angle = 0;
 
-    //still need to set min and max, but problem with math class
+    public boolean grabberispressed = false;
 
     public Arm(HardwareMap hwm) {
         pulleymotorL = hwm.get(DcMotor.class, "motorLiftLeft");
@@ -37,6 +35,12 @@ public class Arm {
         pulleymotorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
+    public void reset() {
+        pulleymotorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pulleymotorR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendermotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
     public void Horizontal(double input) {
 
         extendermotor.setPower(input);
@@ -44,14 +48,20 @@ public class Arm {
 
     public void Grab(boolean input) {
         if (input) {
+            grabberispressed = true;
+        }
+
+        if (input == false) {
+            grabberispressed = false;
+
             switch (open) {
                 case 0:
-                    grabbingservo.setPosition(.8);
+                    grabbingservo.setPosition(.1);
                     open = 1;
                     break;
 
                 case 1:
-                    grabbingservo.setPosition(.45);
+                    grabbingservo.setPosition(.5);
                     open = 0;
                     break;
 
@@ -63,29 +73,32 @@ public class Arm {
 
 
     public void RotateLeft(Gamepad gamepad){
-        if (gamepad.right_trigger >= .5) {
-            Lispressed = true;
+        if (gamepad.left_trigger >= .5) {
+            Lhookispressed = true;
         }
 
-        if (Lispressed == true && gamepad.right_trigger <= .5) {
-            Lispressed = false;
+        if (Lhookispressed == true && gamepad.left_trigger <= .5) {
+            Lhookispressed = false;
 
             switch (angle) {
                 case 0:
                     rotationservo.setPosition(0);
-                    angle = 1;
                     break;
 
                 case 1:
-                    rotationservo.setPosition(90);
-                    angle = 2;
+                    rotationservo.setPosition(.45);
+                    angle = 0;
                     break;
 
                 case 2:
-                    rotationservo.setPosition(180);
+                    rotationservo.setPosition(1);
+                    angle = 1;
 
+                    break;
                 default:
                     angle = 1;
+
+                    break;
             }
         }
     }
@@ -93,11 +106,11 @@ public class Arm {
 
     public void RotateRight(Gamepad gamepad) {
         if (gamepad.right_trigger >= .5) {
-        Rispressed = true;
+        RHookispressed = true;
         }
 
-        if (Rispressed == true && gamepad.right_trigger <= .5) {
-            Rispressed = false;
+        if (RHookispressed == true && gamepad.right_trigger <= .5) {
+            RHookispressed = false;
 
             switch (angle) {
                 case 0:
@@ -106,15 +119,19 @@ public class Arm {
                     break;
 
                 case 1:
-                    rotationservo.setPosition(90);
+                    rotationservo.setPosition(.45);
                     angle = 2;
                     break;
 
                 case 2:
-                    rotationservo.setPosition(180);
+                    rotationservo.setPosition(1);
+
+                    break;
 
                 default:
                     angle = 1;
+
+                    break;
             }
         }
     }

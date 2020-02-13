@@ -19,8 +19,8 @@ public class LifterTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        if (Math.abs(gamepad1.left_stick_y) > .1) {
-            lifter.manualdrive(gamepad1.left_stick_y);
+        if (Math.abs(gamepad2.right_stick_y) > .1) {
+            lifter.manualdrive(gamepad2.right_stick_y);
         }
         else {
             lifter.holdposition();

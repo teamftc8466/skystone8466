@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Arm {
-    public DcMotor extendermotor, pulleymotorL, pulleymotorR;
+    public DcMotor extendermotor;
     public Servo rotationservo;
     public Servo grabbingservo;
 
@@ -23,18 +23,11 @@ public class Arm {
     //still need to set min and max, but problem with math class
 
     public Arm(HardwareMap hwm) {
-        pulleymotorL = hwm.get(DcMotor.class, "motorLiftLeft");
-        pulleymotorR = hwm.get(DcMotor.class, "motorLiftRight");
         extendermotor = hwm.get(DcMotor.class, "craneMotor");
         rotationservo = hwm.get(Servo.class, "rotationServo");
         grabbingservo = hwm.get(Servo.class, "clampServo");
 
         extendermotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        pulleymotorL.setDirection(DcMotorSimple.Direction.FORWARD);
-        pulleymotorR.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        pulleymotorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        pulleymotorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void Horizontal(double input) {
@@ -126,17 +119,13 @@ public class Arm {
     }
 
 
-    public void Lift(float input) {
-        pulleymotorL.setPower(input);
-        pulleymotorR.setPower(input);
-    }
+
 
 
     public void FullFunction(Gamepad gamepad) {
         Horizontal(gamepad.left_stick_y);
         Grab(gamepad.right_bumper);
         Rotate(gamepad);
-        Lift(gamepad.right_stick_y);
     }
 
 

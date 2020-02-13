@@ -21,7 +21,8 @@ public class Lifter {
         motorL.setDirection(DcMotorSimple.Direction.FORWARD);
         motorR.setDirection(DcMotorSimple.Direction.REVERSE);
         this.telemetry = telemetry;
-
+        motorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
     public void manualdrive(float power){
         motorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

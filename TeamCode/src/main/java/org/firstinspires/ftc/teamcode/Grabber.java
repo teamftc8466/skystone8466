@@ -25,9 +25,9 @@ public class Grabber {
     };
 
     public enum RotationPosition {
-        ROTATION_IN(50),
-        ROTATION_HALF_OUT(95),
-        ROTATION_OUT(140);
+        ROTATION_IN(15),
+        ROTATION_HALF_OUT(75),
+        ROTATION_OUT(135);
 
         private final int val_;
 

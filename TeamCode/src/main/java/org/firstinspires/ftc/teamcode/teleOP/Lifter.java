@@ -30,6 +30,9 @@ public class Lifter {
         motorL.setPower(power);
         motorR.setPower(power);
         isholding = false;
+        telemetry.addData("Lifter L", motorL.getCurrentPosition());
+        telemetry.addData("Lifter R",motorR.getCurrentPosition());
+        telemetry.update();
     }
 
     public void holdposition(){
@@ -41,6 +44,9 @@ public class Lifter {
             holdpositionL = motorL.getCurrentPosition();
             holdpositionR = motorR.getCurrentPosition();
             isholding = true;
+            telemetry.addData("Lifter L", motorL.getCurrentPosition());
+            telemetry.addData("Lifter R", motorR.getCurrentPosition());
+            telemetry.update();
         }
         if (isholding == true) {
             motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -49,6 +55,9 @@ public class Lifter {
             motorR.setTargetPosition(holdpositionR);
             motorL.setPower(.5);
             motorR.setPower(.5);
+            telemetry.addData("Lifter L", motorL.getCurrentPosition());
+            telemetry.addData("Lifter R", motorR.getCurrentPosition());
+            telemetry.update();
         }
     }
 

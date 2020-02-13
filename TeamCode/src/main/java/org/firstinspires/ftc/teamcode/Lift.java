@@ -108,7 +108,7 @@ public class Lift {
         return (moveToPositionAppliedFlag_ == true &&
                 targetMoveToPosition_ == position);
     }
-
+    //Ignore this line
     // Time is used to allow us to implement the control by using the power in the s-curve
     // i.e., at beginning of moving to target position, we cannot use full power to immediately
     // and the power is increased with time till reach to the full power after certain time.

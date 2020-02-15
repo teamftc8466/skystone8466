@@ -14,6 +14,8 @@ public class Lifter {
     private boolean isholding = false;
     private static final int MIN_HOLD_POSITION = 238;
     private Telemetry telemetry = null;
+    private static final int MAX_POSITION = 2160;
+    private static final int MIN_POSITION = 100;
 
     private int readyDrop = 525;
     private int driverheight = 0;
@@ -31,27 +33,49 @@ public class Lifter {
         motorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
-    public void manualdrive(float power){
-        motorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        if (power < 0 ) {
+
+    public void driveup (double power){
+        if (Math.abs(motorR.getCurrentPosition())< MAX_POSITION){
+            motorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorL.setPower(power);
             motorR.setPower(power);
         }
-        else {
-            motorL.setPower(.5*power);
-            motorR.setPower(.5*power);
+    }
+
+    public void drivedown (double power){
+        if (Math.abs(motorL.getCurrentPosition())> MIN_POSITION){
+            motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motorR.setPower(power);
+            motorL.setPower(power);
         }
-        isholding = false;
-        telemetry.addData("Lifter L", motorL.getCurrentPosition());
-        telemetry.addData("Lifter R",motorR.getCurrentPosition());
-        telemetry.update();
+        else{
+            motorL.setPower(0);
+            motorR.setPower(0);
+        }
+    }
+    public void manualdrive(float power){
+        if (power >=.1){
+            drivedown(.5 * power );
+            isholding = false;
+        }
+        else if (power<=-.1){
+            driveup(power);
+            isholding = false;
+        }
+
+        telem();
     }
 
     public void holdposition(){
 
-        if (Math.abs(motorL.getCurrentPosition())<MIN_HOLD_POSITION)
+        if (Math.abs(motorL.getCurrentPosition())<MIN_HOLD_POSITION){
+            motorL.setPower(0);
+            motorR.setPower(0);
             return;
+        }
+
 
         if (isholding == false) {
             holdpositionL = motorL.getCurrentPosition();
@@ -66,11 +90,13 @@ public class Lifter {
             motorL.setPower(.5);
             motorR.setPower(.5);
         }
+        telem();
     }
 
     public void telem() {
         telemetry.addData("Lifter L", motorL.getCurrentPosition());
         telemetry.addData("Lifter R", motorR.getCurrentPosition());
+        telemetry.update();
     }
 
     private int SetHeight(boolean inc, boolean dec) {

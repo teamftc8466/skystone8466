@@ -16,6 +16,7 @@ public class FullTeleOpLinear extends LinearOpMode {
     public int Llifterencoder = 0;
     public int Rlifterencoder = 0;
 
+    private boolean autocollect = false;
 
     @Override
     public void runOpMode() {
@@ -50,6 +51,13 @@ public class FullTeleOpLinear extends LinearOpMode {
             if (gamepad1.y) {
                 Compaction();
             }
+
+            AutoCollect();
+
+            if (gamepad2.right_bumper) {
+                lifter.RaiseToCollectHeight();
+            }
+
             System.out.println("Time after lifter: " + super.getRuntime());
 
             lifter.telem();
@@ -68,6 +76,22 @@ public class FullTeleOpLinear extends LinearOpMode {
         drivetrain.MechanumCompact();
         arm.ArmCompact();
         lifter.LifterCompact();
+    }
+
+    private void AutoCollect() {
+        if (gamepad2.b && autocollect == false) {
+            lifter.RaiseToCollectHeight();
+            arm.AutoCollectHorizontal();
+            arm.grabbingservo.setPosition(.1);
+            autocollect = true;
+        }
+
+        if (gamepad2.b == false && autocollect) {
+            lifter.LowerToCollectHeight();
+            sleep(10);
+            arm.grabbingservo.setPosition(.5);
+            autocollect = false;
+        }
     }
 
     private void initialize() {

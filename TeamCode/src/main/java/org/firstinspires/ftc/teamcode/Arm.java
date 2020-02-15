@@ -30,14 +30,19 @@ public class Arm {
         grabbingservo = hwm.get(Servo.class, "clampServo");
 
         extendermotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        extendermotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         extendermotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void Horizontal(float input) {
-
+        extendermotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extendermotor.setPower(input);
+    }
+
+    public void AutoCollectHorizontal() {
+        extendermotor.setTargetPosition(200);
+        extendermotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extendermotor.setPower(1);
     }
 
     private void Grab(boolean input) {
@@ -102,6 +107,7 @@ public class Arm {
     public void ArmCompact() {
         rotationservo.setPosition(0);
 
+        extendermotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extendermotor.setTargetPosition(0);
         extendermotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         extendermotor.setPower(1);

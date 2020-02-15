@@ -201,8 +201,8 @@ public class LucasMecanum {
         if (Math.abs(gamepad.left_stick_y) < .1 && Math.abs(gamepad.left_stick_x) < .1) {
             frontLeftPower = -turn;
             backLeftPower = turn; //back
-            frontRightPower = -turn;
-            backRightPower = turn; //back
+            frontRightPower = turn;
+            backRightPower = -turn; //back
         }
         else {
             frontLeftPower = (power * Math.cos(angle - (Math.PI / 4)) + Math.cos(angle) * turn);

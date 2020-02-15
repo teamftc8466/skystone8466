@@ -15,13 +15,12 @@ public class Arm {
     public Servo rotationservo;
     public Servo grabbingservo;
 
-    public int open = 0;//0 = open for the state of the servo
+    private int open = 0;//0 = open for the state of the servo
 
-    public boolean Lhookispressed = false;
-    public boolean RHookispressed = false;
-    public int angle = 0;
+    private boolean Rtrigispressed = false;
+    private int angle = 1;
 
-    public boolean grabberispressed = false;
+    private boolean grabberispressed = false;
 
     //still need to set min and max, but problem with math class
 
@@ -31,6 +30,7 @@ public class Arm {
         grabbingservo = hwm.get(Servo.class, "clampServo");
 
         extendermotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        extendermotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void Horizontal(double input) {
@@ -63,82 +63,37 @@ public class Arm {
         }
     }
 
+    private void Rotate(Gamepad gamepad) {
+        if (extendermotor.getCurrentPosition() <= -1793) {
+            if (gamepad.right_trigger >= .5) {
+                Rtrigispressed = true;
+            }
 
-    private void RotateLeft(Gamepad gamepad){
-        if (gamepad.left_trigger >= .5) {
-            Lhookispressed = true;
-        }
+            if (Rtrigispressed && gamepad.right_trigger <= .5) {
+                Rtrigispressed = false;
 
-        if (Lhookispressed && gamepad.left_trigger <= .5) {
-            Lhookispressed = false;
+                switch (angle) {
+                    case 0:
+                        rotationservo.setPosition(0);
+                        angle = 1;
+                        break;
 
-            switch (angle) {
-                case 0:
-                    rotationservo.setPosition(0);
-                    break;
+                        case 1:
+                            rotationservo.setPosition(.45);
+                            angle = 0;
+                            break;
 
-                case 1:
-                    rotationservo.setPosition(.45);
-                    angle = 0;
-                    break;
-
-                default:
-                    angle = 1;
-
-                    break;
+                            default:
+                                angle = 1;
+                                break;
+                }
             }
         }
     }
-
-
-    private void RotateRight(Gamepad gamepad) {
-        if (gamepad.right_trigger >= .5) {
-            RHookispressed = true;
-        }
-
-        if (RHookispressed && gamepad.right_trigger <= .5) {
-            RHookispressed = false;
-
-            switch (angle) {
-                case 0:
-                    rotationservo.setPosition(0);
-                    angle = 1;
-                    break;
-
-                case 1:
-                    rotationservo.setPosition(.45);
-                    break;
-
-                default:
-                    angle = 1;
-
-                    break;
-            }
-        }
-    }
-
-
-    public void Rotate(Gamepad gamepad) {
-        RotateLeft(gamepad);
-        RotateRight(gamepad);
-    }
-
-
-
-
 
     public void FullFunction(Gamepad gamepad) {
         Horizontal(gamepad.left_stick_y);
         Grab(gamepad.right_bumper);
         Rotate(gamepad);
-    }
-
-
-    public void AutoHorizontal(double power, int movecount) {
-        int LeftTarget = extendermotor.getCurrentPosition() + movecount;
-
-        extendermotor.setTargetPosition(LeftTarget);
-
-        extendermotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 }

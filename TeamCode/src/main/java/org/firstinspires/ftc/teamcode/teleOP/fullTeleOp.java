@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleOP;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.teamcode.ExperimentProgram.LucasMecanum;
 
 //@Disabled
 @TeleOp(name = "completeTeleOp", group = "full")
+@Disabled
 public class fullTeleOp extends OpMode {
     LucasMecanum drivetrain;
     Arm arm;

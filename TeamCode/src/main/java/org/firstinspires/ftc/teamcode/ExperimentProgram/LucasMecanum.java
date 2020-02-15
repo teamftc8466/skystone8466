@@ -19,6 +19,7 @@ public class LucasMecanum {
     public Servo servoR;
 
     public int open = 0;//0 = up
+    private boolean lbispressed = false;
 
     public boolean wheelslippage = false;
 
@@ -37,6 +38,11 @@ public class LucasMecanum {
 
         servoL = hwm.servo.get("leftHookServo");
         servoR = hwm.servo.get("rightHookServo");
+
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     public void StartEncoders() {
@@ -63,6 +69,12 @@ public class LucasMecanum {
 
     public void Hook(boolean input) {
         if (input) {
+            lbispressed = true;
+        }
+
+        if (input == false && lbispressed) {
+            lbispressed = false;
+
             switch (open) {
                 case 0:
                     servoL.setPosition(.7);
@@ -80,6 +92,21 @@ public class LucasMecanum {
                     open = 0;
             }
         }
+    }
+
+
+    public void Brake() {
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    private void Float() {
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
     /*
     FrontLeft = Ch3 + Ch1 + Ch4
@@ -154,20 +181,36 @@ public class LucasMecanum {
         setMecanumDrive(frontLeftPower, backLeftPower, frontRightPower, backRightPower);
     }*/
 
+    public void Zero() {
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+    }
+
     public void omniMecanumDrive(Gamepad gamepad) {
         double hypotenuse = Math.sqrt(gamepad.left_stick_y*gamepad.left_stick_y+gamepad.left_stick_x*gamepad.left_stick_x);
         double angle = Math.atan2(gamepad.left_stick_y , gamepad.left_stick_x);
         double turn = gamepad.right_stick_x;
-        omnimecanumdrivepowers(hypotenuse, angle, turn);
+        omnimecanumdrivepowers(hypotenuse, angle, turn, gamepad);
     }
 
-    private void omnimecanumdrivepowers(double power, double angle, double turn) {
-        frontLeftPower = (power * Math.cos(angle - (Math.PI / 4)) - Math.cos(angle) * turn);
-        backLeftPower = (power * Math.sin(angle - (Math.PI / 4)) - Math.sin(angle) * turn); //back
-        frontRightPower = -(power * Math.sin(angle - (Math.PI / 4)) + Math.sin(angle) * turn);
-        backRightPower = -(power * Math.cos(angle - (Math.PI / 4)) + Math.cos(angle) * turn); //back
+    private void omnimecanumdrivepowers(double power, double angle, double turn, Gamepad gamepad) {
+        Float();
 
-        if (wheelslippage == true) {
+        if (Math.abs(gamepad.left_stick_y) < .1 && Math.abs(gamepad.left_stick_x) < .1) {
+            frontLeftPower = -turn;
+            backLeftPower = -turn; //back
+            frontRightPower = turn;
+            backRightPower = turn; //back
+        }
+        else {
+            frontLeftPower = (power * Math.cos(angle - (Math.PI / 4)) + Math.cos(angle) * turn);
+            backLeftPower = (power * Math.sin(angle - (Math.PI / 4)) + Math.sin(angle) * turn); //back
+            frontRightPower = -(power * Math.sin(angle - (Math.PI / 4)) - Math.sin(angle) * turn);
+            backRightPower = -(power * Math.cos(angle - (Math.PI / 4)) - Math.cos(angle) * turn); //back
+        }
+        if (wheelslippage) {
             Target();
         }
         else {

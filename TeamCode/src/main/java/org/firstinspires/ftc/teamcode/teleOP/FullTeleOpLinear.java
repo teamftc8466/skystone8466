@@ -26,21 +26,16 @@ public class FullTeleOpLinear extends LinearOpMode {
         while (opModeIsActive()) {
             super.resetStartTime();
 
-            if (Math.abs(gamepad1.right_stick_y) < .1 && Math.abs(gamepad1.left_stick_y) < .1 && Math.abs(gamepad1.left_stick_x) < .1) {
+            if (Math.abs(gamepad1.right_stick_x) < .1 && Math.abs(gamepad1.left_stick_y) < .1 && Math.abs(gamepad1.left_stick_x) < .1) {
                 drivetrain.Brake();
                 drivetrain.Zero();
             }
             else {
                 drivetrain.omniMecanumDrive(gamepad1);
             }
-            System.out.println("Time after omni: " + super.getRuntime());
 
             arm.FullFunction(gamepad2);
-            System.out.println("Time after arm: " + super.getRuntime());
-
             drivetrain.Hook(gamepad1.left_bumper);
-            System.out.println("Time after hook: " + super.getRuntime());
-
 
             if (Math.abs(gamepad2.right_stick_y) > .1) {
                 lifter.manualdrive(gamepad2.right_stick_y);
@@ -52,6 +47,9 @@ public class FullTeleOpLinear extends LinearOpMode {
                 lifter.ExtendedFunction(gamepad2);
             }
 
+            if (gamepad1.y) {
+                Compaction();
+            }
             System.out.println("Time after lifter: " + super.getRuntime());
 
             lifter.telem();
@@ -61,15 +59,23 @@ public class FullTeleOpLinear extends LinearOpMode {
             telemetry.addData("Rotation time: ", arm.rotationservo.getPosition());
             telemetry.addData("horizonatal: ", arm.extendermotor.getCurrentPosition());
             telemetry.update();
+
+            sleep(100);
         }
     }
 
-        private void initialize() {
-            drivetrain = new LucasMecanum(hardwareMap,telemetry);
-            arm = new Arm(hardwareMap);
-            lifter = new Lifter(hardwareMap, telemetry);
+    private void Compaction() {
+        drivetrain.MechanumCompact();
+        arm.ArmCompact();
+        lifter.LifterCompact();
+    }
 
-            arm.rotationservo.setPosition(0);
-        }
+    private void initialize() {
+        drivetrain = new LucasMecanum(hardwareMap,telemetry);
+        arm = new Arm(hardwareMap);
+        lifter = new Lifter(hardwareMap, telemetry);
+
+        arm.rotationservo.setPosition(0);
+    }
 
 }

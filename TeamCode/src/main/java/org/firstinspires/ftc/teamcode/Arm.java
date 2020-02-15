@@ -35,7 +35,7 @@ public class Arm {
         extendermotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void Horizontal(double input) {
+    public void Horizontal(float input) {
 
         extendermotor.setPower(input);
     }
@@ -66,7 +66,7 @@ public class Arm {
     }
 
     private void Rotate(Gamepad gamepad) {
-        if (extendermotor.getCurrentPosition() <= -1793) {
+        if (extendermotor.getCurrentPosition() <= 0) {
             if (gamepad.right_trigger >= .5) {
                 Rtrigispressed = true;
             }
@@ -97,5 +97,13 @@ public class Arm {
         Horizontal(gamepad.left_stick_y);
         Grab(gamepad.right_bumper);
         Rotate(gamepad);
+    }
+
+    public void ArmCompact() {
+        rotationservo.setPosition(0);
+
+        extendermotor.setTargetPosition(0);
+        extendermotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extendermotor.setPower(1);
     }
 }

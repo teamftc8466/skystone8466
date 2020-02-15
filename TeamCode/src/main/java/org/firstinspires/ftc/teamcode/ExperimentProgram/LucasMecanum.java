@@ -200,8 +200,8 @@ public class LucasMecanum {
 
         if (Math.abs(gamepad.left_stick_y) < .1 && Math.abs(gamepad.left_stick_x) < .1) {
             frontLeftPower = -turn;
-            backLeftPower = -turn; //back
-            frontRightPower = turn;
+            backLeftPower = turn; //back
+            frontRightPower = -turn;
             backRightPower = turn; //back
         }
         else {
@@ -258,4 +258,8 @@ public class LucasMecanum {
 
     }
 
+    public void MechanumCompact() {
+        servoL.setPosition(.7);
+        servoR.setPosition(.4);
+    }
 }

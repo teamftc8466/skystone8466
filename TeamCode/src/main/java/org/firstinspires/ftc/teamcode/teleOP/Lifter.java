@@ -12,12 +12,12 @@ public class Lifter {
     private int holdpositionL = -1;
     private int holdpositionR = -1;
     private boolean isholding = false;
-    private static final int MIN_HOLD_POSITION = 238;
+    private static final int MIN_HOLD_POSITION = -300;
     private Telemetry telemetry = null;
-    private static final int MAX_POSITION = 2160;
+    private static final int MAX_POSITION = -2160;
     private static final int MIN_POSITION = 100;
 
-    private int readyDrop = 525;
+    private int readyDrop = -525;
     private int driverheight = 0;
 
 
@@ -102,10 +102,10 @@ public class Lifter {
     private int SetHeight(boolean inc, boolean dec) {
         int changeInEncoders = -200; // test if this is the height of the increment/decrement
 
-        if (inc) {
+        if (inc && motorL.getCurrentPosition()>MAX_POSITION-changeInEncoders+50) {
             readyDrop -= changeInEncoders;
         }
-        if (dec && readyDrop <= 38) {
+        if (dec && readyDrop <= -38) {
             readyDrop += changeInEncoders;
         }
 

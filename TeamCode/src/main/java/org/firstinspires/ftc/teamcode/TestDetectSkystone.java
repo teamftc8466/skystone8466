@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name = "TestDetectSkystone", group = "FS")
-@Disabled
+
 public class TestDetectSkystone extends RobotHardware {
     public boolean isRedteam = true;
     @Override

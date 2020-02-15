@@ -14,7 +14,7 @@ public class Lifter {
     private boolean isholding = false;
     private static final int MIN_HOLD_POSITION = -300;
     private Telemetry telemetry = null;
-    private static final int MAX_POSITION = 2160;
+    private static final int MAX_POSITION = 2300;
     private static final int MIN_POSITION = 100;
 
     private int readyDrop = -525;
@@ -28,8 +28,6 @@ public class Lifter {
         motorL.setDirection(DcMotorSimple.Direction.FORWARD);
         motorR.setDirection(DcMotorSimple.Direction.REVERSE);
         this.telemetry = telemetry;
-        motorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         motorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -100,10 +98,10 @@ public class Lifter {
 
     private int SetHeight(boolean inc, boolean dec) {
 
-        if (inc && motorL.getCurrentPosition()>MAX_POSITION-changeInEncoders+50) {
+        if (inc && Math.abs(readyDrop)<MAX_POSITION-Math.abs(changeInEncoders)) {
             readyDrop -= changeInEncoders;
         }
-        if (dec && readyDrop <= -38) {
+        if (dec && Math.abs(readyDrop)>(38+Math.abs(changeInEncoders))) {
             readyDrop += changeInEncoders;
         }
 

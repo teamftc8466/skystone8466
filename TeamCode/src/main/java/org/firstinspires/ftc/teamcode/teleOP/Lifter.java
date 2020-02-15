@@ -122,9 +122,6 @@ public class Lifter {
         isholding = false;
     }
 
-    private void AutoCollect() {
-
-    }
 
     public void ExtendedFunction(Gamepad gamepad) {
         driverheight = SetHeight(gamepad.dpad_up, gamepad.dpad_down);
@@ -136,6 +133,25 @@ public class Lifter {
         motorL.setTargetPosition(0);
         motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorR.setTargetPosition(0);
+        motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorL.setPower(1);
+        motorR.setPower(1);
+    }
+
+
+    public void RaiseToCollectHeight() {
+        motorL.setTargetPosition(200);
+        motorR.setTargetPosition(200);
+        motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorL.setPower(1);
+        motorR.setPower(1);
+    }
+
+    public void LowerToCollectHeight() {
+        motorL.setTargetPosition(200);
+        motorR.setTargetPosition(200);
+        motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorL.setPower(1);
         motorR.setPower(1);

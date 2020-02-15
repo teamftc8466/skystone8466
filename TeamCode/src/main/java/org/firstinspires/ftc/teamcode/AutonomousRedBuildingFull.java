@@ -16,9 +16,10 @@ As of 2/8/2020, this autonomous program:
 */
 
 // TODO: This program has not been tested.
+// DO NOT USE THIS PROGRAM!
 
 @Autonomous(name = "RedBuildingFull", group = "FS")
-// @Disabled
+@Disabled
 public class AutonomousRedBuildingFull extends AutonomousCommon {
     AutoOperation [] opBlueLoading= {
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),

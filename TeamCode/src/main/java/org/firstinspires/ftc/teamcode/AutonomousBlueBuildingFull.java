@@ -15,10 +15,11 @@ As of 2/9/2020, this autonomous program:
 6. Parks underneath the bridge
 */
 
-// TODO: This program has not been tested.
+// TODO: This programhas not been debugged nor tested.
+// DO NOT USE THIS PROGRAM!
 
 @Autonomous(name = "BlueBuildingFull", group = "FS")
-// @Disabled
+@Disabled
 public class AutonomousBlueBuildingFull extends AutonomousCommon {
     AutoOperation [] opBlueLoading= {
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),

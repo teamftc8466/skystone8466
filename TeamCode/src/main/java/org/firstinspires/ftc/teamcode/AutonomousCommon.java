@@ -26,6 +26,8 @@ public class AutonomousCommon extends RobotHardware {
     double currOpStartTime_ = 0.0;      // Start time to run current opcode
 
     boolean isRedTeam_ = true;          // This variable is for turning direction purposes
+
+    boolean useTensorFlowToDetectSkystone_ = true;
     int firstSkystonePos_ = -1;         // Skystone position is determined by TensorFlow. The -1 represents that the position of the Skystone is unknown because, as explained below, the detected Skystone can only be in positions 0, 1, or 2.
                                         // If the TensorFlow program returns a 0, the Skystone is the first farthest from the wall that the blocks are aligned against at a right angle
                                         // If the TensorFlow program returns a 1, the Skystone is the second farthest from the said wall.
@@ -77,7 +79,10 @@ public class AutonomousCommon extends RobotHardware {
         super.initializeAutonomous();
 
         // Activate Tfod for detecting skystone
-        if (getDetectSkystone() != null) getDetectSkystone().setupTfod();
+        if (useTensorFlowToDetectSkystone_ == true &&
+                getDetectSkystone() != null) {
+            getDetectSkystone().setupTfod();
+        }
 
         if (getImu() == null) {
             useImu_ = false;

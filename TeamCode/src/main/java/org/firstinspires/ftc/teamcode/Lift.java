@@ -168,10 +168,11 @@ public class Lift {
             if (set_power > power_val) set_power = power_val;
 
             final int enc_diff = encoderCntForTargetPosition_ - curr_enc_pos_motor_right;
-            /* if (encoderCntForTargetPosition_ >= ENCODER_CNT_FOR_USE_FULL_LIFT_POWER) {
-                if (used_time > 0.5) set_power = power_val;
-            } else */
-            if (enc_diff < 10) {
+            if (encoderCntForTargetPosition_ >= ENCODER_CNT_FOR_USE_FULL_LIFT_POWER) {
+                if (enc_diff < 75) {
+                    if (set_power > 0.3) set_power = 0.3;
+                }
+            } else if (enc_diff < 10) {
                 if (set_power > 0.05) set_power = 0.05;
             } else if (enc_diff < 50) {
                 if (set_power > 0.2) set_power = 0.2;

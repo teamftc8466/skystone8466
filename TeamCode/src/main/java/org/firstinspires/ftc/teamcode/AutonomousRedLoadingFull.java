@@ -66,6 +66,7 @@ public class AutonomousRedLoadingFull extends AutonomousCommon {
 
     @Override
     public void runOpMode() {
+        useTensorFlowToDetectSkystone_ = true;
         useImu_ = true;
         controlTurnDegreeByEncoderCnt_ = false;
         autoCorrectHeadingDuringDriving_ = true;

@@ -62,6 +62,7 @@ public class AutonomousBlueLoadingFull extends AutonomousCommon {
 
     @Override
     public void runOpMode() {
+        useTensorFlowToDetectSkystone_ = true;
         useImu_ = true;
         controlTurnDegreeByEncoderCnt_ = true;
         autoCorrectHeadingDuringDriving_ = true;

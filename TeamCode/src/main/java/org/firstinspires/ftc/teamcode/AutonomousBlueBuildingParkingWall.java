@@ -30,6 +30,7 @@ public class AutonomousBlueBuildingParkingWall extends AutonomousCommon {
 
     @Override
     public void runOpMode() {
+        useTensorFlowToDetectSkystone_ = false;
         useImu_ = true;
         controlTurnDegreeByEncoderCnt_ = true;
         autoCorrectHeadingDuringDriving_ = true;

@@ -20,7 +20,7 @@ public class Lifter {
     private int readyDrop = -525;
     private int driverheight = 0;
 
-
+    //Constructer, sets up code and gets the two motors w/ telemetry
     public Lifter(HardwareMap hwm, Telemetry telemetry) {
         this.motorL = hwm.dcMotor.get("motorLiftLeft");
         this.motorR = hwm.dcMotor.get("motorLiftRight");
@@ -33,7 +33,7 @@ public class Lifter {
         motorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
-
+    //Method for driving up tests if its less than max position
     public void driveup (double power){
         if (Math.abs(motorR.getCurrentPosition())< MAX_POSITION){
             motorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -83,10 +83,10 @@ public class Lifter {
             isholding = true;
         }
         if (isholding == true) {
-            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motorL.setTargetPosition(holdpositionL);
-            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motorR.setTargetPosition(holdpositionR);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motorL.setPower(.5);
             motorR.setPower(.5);
         }
@@ -116,10 +116,10 @@ public class Lifter {
 
     private void GoToDriveHeight(int dh, Gamepad gamepad) {
         if (gamepad.a) {
-            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motorL.setTargetPosition(dh);
-            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motorR.setTargetPosition(dh);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motorL.setPower(1);
             motorR.setPower(1);
         }

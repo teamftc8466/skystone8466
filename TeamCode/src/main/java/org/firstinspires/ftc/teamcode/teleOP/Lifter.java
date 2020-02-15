@@ -19,7 +19,7 @@ public class Lifter {
 
     private int readyDrop = -525;
     private int driverheight = 0;
-    private final int changeInEncoders = -200; // test if this is the height of the increment/decrement
+    private final int changeInEncoders = 200; // test if this is the height of the increment/decrement
 
     //Constructer, sets up code and gets the two motors w/ telemetry
     public Lifter(HardwareMap hwm, Telemetry telemetry) {
@@ -101,7 +101,7 @@ public class Lifter {
         if (inc && Math.abs(readyDrop)<MAX_POSITION-Math.abs(changeInEncoders)) {
             readyDrop -= changeInEncoders;
         }
-        if (dec && Math.abs(readyDrop)>(38+Math.abs(changeInEncoders))) {
+        if (dec && Math.abs(readyDrop)>(50+Math.abs(changeInEncoders))) {
             readyDrop += changeInEncoders;
         }
 

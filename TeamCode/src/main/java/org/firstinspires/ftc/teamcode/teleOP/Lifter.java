@@ -36,7 +36,7 @@ public class Lifter {
     }
     //Method for driving up tests if its less than max position
     public void driveup (double power){
-        if (Math.abs(motorR.getCurrentPosition())< MAX_POSITION){
+        if (Math.abs(motorR.getCurrentPosition())> MAX_POSITION){
             motorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorL.setPower(power);
@@ -45,7 +45,7 @@ public class Lifter {
     }
 
     public void drivedown (double power){
-        if (Math.abs(motorL.getCurrentPosition())> MIN_POSITION){
+        if (Math.abs(motorL.getCurrentPosition())< MIN_POSITION){
             motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorR.setPower(power);
@@ -66,7 +66,6 @@ public class Lifter {
             isholding = false;
         }
 
-        telem();
     }
 
     public void holdposition(){
@@ -91,13 +90,11 @@ public class Lifter {
             motorL.setPower(.5);
             motorR.setPower(.5);
         }
-        telem();
     }
 
     public void telem() {
         telemetry.addData("Lifter L", motorL.getCurrentPosition());
         telemetry.addData("Lifter R", motorR.getCurrentPosition());
-        telemetry.update();
     }
 
     private int SetHeight(boolean inc, boolean dec) {

@@ -22,8 +22,11 @@ public class LifterTeleOp extends OpMode {
         if (Math.abs(gamepad2.right_stick_y) > .1) {
             lifter.manualdrive(gamepad2.right_stick_y);
         }
-        else {
+        else if (gamepad2.a == false) {
             lifter.holdposition();
+        }
+        else if (gamepad2.a) {
+            lifter.ExtendedFunction(gamepad2);
         }
     }
 }

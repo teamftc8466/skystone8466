@@ -14,7 +14,7 @@ public class Lifter {
     private boolean isholding = false;
     private static final int MIN_HOLD_POSITION = -300;
     private Telemetry telemetry = null;
-    private static final int MAX_POSITION = -2160;
+    private static final int MAX_POSITION = 2160;
     private static final int MIN_POSITION = 100;
 
     private int readyDrop = -525;
@@ -36,7 +36,7 @@ public class Lifter {
     }
     //Method for driving up tests if its less than max position
     public void driveup (double power){
-        if (Math.abs(motorR.getCurrentPosition())> MAX_POSITION){
+        if (Math.abs(motorR.getCurrentPosition())< MAX_POSITION){
             motorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorL.setPower(power);
@@ -45,7 +45,7 @@ public class Lifter {
     }
 
     public void drivedown (double power){
-        if (Math.abs(motorL.getCurrentPosition())< MIN_POSITION){
+        if (Math.abs(motorR.getCurrentPosition())> MIN_POSITION){
             motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorR.setPower(power);
@@ -58,13 +58,14 @@ public class Lifter {
     }
     public void manualdrive(float power){
         if (power >=.1){
-            drivedown(.5 * power );
+            drivedown(power );
             isholding = false;
         }
         else if (power<=-.1){
             driveup(power);
             isholding = false;
         }
+
 
     }
 

@@ -28,5 +28,7 @@ public class LifterTeleOp extends OpMode {
         else if (gamepad2.a) {
             lifter.ExtendedFunction(gamepad2);
         }
+        lifter.telem();
+        telemetry.update();
     }
 }

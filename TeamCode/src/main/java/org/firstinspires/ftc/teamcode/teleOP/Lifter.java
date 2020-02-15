@@ -27,6 +27,9 @@ public class Lifter {
         this.telemetry = telemetry;
         motorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        motorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public void manualdrive(float power){
         motorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -87,8 +90,12 @@ public class Lifter {
 
     private void GoToDriveHeight(int dh, Gamepad gamepad) {
         if (gamepad.a) {
-            motorR.setTargetPosition(dh);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motorL.setTargetPosition(dh);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setTargetPosition(dh);
+            motorL.setPower(1);
+            motorR.setPower(1);
         }
         isholding = false;
     }

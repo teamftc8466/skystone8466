@@ -19,6 +19,7 @@ public class Lifter {
 
     private int readyDrop = -525;
     private int driverheight = 0;
+    private final int changeInEncoders = -200; // test if this is the height of the increment/decrement
 
     //Constructer, sets up code and gets the two motors w/ telemetry
     public Lifter(HardwareMap hwm, Telemetry telemetry) {
@@ -100,7 +101,6 @@ public class Lifter {
     }
 
     private int SetHeight(boolean inc, boolean dec) {
-        int changeInEncoders = -200; // test if this is the height of the increment/decrement
 
         if (inc && motorL.getCurrentPosition()>MAX_POSITION-changeInEncoders+50) {
             readyDrop -= changeInEncoders;
@@ -134,5 +134,14 @@ public class Lifter {
         driverheight = SetHeight(gamepad.dpad_up, gamepad.dpad_down);
         GoToDriveHeight(driverheight, gamepad);
         //AutoCollect();
+    }
+
+    public void LifterCompact() {
+        motorL.setTargetPosition(0);
+        motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorR.setTargetPosition(0);
+        motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motorL.setPower(1);
+        motorR.setPower(1);
     }
 }

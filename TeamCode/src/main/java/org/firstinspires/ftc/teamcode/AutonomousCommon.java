@@ -99,7 +99,8 @@ public class AutonomousCommon extends RobotHardware {
             grabber_.enforceCraneDrawBackToEnd(0.4, timer_, 2.5);
         }
     }
-
+    int[] arr = {0,0,0};
+    int arraynumber = -1;
     public synchronized void detectFirstSkystoneAndWaitForStart() {
         while (!isStarted()) {
             synchronized (this) {
@@ -109,9 +110,9 @@ public class AutonomousCommon extends RobotHardware {
                             int det_pos = getDetectSkystone().detectSkystone(isRedTeam_, true);
                             if (det_pos >= 0) {
                                 firstSkystonePos_ = det_pos;
+                                arraynumber++;
                             }
                         }
-
                         telemetry.addData("Waiting for Start: ",
                                 "First_Skystone_Position=" + String.valueOf(firstSkystonePos_) +
                                         " Tfod_Active=" + String.valueOf(getDetectSkystone().existTfod()));

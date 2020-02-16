@@ -40,9 +40,16 @@ public class Arm {
     }
 
     public void AutoCollectHorizontal() {
-        extendermotor.setTargetPosition(-1249);
-        extendermotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendermotor.setPower(1);
+        if (extendermotor.getCurrentPosition() >= extendermotor.getTargetPosition()) {
+            extendermotor.setTargetPosition(-1249);
+            extendermotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            extendermotor.setPower(-1);
+        }
+        else {
+            extendermotor.setTargetPosition(-1249);
+            extendermotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            extendermotor.setPower(1);
+        }
     }
 
     private void Grab(boolean input) {
@@ -110,6 +117,6 @@ public class Arm {
         extendermotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extendermotor.setTargetPosition(0);
         extendermotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendermotor.setPower(1);
+        extendermotor.setPower(i1);
     }
 }

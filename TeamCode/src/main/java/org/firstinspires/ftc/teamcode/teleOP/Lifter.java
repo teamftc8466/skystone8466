@@ -20,6 +20,8 @@ public class Lifter {
     public int readyDrop = -500;
     private int driverheight = 0;
     private final int changeInEncoders = 200; // test if this is the height of the increment/decrement
+    private boolean upispressed = false;
+    private boolean downispressed = false;
 
     //Constructer, sets up code and gets the two motors w/ telemetry
     public Lifter(HardwareMap hwm, Telemetry telemetry) {
@@ -97,11 +99,22 @@ public class Lifter {
     }
 
     public int SetHeight(boolean inc, boolean dec) {
+        if (inc) {
+            upispressed = true;
+        }
 
-        if (inc && Math.abs(readyDrop)<(MAX_POSITION-changeInEncoders)) {
+        if (inc == false && Math.abs(readyDrop)<(MAX_POSITION-changeInEncoders) && upispressed) {
             readyDrop -= changeInEncoders;
         }
-        if (dec && Math.abs(readyDrop)>changeInEncoders) {
+
+
+
+
+        if (dec) {
+            downispressed = true;
+        }
+
+        if (dec == false && Math.abs(readyDrop)>changeInEncoders && downispressed) {
             readyDrop += changeInEncoders;
         }
 
@@ -111,11 +124,24 @@ public class Lifter {
 
     public void GoToDriveHeight(Gamepad gamepad) {
         if (gamepad.a) {
-            motorL.setTargetPosition(readyDrop);
-            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorL.setPower(1);
-            motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            motorR.setPower(1);
+            if (motorL.getCurrentPosition() <= motorL.getTargetPosition()) {
+                motorL.setTargetPosition(readyDrop);
+                motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motorR.setTargetPosition(readyDrop);
+                motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motorL.setPower(1);
+                motorR.setPower(1);
+            }
+
+            else {
+                motorL.setTargetPosition(readyDrop);
+                motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motorR.setTargetPosition(readyDrop);
+                motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                motorL.setPower(-1);
+                motorR.setPower(-1);
+            }
+
         }
         if (motorL.getCurrentPosition() == motorL.getTargetPosition()) {
             motorL.setPower(0);
@@ -125,11 +151,12 @@ public class Lifter {
     }
 
     public void LifterCompact() {
-        motorL.setTargetPosition(0);
-        motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorL.setPower(1);
-        motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorR.setPower(1);
+            motorL.setTargetPosition(0);
+            motorR.setTargetPosition(0);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorL.setPower(1);
+            motorR.setPower(1);
         if (motorL.getCurrentPosition() == motorL.getTargetPosition()) {
             motorL.setPower(0);
             motorR.setPower(0);
@@ -139,11 +166,22 @@ public class Lifter {
 
 
     public void RaiseToCollectHeight() {
-        motorL.setTargetPosition(-400);
-        motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorL.setPower(1);
-        motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorR.setPower(1);
+        if (motorL.getCurrentPosition() <= motorL.getTargetPosition()) {
+            motorL.setTargetPosition(-400);
+            motorR.setTargetPosition(-400);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorL.setPower(1);
+            motorR.setPower(1);
+        }
+        else {
+            motorL.setTargetPosition(-400);
+            motorR.setTargetPosition(-400);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorL.setPower(-1);
+            motorR.setPower(-1);
+        }
         if (motorL.getCurrentPosition() == motorL.getTargetPosition()) {
             motorL.setPower(0);
             motorR.setPower(0);
@@ -152,11 +190,22 @@ public class Lifter {
     }
 
     public void LowerToCollectHeight() {
-        motorL.setTargetPosition(-140);
-        motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motorL.setPower(1);
-        motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorR.setPower(1);
+        if (motorL.getCurrentPosition() <= motorL.getTargetPosition()) {
+            motorL.setTargetPosition(-140);
+            motorR.setTargetPosition(-140);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorL.setPower(1);
+            motorR.setPower(1);
+        }
+        else {
+            motorL.setTargetPosition(-140);
+            motorR.setTargetPosition(-140);
+            motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorL.setPower(-1);
+            motorR.setPower(-1);
+        }
         if (motorL.getCurrentPosition() == motorL.getTargetPosition()) {
             motorL.setPower(0);
             motorR.setPower(0);

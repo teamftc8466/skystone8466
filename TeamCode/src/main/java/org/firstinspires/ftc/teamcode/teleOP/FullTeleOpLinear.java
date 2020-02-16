@@ -24,6 +24,8 @@ public class FullTeleOpLinear extends LinearOpMode {
 
         waitForStart();
 
+        arm.rotationservo.setPosition(0);
+
         while (opModeIsActive()) {
             super.resetStartTime();
 
@@ -98,8 +100,6 @@ public class FullTeleOpLinear extends LinearOpMode {
         drivetrain = new LucasMecanum(hardwareMap,telemetry);
         arm = new Arm(hardwareMap);
         lifter = new Lifter(hardwareMap, telemetry);
-
-        arm.rotationservo.setPosition(0);
     }
 
 }

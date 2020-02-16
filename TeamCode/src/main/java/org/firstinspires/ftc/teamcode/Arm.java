@@ -31,7 +31,7 @@ public class Arm {
 
         extendermotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        extendermotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //extendermotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void Horizontal(float input) {

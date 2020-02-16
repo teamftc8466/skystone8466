@@ -31,8 +31,8 @@ public class Lifter {
         motorR.setDirection(DcMotorSimple.Direction.REVERSE);
         this.telemetry = telemetry;
 
-        motorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //motorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //motorR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     //Method for driving up tests if its less than max position
     public void driveup (double power){

@@ -7,7 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 // @Disabled
 public class TeleOpCommon extends RobotHardware {
     final double JOY_STICK_DEAD_ZONE = 0.1;
-
+    
+    int grabCnt = 0;
     boolean enableShowGamepadInfo_ = false;              // For debug purpose. Turn this off afterward.
     boolean enableShowDriveTrainInfo_ = false;
     boolean enableShowLiftInfo_ = false;
@@ -64,15 +65,15 @@ public class TeleOpCommon extends RobotHardware {
         initializeTeleOp();
 
         timer_.reset();
-        if (grabber_ != null) {
-            grabber_.enforceCraneDrawBackToEnd(0.4, timer_, 2.5);
-        }
     }
 
     void initializeWhenStart() {
         timer_.reset();
         currTime_ = 0.0;
 
+        if (grabber_ != null) {
+            grabber_.enforceCraneDrawBackToEnd(0.8, timer_, 1);
+        }
         driveTrain_.resetEncoder(0);
     }
 
@@ -211,8 +212,8 @@ public class TeleOpCommon extends RobotHardware {
         switch (pressed_button_in_gamepad_2) {
             case LEFT_BUMPER:
                 if (grabber_ != null) {
-                    int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.LEFT_BUMPER);
-                    if ((cnt % 2) != 0) {
+                    grabCnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.LEFT_BUMPER);
+                    if ((grabCnt % 2) != 0) {
                         grabber_.clampClose();
 
                         // Disable to move to catch stone ready position in order to allow clamp close
@@ -257,6 +258,7 @@ public class TeleOpCommon extends RobotHardware {
                 }
                 break;
             case B:
+                grabCnt++;
                 if (enforceToDrawbackCraneToEnd_ == true) break;
 
                 if (activatedCtlGrabberCraneByJoystick_ == true ||

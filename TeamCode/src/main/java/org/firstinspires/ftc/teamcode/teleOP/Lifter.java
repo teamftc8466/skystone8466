@@ -17,9 +17,9 @@ public class Lifter {
     private static final int MAX_POSITION = 2300;
     private static final int MIN_POSITION = 0;
 
-    public int readyDrop = -415;
+    public int readyDrop = -500;
     private int driverheight = 0;
-    private final int changeInEncoders = 190; // test if this is the height of the increment/decrement
+    private final int changeInEncoders = 200; // test if this is the height of the increment/decrement
 
     //Constructer, sets up code and gets the two motors w/ telemetry
     public Lifter(HardwareMap hwm, Telemetry telemetry) {
@@ -139,7 +139,7 @@ public class Lifter {
 
 
     public void RaiseToCollectHeight() {
-        motorL.setTargetPosition(-500);
+        motorL.setTargetPosition(-400);
         motorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         motorL.setPower(1);
         motorR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

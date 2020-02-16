@@ -41,13 +41,14 @@ public class FullTeleOpLinear extends LinearOpMode {
             if (Math.abs(gamepad2.right_stick_y) > .1) {
                 lifter.manualdrive(gamepad2.right_stick_y);
             }
-            else if (gamepad2.a == false) {
+            else if (gamepad2.a == false && lifter.isholding == false) {
                 lifter.holdposition();
             }
             else if (gamepad2.a) {
-                lifter.ExtendedFunction(gamepad2);
+                lifter.GoToDriveHeight(gamepad2);
             }
 
+            lifter.SetHeight(gamepad2.dpad_up, gamepad2.dpad_down);
             if (gamepad1.y) {
                 Compaction();
             }
@@ -66,30 +67,29 @@ public class FullTeleOpLinear extends LinearOpMode {
             telemetry.addData("Rhook: ", drivetrain.servoR.getPosition());
             telemetry.addData("Rotation time: ", arm.rotationservo.getPosition());
             telemetry.addData("horizonatal: ", arm.extendermotor.getCurrentPosition());
+            telemetry.addData("readydrop: ", lifter.readyDrop);
             telemetry.update();
-
-            sleep(100);
         }
     }
 
     private void Compaction() {
-        drivetrain.MechanumCompact();
-        arm.ArmCompact();
-        lifter.LifterCompact();
+            drivetrain.MechanumCompact();
+            arm.ArmCompact();
+            lifter.LifterCompact();
     }
 
     private void AutoCollect() {
         if (gamepad2.b && autocollect == false) {
             lifter.RaiseToCollectHeight();
-            arm.AutoCollectHorizontal();
             arm.grabbingservo.setPosition(.1);
+            arm.AutoCollectHorizontal();
             autocollect = true;
         }
 
         if (gamepad2.b == false && autocollect) {
             lifter.LowerToCollectHeight();
-            sleep(10);
             arm.grabbingservo.setPosition(.5);
+            arm.open = 0;
             autocollect = false;
         }
     }

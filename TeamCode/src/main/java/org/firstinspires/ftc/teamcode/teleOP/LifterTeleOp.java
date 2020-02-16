@@ -26,8 +26,9 @@ public class LifterTeleOp extends OpMode {
             lifter.holdposition();
         }
         else if (gamepad2.a) {
-            lifter.ExtendedFunction(gamepad2);
+            lifter.GoToDriveHeight(gamepad2);
         }
+        lifter.SetHeight(gamepad2.dpad_up, gamepad2.dpad_down);
         lifter.telem();
         telemetry.update();
     }

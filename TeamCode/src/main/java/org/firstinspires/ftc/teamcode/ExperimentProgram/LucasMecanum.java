@@ -189,20 +189,31 @@ public class LucasMecanum {
     }
 
     public void omniMecanumDrive(Gamepad gamepad) {
-        double hypotenuse = Math.sqrt(gamepad.left_stick_y*gamepad.left_stick_y+gamepad.left_stick_x*gamepad.left_stick_x);
-        double angle = Math.atan2(gamepad.left_stick_y , gamepad.left_stick_x);
-        double turn = gamepad.right_stick_x;
-        omnimecanumdrivepowers(hypotenuse, angle, turn, gamepad);
+        double hypotenuse = Math.sqrt(gamepad.left_stick_y*gamepad.left_stick_y+gamepad.right_stick_x*gamepad.right_stick_x);
+        double angle = Math.atan2(gamepad.left_stick_y , gamepad.right_stick_x);
+        double turn = gamepad.left_stick_x;
+        if (gamepad.right_trigger >= .5) {
+            omnimecanumdrivepowers(hypotenuse*.25, angle, turn*.25, gamepad);
+        }
+        else {
+            omnimecanumdrivepowers(hypotenuse, angle, turn, gamepad);
+        }
     }
 
     private void omnimecanumdrivepowers(double power, double angle, double turn, Gamepad gamepad) {
         Float();
 
-        if (Math.abs(gamepad.left_stick_y) < .1 && Math.abs(gamepad.left_stick_x) < .1) {
+        if (Math.abs(gamepad.left_stick_y) < .1 && Math.abs(gamepad.right_stick_x) < .1) {
             frontLeftPower = -turn;
-            backLeftPower = turn; //back
-            frontRightPower = turn;
+            backLeftPower = -turn; //back
+            frontRightPower = -turn;
             backRightPower = -turn; //back
+        }
+        else if (Math.abs(gamepad.right_stick_x) <= .1 && Math.abs(gamepad.left_stick_x) <= .1) {
+            frontLeftPower = gamepad.left_stick_y;
+            backLeftPower = gamepad.left_stick_y;
+            frontRightPower = gamepad.left_stick_y;
+            backRightPower = gamepad.left_stick_y;
         }
         else {
             frontLeftPower = (power * Math.cos(angle - (Math.PI / 4)) + Math.cos(angle) * turn);

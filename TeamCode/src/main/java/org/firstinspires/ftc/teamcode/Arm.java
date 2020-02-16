@@ -15,7 +15,7 @@ public class Arm {
     public Servo rotationservo;
     public Servo grabbingservo;
 
-    private int open = 0;//0 = open for the state of the servo
+    public int open = 0;//0 = open for the state of the servo
 
     private boolean Rtrigispressed = false;
     private int angle = 1;
@@ -35,12 +35,12 @@ public class Arm {
     }
 
     public void Horizontal(float input) {
-        extendermotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        extendermotor.setPower(input);
+            extendermotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            extendermotor.setPower(input);
     }
 
     public void AutoCollectHorizontal() {
-        extendermotor.setTargetPosition(200);
+        extendermotor.setTargetPosition(-1249);
         extendermotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         extendermotor.setPower(1);
     }
@@ -71,7 +71,7 @@ public class Arm {
     }
 
     private void Rotate(Gamepad gamepad) {
-        if (extendermotor.getCurrentPosition() <= 0) {
+        if (extendermotor.getCurrentPosition() <= -1774) {
             if (gamepad.right_trigger >= .5) {
                 Rtrigispressed = true;
             }
@@ -100,7 +100,7 @@ public class Arm {
 
     public void FullFunction(Gamepad gamepad) {
         Horizontal(gamepad.left_stick_y);
-        Grab(gamepad.right_bumper);
+        Grab(gamepad.left_bumper);
         Rotate(gamepad);
     }
 

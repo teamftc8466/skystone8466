@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /*
 Notes
@@ -17,14 +16,14 @@ Please remember this so that the robot doesn't try to move 50 meters during test
 
 // TODO: This program has not been tested nor debugged.
 
-@Autonomous(name = "BlueBuildingParkingWall", group = "FS")
+@Autonomous(name = "RedBuildingParkingBridge", group = "FS")
 // @Disabled
-public class AutonomousBlueBuildingParkingWall extends AutonomousCommon {
-    AutoOperation [] opBlueBuilding= {
+public class AutonomousRedBuildingParkingBridge extends AutonomousCommon {
+    AutoOperation [] opRedBuilding= {
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),
-            new AutoOperation(AutoOperation.OpCode.OP_WAIT, 25),
-            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_FORWARD, 0.05),
-            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_RIGHT, 0.3),
+            new AutoOperation(AutoOperation.OpCode.OP_WAIT, 15),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_FORWARD, 0.62),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_LEFT, 0.3),
             new AutoOperation(AutoOperation.OpCode.OP_STOP, 0)
     };
 
@@ -37,8 +36,8 @@ public class AutonomousBlueBuildingParkingWall extends AutonomousCommon {
         // useShiftToDeliverStoneToFoundation_ = true;
         initLiftGrabberToCatchPosition_ = false;
 
-        opList_ = opBlueBuilding;
-        isRedTeam_ = false;         // Remember to set this variable to false for all blue side programs!
+        opList_ = opRedBuilding;
+        isRedTeam_ =true ;         // Remember to set this variable to false for all blue side programs!
         // grabFirstSkystone_ = blueGrabSecondSkystone_;
 
         super.runOpMode();

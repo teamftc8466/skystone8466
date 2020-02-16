@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /*
 Notes
@@ -17,13 +16,13 @@ Please remember this so that the robot doesn't try to move 50 meters during test
 
 // TODO: This program has not been tested nor debugged.
 
-@Autonomous(name = "BlueBuildingParkingWall", group = "FS")
+@Autonomous(name = "BlueBuildingParkingBridge", group = "FS")
 // @Disabled
-public class AutonomousBlueBuildingParkingWall extends AutonomousCommon {
+public class AutonomousBlueBuildingParkingBridge extends AutonomousCommon {
     AutoOperation [] opBlueBuilding= {
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_RESET_ENCODER, 0.1),
-            new AutoOperation(AutoOperation.OpCode.OP_WAIT, 25),
-            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_FORWARD, 0.05),
+            new AutoOperation(AutoOperation.OpCode.OP_WAIT, 15),
+            new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_FORWARD, 0.62),
             new AutoOperation(AutoOperation.OpCode.OP_DRIVE_TRAIN_SHIFT_RIGHT, 0.3),
             new AutoOperation(AutoOperation.OpCode.OP_STOP, 0)
     };

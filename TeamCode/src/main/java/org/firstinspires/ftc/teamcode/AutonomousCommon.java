@@ -271,6 +271,11 @@ public class AutonomousCommon extends RobotHardware {
             case OP_GRAB_STONE_READY_POSITION:
                 finish_flag = moveLiftAndGrabberToCatchStoneReadyPosition();
                 break;
+            case OP_DETECT_SKYSTONE:
+                finish_flag = detectSkyStoneDuringAutonomous(operand);
+                break;
+            case OP_DRIVE_SKYSTONE_CLOSE_TO_WALL:
+                finish_flag = driveToSkystoneCloseToWallAndPark();
             default:
                 finish_flag = true;
         }
@@ -532,7 +537,7 @@ public class AutonomousCommon extends RobotHardware {
         }
 
         grabber_.clampClose();
-        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_DELIVER_STONE);
+        grabber_.moveCraneToPosition(Grabber.CranePosition.CRANE_GRAB_STONE);
 
         // Wait for clamp fully close
         final double beg_clamp_close_time = timer_.time();
@@ -579,4 +584,44 @@ public class AutonomousCommon extends RobotHardware {
         final double used_time = timer_.time() - currOpStartTime_;
         return (used_time >= max_allowed_time);
     }
+
+    boolean detectSkyStoneDuringAutonomous(double time_limit) {
+        if (getDetectSkystone() == null) return true;
+
+        int det_pos = getDetectSkystone().detectSkystone(isRedTeam_, false);
+        if (det_pos >= 0) {
+            firstSkystonePos_ = det_pos;
+            return true;
+        }
+
+        double curr_time = timer_.time();
+        if ((curr_time - currOpStartTime_) >= time_limit) {
+            firstSkystonePos_ = 1; return true;
+        }
+
+        return false;
+    }
+
+    boolean driveToSkystoneCloseToWallAndPark() {
+        double shift_distance_to_align_with_skystone = grabFirstSkystone_[firstSkystonePos_][0];
+            runDriveTrainTillFinish(DriveTrainMode.SHIFT_LEFT,
+                    -shift_distance_to_align_with_skystone,
+                    true);
+
+
+        double drive_forward_to_skystone = grabFirstSkystone_[firstSkystonePos_][1];
+
+        runDriveTrainTillFinish(DriveTrainMode.FORWARD,
+                drive_forward_to_skystone,
+                true);
+
+        grabStone(0.5);
+
+        runDriveTrainTillFinish(DriveTrainMode.BACKWARD,
+                drive_forward_to_skystone,
+                true);
+
+        return true;
+    }
+
 }

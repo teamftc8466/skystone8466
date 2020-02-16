@@ -117,6 +117,6 @@ public class Arm {
         extendermotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extendermotor.setTargetPosition(0);
         extendermotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendermotor.setPower(i1);
+        extendermotor.setPower(1);
     }
 }

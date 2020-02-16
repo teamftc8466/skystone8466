@@ -236,7 +236,7 @@ public class TeleOpCommon extends RobotHardware {
                 }
 
                 if (activatedCtlLiftByJoystick_ == false) {
-                    if (lift_ != null) lift_.moveToPosition(Lift.Position.LIFT_GRAB_STONE_READY, currTime_);
+                    if (lift_ != null) lift_.moveToPosition(Lift.Position.LIFT_STONE_READY, currTime_);
                 }
 
                 allowAutoMoveToCatchStoneReadyPosition_ = (activatedCtlGrabberCraneByJoystick_ == true &&
@@ -248,7 +248,7 @@ public class TeleOpCommon extends RobotHardware {
                 if (enforceToDrawbackCraneToEnd_ == true) break;
 
                 if (grabber_ != null){
-                    int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.B);
+                    int cnt = gamepadButtons_.pressedButtonCount(GamepadButtons.GamepadId.PAD_2, GamepadButtons.Button.A);
                     if ((cnt % 2) != 0) grabber_.rotationOut();
                     else grabber_.rotationIn();
 

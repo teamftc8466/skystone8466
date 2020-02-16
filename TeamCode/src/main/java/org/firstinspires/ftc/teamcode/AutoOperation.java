@@ -23,7 +23,9 @@ public class AutoOperation {
         OP_LIFT_MOVE_TO_BOTTOM_POSITION,               // No operand needed
         OP_GRAB_STONE_READY_POSITION,                  // No operand needed
         OP_DROP_SKYSTONE_TO_FOUNDATION,                // One operand: time spent to drop skystone
-        OP_DROP_STONE_TO_GROUND                        // One operand: time spent to drop stone
+        OP_DROP_STONE_TO_GROUND,                        // One operand: time spent to drop stone
+        OP_DETECT_SKYSTONE,                             // One operand: time limit for detection of stone
+        OP_DRIVE_SKYSTONE_CLOSE_TO_WALL                    // no operand
     };
 
     private OpCode opcode_ = OpCode.OP_STOP;
